@@ -1,4 +1,5 @@
 import { createRoute, RouteHandler } from '@hono/zod-openapi'
+import { z } from '@hono/zod-openapi'
 import {
   SearchQuerySchema,
   SearchResponseSchema,
@@ -18,10 +19,19 @@ export const semanticSearchRoute = createRoute({
   method: 'get',
   path: '/search/semantic',
   request: {
-    query: SearchQuerySchema.pick({
-      query: true,
-      topK: true,
-      namespace: true
+    query: z.object({
+      query: z.string().min(1).openapi({
+        example: '検索クエリテキスト',
+        description: '検索するテキストクエリ'
+      }),
+      topK: z.string().optional().transform(v => v ? Number(v) : 10).pipe(z.number().int().min(1).max(100)).openapi({
+        example: '10',
+        description: '返す結果の最大数'
+      }),
+      namespace: z.string().optional().openapi({
+        example: 'default',
+        description: '検索する名前空間'
+      })
     })
   },
   responses: {
@@ -75,7 +85,7 @@ export const semanticSearchHandler: RouteHandler<typeof semanticSearchRoute, Env
     const searchResults = await vectorizeService.query(
       embedding,
       {
-        topK: query.topK || 10,
+        topK: query.topK,
         namespace: query.namespace,
         returnMetadata: true
       }

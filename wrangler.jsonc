@@ -2,7 +2,6 @@
   "name": "vector-db",
   "main": "src/index.ts",
   "compatibility_date": "2024-12-18",
-  
   // Vectorize設定
   "vectorize": [
     {
@@ -10,12 +9,10 @@
       "index_name": "vector-db-index"
     }
   ],
-
   // Workers AI設定
   "ai": {
     "binding": "AI"
   },
-
   // Durable Objects設定
   "durable_objects": {
     "bindings": [
@@ -24,7 +21,7 @@
         "class_name": "VectorManager"
       },
       {
-        "name": "AI_EMBEDDINGS", 
+        "name": "AI_EMBEDDINGS",
         "class_name": "AIEmbeddings"
       },
       {
@@ -33,7 +30,6 @@
       }
     ]
   },
-
   // Durable Objects Migrations
   "migrations": [
     {
@@ -45,7 +41,6 @@
       ]
     }
   ],
-
   // Workflows設定
   "workflows": [
     {
@@ -55,7 +50,7 @@
     },
     {
       "binding": "VECTOR_OPERATIONS_WORKFLOW",
-      "name": "vector-operations-workflow", 
+      "name": "vector-operations-workflow",
       "class_name": "VectorOperationsWorkflow"
     },
     {
@@ -69,16 +64,14 @@
       "class_name": "NotionSyncWorkflow"
     }
   ],
-
   // D1データベース設定
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "vector-db",
-      "database_id": "YOUR_DATABASE_ID"
+      "database_id": "4ebdd59e-bf1e-47df-b830-9b3a69bafdf4"
     }
   ],
-
   // 環境変数
   "vars": {
     "ENVIRONMENT": "development",
@@ -87,9 +80,9 @@
     "IMAGE_ANALYSIS_PROMPT": "Describe this image in detail. Include any text visible in the image.",
     "IMAGE_ANALYSIS_MAX_TOKENS": "512",
     "TEXT_EXTRACTION_MAX_TOKENS": "1024",
-    "NOTION_API_KEY": ""
+    "NOTION_API_KEY": "",
+    "TEST_MIGRATIONS": "./migrations"
   },
-
   // ローカル開発設定
   "dev": {
     "port": 8787,

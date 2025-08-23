@@ -18,7 +18,7 @@ export const retrieveNotionPageRoute = createRoute({
       pageId: z.string().min(1)
     }),
     query: z.object({
-      fromCache: z.string().optional().transform(val => val === 'true')
+      fromCache: z.string().optional().transform(val => val === 'true').default(false)
     })
   },
   responses: {
@@ -64,7 +64,7 @@ export const retrieveNotionPageRoute = createRoute({
 export const retrieveNotionPageHandler: RouteHandler<typeof retrieveNotionPageRoute, EnvType> = async (c) => {
   try {
     const { pageId } = c.req.valid('param')
-    const { fromCache = false } = c.req.valid('query')
+    const { fromCache } = c.req.valid('query')
     
     // Notion APIトークンを取得
     const notionToken = c.env.NOTION_API_KEY
@@ -144,13 +144,6 @@ export const retrieveNotionPageHandler: RouteHandler<typeof retrieveNotionPageRo
         success: true,
         data: pageData
       }, 200)
-    } else if (!page) {
-      // ページが見つからない場合（Notion APIからも取得できなかった）
-      return c.json<ErrorResponse, 404>({
-        success: false,
-        error: 'Not Found',
-        message: 'ページが見つかりません'
-      }, 404)
     } else {
       // Notion APIから直接取得したページ
       const apiPage = await notionService.fetchPageFromNotion(pageId)

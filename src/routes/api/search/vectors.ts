@@ -78,7 +78,7 @@ export const searchVectorsHandler: RouteHandler<typeof searchVectorsRoute, EnvTy
     const searchResults = await vectorizeService.query(
       embedding,
       {
-        topK: body.topK || 10,
+        topK: body.topK,
         namespace: body.namespace,
         filter: body.filter,
         returnMetadata: body.includeMetadata

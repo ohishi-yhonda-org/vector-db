@@ -48,13 +48,25 @@ export const listVectorsRoute = createRoute({
 // ベクトル一覧取得ハンドラー
 export const listVectorsHandler: RouteHandler<typeof listVectorsRoute, EnvType> = async (c) => {
   try {
-    // 注: Vectorizeは直接的な一覧取得APIを提供していないため、
-    // 実装では別の方法（例：メタデータストレージ）が必要
+    const { namespace, limit, cursor } = c.req.valid('query')
+    
+    // VectorManager Durable Objectを使用して一覧を取得
+    const vectorManagerId = c.env.VECTOR_CACHE.idFromName('default')
+    const vectorManager = c.env.VECTOR_CACHE.get(vectorManagerId)
+    
+    // ベクトル一覧を取得
+    const result = await vectorManager.listVectors({
+      namespace,
+      limit,
+      cursor
+    })
+    
     return c.json<VectorListResponse, 200>({
       success: true,
-      data: [],
-      count: 0,
-      message: 'ベクトル一覧取得機能は実装中です'
+      data: result.vectors || [],
+      count: result.count || 0,
+      cursor: result.nextCursor,
+      message: 'ベクトル一覧を取得しました'
     }, 200)
   } catch (error) {
     console.error('List vectors error:', error)

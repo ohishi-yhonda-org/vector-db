@@ -2,13 +2,29 @@ import { createRoute, RouteHandler } from '@hono/zod-openapi'
 import { ErrorResponseSchema, type ErrorResponse } from '../../../schemas/error.schema'
 import {
   GenerateEmbeddingSchema,
-  GenerateEmbeddingResponseSchema
+  GenerateEmbeddingResponseSchema,
+  type GenerateEmbedding,
+  type GenerateEmbeddingResponse
 } from '../../../schemas/embedding.schema'
 import { AIEmbeddings } from '@/durable-objects'
 
 // 環境の型定義
 type EnvType = {
   Bindings: Env
+}
+
+// 埋め込み生成ロジック
+export async function generateEmbedding(
+  params: GenerateEmbedding,
+  aiEmbeddings: DurableObjectStub<AIEmbeddings>
+): Promise<GenerateEmbeddingResponse> {
+  const result = await aiEmbeddings.generateEmbedding(params.text, params.model)
+  
+  return {
+    success: true,
+    data: result,
+    message: 'テキストの処理を開始しました'
+  }
 }
 
 // 埋め込み生成ルート
@@ -64,14 +80,8 @@ export const generateEmbeddingHandler: RouteHandler<typeof generateEmbeddingRout
     const aiEmbeddingsId = c.env.AI_EMBEDDINGS.idFromName('default')
     const aiEmbeddings = c.env.AI_EMBEDDINGS.get(aiEmbeddingsId)
 
-    const result = await aiEmbeddings.generateEmbedding(body.text, body.model)
-
-    // generateEmbedding with default parameters always returns async response
-    return c.json({
-      success: true,
-      data: result,
-      message: 'テキストの処理を開始しました'
-    }, 200)
+    const response = await generateEmbedding(body, aiEmbeddings)
+    return c.json(response, 200)
   } catch (error) {
     console.error('Embedding generation error:', error)
     return c.json<ErrorResponse, 500>({

@@ -80,17 +80,9 @@ export const uploadFileRoute = createRoute({
 export const uploadFileHandler: RouteHandler<typeof uploadFileRoute, EnvType> = async (c) => {
   try {
     const formData = await c.req.formData()
-    const file = formData.get('file') as File | null
+    const file = formData.get('file') as File
     const namespace = formData.get('namespace') as string | null
     const metadataStr = formData.get('metadata') as string | null
-
-    if (!file) {
-      return c.json<ErrorResponse, 400>({
-        success: false,
-        error: 'Bad Request',
-        message: 'ファイルが指定されていません'
-      }, 400)
-    }
 
     // ファイルサイズチェック (10MB)
     if (file.size > 10 * 1024 * 1024) {

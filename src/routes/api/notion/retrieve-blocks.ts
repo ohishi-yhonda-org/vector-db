@@ -18,7 +18,7 @@ export const retrieveNotionBlocksRoute = createRoute({
       pageId: z.string().min(1)
     }),
     query: z.object({
-      fromCache: z.string().optional().transform(val => val === 'true')
+      fromCache: z.string().optional().transform(val => val === 'true').default(false)
     })
   },
   responses: {
@@ -64,7 +64,7 @@ export const retrieveNotionBlocksRoute = createRoute({
 export const retrieveNotionBlocksHandler: RouteHandler<typeof retrieveNotionBlocksRoute, EnvType> = async (c) => {
   try {
     const { pageId } = c.req.valid('param')
-    const { fromCache = false } = c.req.valid('query')
+    const { fromCache } = c.req.valid('query')
     
     // Notion APIトークンを取得
     const notionToken = c.env.NOTION_API_KEY

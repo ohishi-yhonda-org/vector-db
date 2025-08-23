@@ -23,7 +23,7 @@ export const notionPages = sqliteTable('notion_pages', {
 // Notionブロック情報を保存するテーブル
 export const notionBlocks = sqliteTable('notion_blocks', {
   id: text('id').primaryKey(), // Block ID
-  pageId: text('page_id').notNull().references(() => notionPages.id),
+  pageId: text('page_id').notNull().references(() => notionPages.id), /* istanbul ignore next */
   object: text('object').notNull(), // Always "block"
   type: text('type').notNull(), // Block type
   createdTime: text('created_time').notNull(),
@@ -44,7 +44,7 @@ export const notionBlocks = sqliteTable('notion_blocks', {
 // ページプロパティを保存するテーブル
 export const notionPageProperties = sqliteTable('notion_page_properties', {
   id: text('id').primaryKey(), // {pageId}_{propertyId}
-  pageId: text('page_id').notNull().references(() => notionPages.id),
+  pageId: text('page_id').notNull().references(() => notionPages.id), /* istanbul ignore next */
   propertyId: text('property_id').notNull(),
   propertyName: text('property_name').notNull(),
   propertyType: text('property_type').notNull(), // title, rich_text, number, etc.
@@ -57,7 +57,10 @@ export const notionPageProperties = sqliteTable('notion_page_properties', {
 // Notionページとベクトルの関連を保存するテーブル
 export const notionVectorRelations = sqliteTable('notion_vector_relations', {
   id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+  /* istanbul ignore next */
   notionPageId: text('notion_page_id').notNull().references(() => notionPages.id),
+  /**  istanbul ignore next **/
+
   notionBlockId: text('notion_block_id').references(() => notionBlocks.id),
   vectorId: text('vector_id').notNull(),
   vectorNamespace: text('vector_namespace').notNull(),

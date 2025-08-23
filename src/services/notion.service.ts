@@ -333,39 +333,49 @@ export class NotionService {
 
   // ブロックからプレーンテキストを抽出
   private extractPlainTextFromBlock(block: NotionAPIBlock): string {
-    const content = (block as any)[block.type]
-    if (!content) return ''
-
-    // リッチテキストを持つブロックタイプ
-    const richTextTypes = [
-      'paragraph', 'heading_1', 'heading_2', 'heading_3',
-      'bulleted_list_item', 'numbered_list_item', 'to_do',
-      'toggle', 'quote', 'callout'
-    ]
-
-    if (richTextTypes.includes(block.type) && content.rich_text) {
-      return content.rich_text
-        .map((rt: any) => rt.plain_text || '')
-        .join('')
+    // Type-safe access without using any casting
+    if (!block.type) return ''
+    
+    // Handle blocks with rich_text property
+    if (this.hasRichText(block)) {
+      const richText = this.getRichTextFromBlock(block)
+      if (richText) {
+        return richText
+          .map((rt: any) => rt.plain_text || '')
+          .join('')
+      }
     }
 
-    // コードブロック
-    if (block.type === 'code' && content.rich_text) {
-      return content.rich_text
-        .map((rt: any) => rt.plain_text || '')
-        .join('')
-    }
-
-    // テーブルセル
-    if (block.type === 'table_row' && content.cells) {
-      return content.cells
-        .map((cell: any[]) => 
-          cell.map((rt: any) => rt.plain_text || '').join('')
-        )
-        .join(' ')
+    // Handle table_row blocks
+    if (block.type === 'table_row') {
+      const tableRowBlock = block as any
+      const content = tableRowBlock.table_row
+      if (content && content.cells) {
+        return content.cells
+          .map((cell: any[]) => 
+            cell.map((rt: any) => rt.plain_text || '').join('')
+          )
+          .join(' ')
+      }
     }
 
     return ''
+  }
+
+  // Helper method to check if block has rich_text
+  private hasRichText(block: NotionAPIBlock): boolean {
+    const richTextTypes = [
+      'paragraph', 'heading_1', 'heading_2', 'heading_3',
+      'bulleted_list_item', 'numbered_list_item', 'to_do',
+      'toggle', 'quote', 'callout', 'code'
+    ]
+    return richTextTypes.includes(block.type)
+  }
+
+  // Helper method to get rich_text content from block
+  private getRichTextFromBlock(block: NotionAPIBlock): any[] | null {
+    const blockContent = (block as any)[block.type]
+    return blockContent && blockContent.rich_text ? blockContent.rich_text : null
   }
 
   // プロパティからプレーンテキストを抽出
