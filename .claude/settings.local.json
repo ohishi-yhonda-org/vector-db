@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn typecheck)",
+      "Bash(yarn build)",
+      "Bash(wrangler types:*)",
+      "Bash(npx wrangler:*)"
+    ],
+    "deny": []
+  }
+}
