@@ -80,8 +80,7 @@
     "IMAGE_ANALYSIS_PROMPT": "Describe this image in detail. Include any text visible in the image.",
     "IMAGE_ANALYSIS_MAX_TOKENS": "512",
     "TEXT_EXTRACTION_MAX_TOKENS": "1024",
-    "NOTION_API_KEY": "",
-    "TEST_MIGRATIONS": "./migrations"
+    "NOTION_API_KEY": ""
   },
   // ローカル開発設定
   "dev": {
