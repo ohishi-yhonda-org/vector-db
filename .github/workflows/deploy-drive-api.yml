@@ -1,0 +1,24 @@
+name: Deploy Drive API
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy Drive API
+      uses: ohishi-yhonda-org/drive-api-deploy-action@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        public-repo-token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+        private-repo: ohishi-yhonda-org/vector-db
+        public-repo: ohishi-yhonda-pub/vector-db
