@@ -8,6 +8,7 @@ import type {
 } from '../db/schema'
 import { notionSyncJobs } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import { jobMetadataSchema, cleanupJobsParamsSchema, listPagesOptionsSchema } from './schemas/notion-manager.schema'
 
 // Notion同期ジョブの状態
 interface NotionSyncJobState {
@@ -267,8 +268,8 @@ export class NotionManager extends Agent<Env, NotionManagerState> {
         failedJobs: status === 'failed' 
           ? this.state.stats.failedJobs + 1 
           : this.state.stats.failedJobs,
-        totalVectorsCreated: updates?.metadata?.vectorsCreated 
-          ? this.state.stats.totalVectorsCreated + (updates.metadata.vectorsCreated || 0)
+        totalVectorsCreated: updates?.metadata?.vectorsCreated !== undefined
+          ? this.state.stats.totalVectorsCreated + updates.metadata.vectorsCreated
           : this.state.stats.totalVectorsCreated,
         lastSyncAt: status === 'completed' ? new Date().toISOString() : this.state.stats.lastSyncAt
       }
@@ -352,16 +353,19 @@ export class NotionManager extends Agent<Env, NotionManagerState> {
   } = {}): Promise<Array<NotionPage | Record<string, unknown>>> {
     const notionService = this.getNotionService()
     
-    if (options.fromCache) {
+    // オプションをバリデーション
+    const parsedOptions = listPagesOptionsSchema.parse(options)
+    
+    if (parsedOptions.fromCache) {
       return await notionService.getAllPagesFromCache({
-        archived: options.archived,
-        limit: options.limit
+        archived: parsedOptions.archived,
+        limit: parsedOptions.limit
       })
     }
     
     // Notion APIから検索
     const result = await notionService.searchAllPages({
-      page_size: options.limit || 100
+      page_size: parsedOptions.limit
     })
     
     // キャッシュに保存
@@ -374,7 +378,9 @@ export class NotionManager extends Agent<Env, NotionManagerState> {
 
   // 古いジョブをクリーンアップ
   async cleanupOldJobs(olderThanHours: number = 24): Promise<number> {
-    const cutoffTime = new Date(Date.now() - olderThanHours * 60 * 60 * 1000).toISOString()
+    // パラメータをバリデーション
+    const params = cleanupJobsParamsSchema.parse({ olderThanHours })
+    const cutoffTime = new Date(Date.now() - params.olderThanHours * 60 * 60 * 1000).toISOString()
     const jobs = this.state.syncJobs
     const toDelete: string[] = []
     
@@ -384,19 +390,21 @@ export class NotionManager extends Agent<Env, NotionManagerState> {
       }
     }
     
-    if (toDelete.length > 0) {
-      const newJobs = { ...jobs }
-      toDelete.forEach(jobId => delete newJobs[jobId])
-      
-      this.setState({
-        ...this.state,
-        syncJobs: newJobs
-      })
-      
-      // DBからも削除
-      for (const jobId of toDelete) {
-        await this.db.delete(notionSyncJobs).where(eq(notionSyncJobs.id, jobId))
-      }
+    if (toDelete.length === 0) {
+      return 0
+    }
+    
+    const newJobs = { ...jobs }
+    toDelete.forEach(jobId => delete newJobs[jobId])
+    
+    this.setState({
+      ...this.state,
+      syncJobs: newJobs
+    })
+    
+    // DBからも削除
+    for (const jobId of toDelete) {
+      await this.db.delete(notionSyncJobs).where(eq(notionSyncJobs.id, jobId))
     }
     
     return toDelete.length

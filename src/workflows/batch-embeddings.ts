@@ -1,11 +1,5 @@
 import { WorkflowEntrypoint, WorkflowStep, WorkflowEvent } from 'cloudflare:workers'
-
-export interface BatchEmbeddingParams {
-  texts: string[]
-  model?: string
-  batchSize?: number
-  saveToVectorize?: boolean
-}
+import { batchEmbeddingParamsSchema, type BatchEmbeddingParams } from './schemas/workflow.schema'
 
 export interface BatchEmbeddingResult {
   embeddings: Array<{
@@ -56,12 +50,9 @@ export class BatchEmbeddingsWorkflow extends WorkflowEntrypoint<Env, BatchEmbedd
   }
 
   async run(event: WorkflowEvent<BatchEmbeddingParams>, step: WorkflowStep): Promise<BatchEmbeddingResult> {
-    const {
-      texts,
-      model = '@cf/baai/bge-base-en-v1.5',
-      batchSize = 10,
-      saveToVectorize = false
-    } = event.payload
+    // パラメータをバリデーション
+    const params = batchEmbeddingParamsSchema.parse(event.payload)
+    const { texts, model, batchSize, saveToVectorize } = params
 
     // テキストをバッチに分割
     const batches: string[][] = []

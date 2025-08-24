@@ -1,17 +1,5 @@
 import { WorkflowEntrypoint, WorkflowEvent, WorkflowStep } from 'cloudflare:workers'
-import { z } from 'zod'
-
-// ファイル処理パラメータ
-const FileProcessingParamsSchema = z.object({
-  fileData: z.string(), // Base64 encoded file data
-  fileName: z.string(),
-  fileType: z.string(),
-  fileSize: z.number(),
-  namespace: z.string().optional(),
-  metadata: z.record(z.string(), z.any()).optional()
-})
-
-export type FileProcessingParams = z.infer<typeof FileProcessingParamsSchema>
+import { fileProcessingParamsSchema, type FileProcessingParams } from './schemas/workflow.schema'
 
 export interface FileProcessingResult {
   type: 'pdf' | 'image'
@@ -30,7 +18,7 @@ export interface FileProcessingResult {
 
 export class FileProcessingWorkflow extends WorkflowEntrypoint<Env, FileProcessingParams> {
   async run(event: WorkflowEvent<FileProcessingParams>, step: WorkflowStep): Promise<FileProcessingResult> {
-    const params = FileProcessingParamsSchema.parse(event.payload)
+    const params = fileProcessingParamsSchema.parse(event.payload)
     
     // PDFも画像も同じ処理フローで統一
     if (params.fileType === 'application/pdf' || params.fileType.startsWith('image/')) {

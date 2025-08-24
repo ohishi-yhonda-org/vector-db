@@ -1,4 +1,5 @@
 import { Agent } from 'agents'
+import { findSimilarOptionsSchema, cleanupJobsParamsSchema } from './schemas/vector-manager.schema'
 
 interface SearchHistoryEntry {
   timestamp: string
@@ -125,19 +126,22 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
       throw new Error(`Vector ${vectorId} not found`)
     }
 
+    // zodでオプションをパースしてデフォルト値を設定
+    const parsedOptions = findSimilarOptionsSchema.parse(options || {})
+    
     const queryOptions: VectorizeQueryOptions = {
-      topK: options?.excludeSelf ? (options.topK || 10) + 1 : options?.topK || 10,
-      namespace: options?.namespace || vectors[0].namespace,
-      returnMetadata: options?.returnMetadata ?? true,
-      filter: options?.filter
+      topK: parsedOptions.excludeSelf ? parsedOptions.topK + 1 : parsedOptions.topK,
+      namespace: parsedOptions.namespace || vectors[0].namespace,
+      returnMetadata: parsedOptions.returnMetadata,
+      filter: parsedOptions.filter
     }
 
     const results = await this.vectorizeIndex.query(vectors[0].values, queryOptions)
 
-    if (options?.excludeSelf) {
+    if (parsedOptions.excludeSelf) {
       results.matches = results.matches
         .filter((match: VectorizeMatch) => match.id !== vectorId)
-        .slice(0, options.topK || 10)
+        .slice(0, parsedOptions.topK)
     }
 
     return results
@@ -272,7 +276,9 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
 
   // 古いジョブのクリーンアップ
   async cleanupOldJobs(olderThanHours: number = 24): Promise<number> {
-    const cutoffTime = new Date(Date.now() - olderThanHours * 60 * 60 * 1000).toISOString()
+    // パラメータをバリデーション
+    const params = cleanupJobsParamsSchema.parse({ olderThanHours })
+    const cutoffTime = new Date(Date.now() - params.olderThanHours * 60 * 60 * 1000).toISOString()
     const jobs = this.state.vectorJobs
     const toDelete: string[] = []
     
@@ -282,15 +288,17 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
       }
     }
     
-    if (toDelete.length > 0) {
-      const newJobs = { ...jobs }
-      toDelete.forEach(jobId => delete newJobs[jobId])
-      
-      this.setState({
-        ...this.state,
-        vectorJobs: newJobs
-      })
+    if (toDelete.length === 0) {
+      return 0
     }
+    
+    const newJobs = { ...jobs }
+    toDelete.forEach(jobId => delete newJobs[jobId])
+    
+    this.setState({
+      ...this.state,
+      vectorJobs: newJobs
+    })
     
     return toDelete.length
   }
@@ -383,7 +391,9 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
 
   // 古いファイル処理ジョブのクリーンアップ
   async cleanupOldFileProcessingJobs(olderThanHours: number = 24): Promise<number> {
-    const cutoffTime = new Date(Date.now() - olderThanHours * 60 * 60 * 1000).toISOString()
+    // パラメータをバリデーション
+    const params = cleanupJobsParamsSchema.parse({ olderThanHours })
+    const cutoffTime = new Date(Date.now() - params.olderThanHours * 60 * 60 * 1000).toISOString()
     const jobs = this.state.fileProcessingJobs
     const toDelete: string[] = []
     
@@ -393,15 +403,17 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
       }
     }
     
-    if (toDelete.length > 0) {
-      const newJobs = { ...jobs }
-      toDelete.forEach(jobId => delete newJobs[jobId])
-      
-      this.setState({
-        ...this.state,
-        fileProcessingJobs: newJobs
-      })
+    if (toDelete.length === 0) {
+      return 0
     }
+    
+    const newJobs = { ...jobs }
+    toDelete.forEach(jobId => delete newJobs[jobId])
+    
+    this.setState({
+      ...this.state,
+      fileProcessingJobs: newJobs
+    })
     
     return toDelete.length
   }
