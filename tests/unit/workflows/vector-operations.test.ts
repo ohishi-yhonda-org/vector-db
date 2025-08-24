@@ -400,6 +400,28 @@ describe('VectorOperationsWorkflow', () => {
         await expect(workflow.run(event as any, mockStep as any)).rejects.toThrow()
       })
 
+      it('should handle non-Error exceptions in delete operation', async () => {
+        const params = {
+          type: 'delete' as const,
+          vectorIds: ['vec-1', 'vec-2']
+        }
+
+        mockStep.do.mockImplementationOnce(async (name, fn) => {
+          if (name === 'delete-from-vectorize') {
+            throw 'String error' // Non-Error exception
+          }
+        })
+
+        const event = createMockEvent(params)
+        const result = await workflow.run(event as any, mockStep as any)
+
+        expect(result).toMatchObject({
+          type: 'delete',
+          success: false,
+          error: 'Unknown error'
+        })
+      })
+
       it('should handle non-Error exceptions', async () => {
         const params = {
           type: 'create' as const,
@@ -418,6 +440,17 @@ describe('VectorOperationsWorkflow', () => {
           success: false,
           error: 'Unknown error'
         })
+      })
+    })
+
+    describe('edge cases', () => {
+      it('should handle unknown operation type', async () => {
+        const params = {
+          type: 'unknown' as any // Force an invalid type
+        }
+
+        const event = createMockEvent(params)
+        await expect(workflow.run(event as any, mockStep as any)).rejects.toThrow()
       })
     })
   })

@@ -16,6 +16,73 @@ const NotionSyncParamsSchema = z.object({
 
 export type NotionSyncParams = z.infer<typeof NotionSyncParamsSchema>
 
+// Notionプロパティの型定義
+export const TitlePropertySchema = z.object({
+  type: z.literal('title'),
+  title: z.array(z.object({
+    plain_text: z.string().nullable().optional().transform(val => val ?? '')
+  }))
+})
+
+export const RichTextPropertySchema = z.object({
+  type: z.literal('rich_text'),
+  rich_text: z.array(z.object({
+    plain_text: z.string().nullable().optional().transform(val => val ?? '')
+  }))
+})
+
+export const SelectPropertySchema = z.object({
+  type: z.literal('select'),
+  select: z.object({
+    name: z.string()
+  }).nullable().transform(val => val ?? { name: '' })
+})
+
+export const MultiSelectPropertySchema = z.object({
+  type: z.literal('multi_select'),
+  multi_select: z.array(z.object({
+    name: z.string()
+  })).nullable().transform(val => val ?? [])
+})
+
+export const VectorizablePropertySchema = z.discriminatedUnion('type', [
+  TitlePropertySchema,
+  RichTextPropertySchema,
+  SelectPropertySchema,
+  MultiSelectPropertySchema
+])
+
+// Notionブロックの型定義
+const RichTextSchema = z.object({
+  plain_text: z.string().optional()
+})
+
+const RichTextBlockContentSchema = z.object({
+  rich_text: z.array(RichTextSchema)
+})
+
+const CodeBlockContentSchema = z.object({
+  rich_text: z.array(RichTextSchema),
+  language: z.string().optional()
+})
+
+const TableRowContentSchema = z.object({
+  cells: z.array(z.array(RichTextSchema))
+})
+
+const BlockSchema = z.object({
+  type: z.string(),
+  id: z.string().optional()
+}).passthrough()
+
+const BlockWithContentSchema = BlockSchema.transform((block) => {
+  const content = block[block.type]
+  return {
+    ...block,
+    content: content || {}
+  }
+})
+
 export interface NotionSyncResult {
   success: boolean
   pageId: string
@@ -54,8 +121,9 @@ export class NotionSyncWorkflow extends WorkflowEntrypoint<Env, NotionSyncParams
         
         if (!titleProperty) return null
         
-        const titleText = titleProperty.title
-          .map((rt: any) => rt.plain_text || '')
+        const parsedTitle = TitlePropertySchema.parse(titleProperty)
+        const titleText = parsedTitle.title
+          .map(rt => rt.plain_text)
           .join('')
         
         if (!titleText) return null
@@ -98,25 +166,36 @@ export class NotionSyncWorkflow extends WorkflowEntrypoint<Env, NotionSyncParams
           
           // ベクトル化するプロパティを抽出
           for (const [name, prop] of Object.entries(page.properties)) {
-            const property = prop as any
-            if (['title', 'rich_text', 'select', 'multi_select'].includes(property.type)) {
+            try {
+              const property = VectorizablePropertySchema.parse(prop)
               let text = ''
               
-              if (property.type === 'title' || property.type === 'rich_text') {
-                text = property[property.type]
-                  ?.map((rt: any) => rt.plain_text || '')
-                  .join('') || ''
-              } else if (property.type === 'select') {
-                text = property.select?.name || ''
-              } else if (property.type === 'multi_select') {
-                text = property.multi_select
-                  ?.map((s: any) => s.name)
-                  .join(', ') || ''
+              switch (property.type) {
+                case 'title':
+                  text = property.title
+                    .map(rt => rt.plain_text)
+                    .join('')
+                  break
+                case 'rich_text':
+                  text = property.rich_text
+                    .map(rt => rt.plain_text)
+                    .join('')
+                  break
+                case 'select':
+                  text = property.select.name
+                  break
+                case 'multi_select':
+                  text = property.multi_select
+                    .map(s => s.name)
+                    .join(', ')
+                  break
               }
               
               if (text) {
                 propertiesToVectorize.push({ name, text })
               }
+            } catch {
+              // ベクトル化対象外のプロパティタイプは無視
             }
           }
 
@@ -258,8 +337,8 @@ export class NotionSyncWorkflow extends WorkflowEntrypoint<Env, NotionSyncParams
   }
 
   private extractPlainTextFromBlock(block: any): string {
-    const content = block[block.type]
-    if (!content) return ''
+    const parsedBlock = BlockWithContentSchema.parse(block)
+    const content = parsedBlock.content
 
     const richTextTypes = [
       'paragraph', 'heading_1', 'heading_2', 'heading_3',
@@ -267,24 +346,37 @@ export class NotionSyncWorkflow extends WorkflowEntrypoint<Env, NotionSyncParams
       'toggle', 'quote', 'callout'
     ]
 
-    if (richTextTypes.includes(block.type) && content.rich_text) {
-      return content.rich_text
-        .map((rt: any) => rt.plain_text || '')
-        .join('')
+    if (richTextTypes.includes(parsedBlock.type)) {
+      const richTextContent = RichTextBlockContentSchema.safeParse(content)
+      if (richTextContent.success) {
+        return richTextContent.data.rich_text
+          .filter(rt => rt.plain_text)
+          .map(rt => rt.plain_text)
+          .join('')
+      }
     }
 
-    if (block.type === 'code' && content.rich_text) {
-      return content.rich_text
-        .map((rt: any) => rt.plain_text || '')
-        .join('')
+    if (parsedBlock.type === 'code') {
+      const codeContent = CodeBlockContentSchema.safeParse(content)
+      if (codeContent.success) {
+        return codeContent.data.rich_text
+          .filter(rt => rt.plain_text)
+          .map(rt => rt.plain_text)
+          .join('')
+      }
     }
 
-    if (block.type === 'table_row' && content.cells) {
-      return content.cells
-        .map((cell: any[]) => 
-          cell.map((rt: any) => rt.plain_text || '').join('')
-        )
-        .join(' ')
+    if (parsedBlock.type === 'table_row') {
+      const tableContent = TableRowContentSchema.safeParse(content)
+      if (tableContent.success) {
+        return tableContent.data.cells
+          .map(cell => 
+            cell.filter(rt => rt.plain_text)
+              .map(rt => rt.plain_text)
+              .join('')
+          )
+          .join(' ')
+      }
     }
 
     return ''

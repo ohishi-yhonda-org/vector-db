@@ -412,5 +412,138 @@ describe('List Notion Pages Route', () => {
       expect(response.status).toBe(500)
       expect(result.message).toBe('ページ一覧取得中にエラーが発生しました')
     })
+
+
+    it('should handle cached page with invalid title structure (non-array)', async () => {
+      const mockCachedPages = [
+        {
+          id: 'cached-page-invalid-title',
+          notionPageId: 'cached-page-invalid-title',
+          url: 'https://notion.so/cached-page-invalid-title',
+          createdTime: '2024-01-01T00:00:00.000Z',
+          lastEditedTime: '2024-01-02T00:00:00.000Z',
+          archived: false,
+          parent: JSON.stringify({ type: 'workspace', workspace: true }),
+          properties: JSON.stringify({
+            title: {
+              title: "not-an-array" // This will fail Array.isArray check
+            }
+          })
+        }
+      ]
+
+      mockNotionManager.listPages.mockResolvedValue(mockCachedPages)
+
+      const request = new Request('http://localhost/notion/pages?from_cache=true', {
+        method: 'GET'
+      })
+
+      const response = await app.fetch(request, mockEnv)
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.data.pages[0].title).toBe('Untitled')
+    })
+
+    it('should handle cached page with null title.title', async () => {
+      const mockCachedPages = [
+        {
+          id: 'cached-page-null-title',
+          notionPageId: 'cached-page-null-title',
+          url: 'https://notion.so/cached-page-null-title',
+          createdTime: '2024-01-01T00:00:00.000Z',
+          lastEditedTime: '2024-01-02T00:00:00.000Z',
+          archived: false,
+          parent: JSON.stringify({ type: 'workspace', workspace: true }),
+          properties: JSON.stringify({
+            title: {
+              title: null // This will fail the properties.title.title check
+            }
+          })
+        }
+      ]
+
+      mockNotionManager.listPages.mockResolvedValue(mockCachedPages)
+
+      const request = new Request('http://localhost/notion/pages?from_cache=true', {
+        method: 'GET'
+      })
+
+      const response = await app.fetch(request, mockEnv)
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.data.pages[0].title).toBe('Untitled')
+    })
+
+    it('should handle API page with database parent', async () => {
+      const mockPages = [
+        {
+          id: 'page-with-db-parent',
+          url: 'https://notion.so/page-with-db-parent',
+          created_time: '2024-01-01T00:00:00.000Z',
+          last_edited_time: '2024-01-02T00:00:00.000Z',
+          archived: false,
+          parent: { 
+            type: 'database_id', 
+            database_id: 'database-123' // This should trigger the true branch
+          },
+          properties: {
+            title: {
+              title: [{ plain_text: 'Database Page' }]
+            }
+          }
+        }
+      ]
+
+      mockNotionManager.listPages.mockResolvedValue(mockPages)
+
+      const request = new Request('http://localhost/notion/pages', {
+        method: 'GET'
+      })
+
+      const response = await app.fetch(request, mockEnv)
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.data.pages[0].parent.database_id).toBe('database-123')
+      expect(result.data.pages[0].title).toBe('Database Page')
+    })
+
+    it('should handle cached page with valid title array for mapping', async () => {
+      const mockCachedPages = [
+        {
+          id: 'cached-page-valid-title',
+          notionPageId: 'cached-page-valid-title',
+          url: 'https://notion.so/cached-page-valid-title',
+          createdTime: '2024-01-01T00:00:00.000Z',
+          lastEditedTime: '2024-01-02T00:00:00.000Z',
+          archived: false,
+          parent: JSON.stringify({ type: 'workspace', workspace: true }),
+          properties: JSON.stringify({
+            title: {
+              title: [
+                { plain_text: 'First part' },
+                { plain_text: 'Second part' },
+                { plain_text: null }, // Test the || '' fallback in map
+                { plain_text: 'Third part' }
+              ]
+            }
+          })
+        }
+      ]
+
+      mockNotionManager.listPages.mockResolvedValue(mockCachedPages)
+
+      const request = new Request('http://localhost/notion/pages?from_cache=true', {
+        method: 'GET'
+      })
+
+      const response = await app.fetch(request, mockEnv)
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.data.pages[0].title).toBe('First partSecond partThird part')
+    })
   })
 })

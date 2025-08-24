@@ -12,6 +12,20 @@ type EnvType = {
   Bindings: Env
 }
 
+// メタデータのバリデーションスキーマ
+const MetadataSchema = z.string().nullable().optional().transform((val, ctx) => {
+  if (!val) return {}
+  try {
+    return JSON.parse(val)
+  } catch {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'メタデータのJSON形式が不正です'
+    })
+    return z.NEVER
+  }
+})
+
 // ファイルアップロードルート定義
 export const uploadFileRoute = createRoute({
   method: 'post',
@@ -104,26 +118,21 @@ export const uploadFileHandler: RouteHandler<typeof uploadFileRoute, EnvType> = 
       }, 415)
     }
 
-    // メタデータのパース
-    let metadata: Record<string, any> = {}
-    if (metadataStr) {
-      try {
-        metadata = JSON.parse(metadataStr)
-      } catch {
-        return c.json<ErrorResponse, 400>({
-          success: false,
-          error: 'Bad Request',
-          message: 'メタデータのJSON形式が不正です'
-        }, 400)
-      }
+    // メタデータのパースとバリデーション
+    const parseResult = MetadataSchema.safeParse(metadataStr)
+    if (!parseResult.success) {
+      const firstError = parseResult.error.errors?.[0]
+      return c.json<ErrorResponse, 400>({
+        success: false,
+        error: 'Bad Request',
+        message: firstError?.message || 'メタデータのバリデーションに失敗しました'
+      }, 400)
     }
+    const validatedMetadata = parseResult.data
 
     // ファイルをBase64エンコード
     const arrayBuffer = await file.arrayBuffer()
     const fileDataBase64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
-    
-    // メタデータのバリデーション
-    const validatedMetadata = metadata || {}
 
     // VectorManagerを使用してファイルを処理
     const vectorManagerId = c.env.VECTOR_CACHE.idFromName('global')

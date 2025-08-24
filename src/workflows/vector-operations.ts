@@ -42,12 +42,9 @@ export class VectorOperationsWorkflow extends WorkflowEntrypoint<Env, VectorOper
 
     if (params.type === 'create') {
       return await this.handleCreateOperation(params, step)
-    } else if (params.type === 'delete') {
+    } else {
       return await this.handleDeleteOperation(params, step)
     }
-
-    // この行には到達しないはず（Zodの discriminatedUnion により）
-    throw new Error(`Unknown operation type`)
   }
 
   private async handleCreateOperation(

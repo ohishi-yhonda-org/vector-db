@@ -285,6 +285,305 @@ KEYWORDS: test`
       expect(result.success).toBe(true)
       expect(result.vectorIds).toHaveLength(5)
     })
+
+    it('should handle file without description', async () => {
+      const params = {
+        fileData: btoa('PDF content'),
+        fileName: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'analyze-file-with-gemma') {
+            return {
+              description: '',
+              extractedText: 'Some text',
+              topics: 'topics',
+              keywords: 'keywords',
+              hasText: true
+            }
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'prepare-content-chunks') {
+            return await fn() // Execute to test the logic
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-content') {
+            return await fn()
+          }
+          return fn()
+        })
+
+      mockEnv.AI.run.mockResolvedValueOnce({
+        response: 'DESCRIPTION: \nEXTRACTED_TEXT: Some text\nTOPICS: topics\nKEYWORDS: keywords'
+      })
+
+      const result = await (workflow as any).processFile(params, mockStep)
+
+      expect(result.success).toBe(true)
+      // Should only have extracted-text and metadata chunks, no description chunk
+      expect(result.vectorIds).toHaveLength(2)
+    })
+
+    it('should handle file without topics and keywords', async () => {
+      const params = {
+        fileData: btoa('PDF content'),
+        fileName: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'analyze-file-with-gemma') {
+            return {
+              description: 'Test PDF',
+              extractedText: 'Content',
+              topics: '',
+              keywords: '',
+              hasText: true
+            }
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'prepare-content-chunks') {
+            return await fn() // Execute to test the logic
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-content') {
+            return await fn()
+          }
+          return fn()
+        })
+
+      mockEnv.AI.run.mockResolvedValueOnce({
+        response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
+      })
+
+      const result = await (workflow as any).processFile(params, mockStep)
+
+      expect(result.success).toBe(true)
+      // Should only have description and extracted-text chunks, no metadata chunk
+      expect(result.vectorIds).toHaveLength(2)
+    })
+
+    it('should handle file without extracted text', async () => {
+      const params = {
+        fileData: btoa('Image content'),
+        fileName: 'test.jpg',
+        fileType: 'image/jpeg',
+        fileSize: 2048
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'analyze-file-with-gemma') {
+            return {
+              description: 'Test image',
+              extractedText: '',
+              topics: 'image topics',
+              keywords: 'image, test',
+              hasText: false
+            }
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'prepare-content-chunks') {
+            return await fn() // Execute to test the logic
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-content') {
+            return await fn()
+          }
+          return fn()
+        })
+
+      mockEnv.AI.run.mockResolvedValueOnce({
+        response: 'DESCRIPTION: Test image\nEXTRACTED_TEXT: \nTOPICS: image topics\nKEYWORDS: image, test'
+      })
+
+      const result = await (workflow as any).processFile(params, mockStep)
+
+      expect(result.success).toBe(true)
+      // Should only have description and metadata chunks, no extracted-text chunk
+      expect(result.vectorIds).toHaveLength(2)
+    })
+
+    it('should handle AI run failure inside step', async () => {
+      const params = {
+        fileData: btoa('PDF content'),
+        fileName: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'analyze-file-with-gemma') {
+            // Execute the callback to test the try-catch inside
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'prepare-content-chunks') {
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-content') {
+            return await fn()
+          }
+          return fn()
+        })
+
+      mockEnv.AI.run.mockRejectedValueOnce(new Error('AI service error'))
+
+      const result = await (workflow as any).processFile(params, mockStep)
+
+      expect(result.success).toBe(true)
+      expect(result.content.description).toBe('pdf file: test.pdf')
+      expect(result.content.text).toBe('')
+    })
+
+    it('should handle text exactly at chunk boundary', async () => {
+      const exactBoundaryText = 'B'.repeat(2000) // Exactly 2 chunks of 1000
+      const params = {
+        fileData: btoa('PDF content'),
+        fileName: 'boundary.pdf',
+        fileType: 'application/pdf',
+        fileSize: 2048
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'analyze-file-with-gemma') {
+            return {
+              description: 'Boundary test',
+              extractedText: exactBoundaryText,
+              topics: 'boundary',
+              keywords: 'test',
+              hasText: true
+            }
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'prepare-content-chunks') {
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-content') {
+            return await fn()
+          }
+          return fn()
+        })
+
+      mockEnv.AI.run.mockResolvedValueOnce({
+        response: `DESCRIPTION: Boundary test
+EXTRACTED_TEXT: ${exactBoundaryText}
+TOPICS: boundary
+KEYWORDS: test`
+      })
+
+      const result = await (workflow as any).processFile(params, mockStep)
+
+      expect(result.success).toBe(true)
+      expect(result.vectorIds).toHaveLength(4) // description + 2 text chunks + metadata
+    })
+
+    it('should use fallback description when AI returns no description', async () => {
+      const params = {
+        fileData: btoa('PDF content'),
+        fileName: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'analyze-file-with-gemma') {
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'prepare-content-chunks') {
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-content') {
+            return await fn()
+          }
+          return fn()
+        })
+
+      // AI returns response without description section
+      mockEnv.AI.run.mockResolvedValueOnce({
+        response: 'EXTRACTED_TEXT: Some content\nTOPICS: test'
+      })
+
+      const result = await (workflow as any).processFile(params, mockStep)
+
+      expect(result.success).toBe(true)
+      expect(result.content.description).toBe('pdf file: test.pdf')
+    })
+
+    it('should handle non-Error exception in catch block', async () => {
+      const params = {
+        fileData: btoa('PDF content'),
+        fileName: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024
+      }
+
+      // Throw a non-Error object
+      mockStep.do.mockRejectedValueOnce('String error')
+
+      const result = await (workflow as any).processFile(params, mockStep)
+
+      expect(result).toMatchObject({
+        type: 'pdf',
+        success: false,
+        error: 'File processing failed'
+      })
+    })
+
+    it('should handle image error with proper type', async () => {
+      const params = {
+        fileData: btoa('Image content'),
+        fileName: 'test.jpg',
+        fileType: 'image/jpeg',
+        fileSize: 2048
+      }
+
+      mockStep.do.mockRejectedValueOnce(new Error('Image processing error'))
+
+      const result = await (workflow as any).processFile(params, mockStep)
+
+      expect(result).toMatchObject({
+        type: 'image',
+        success: false,
+        error: 'Image processing error'
+      })
+    })
   })
 
   describe('run', () => {
@@ -311,6 +610,84 @@ KEYWORDS: test`
 
       const event = createMockEvent(params)
       await expect(workflow.run(event as any, mockStep as any)).rejects.toThrow('Unsupported file type: text/plain')
+    })
+
+    it('should process PDF file through run method', async () => {
+      const params = {
+        fileData: btoa('PDF content'),
+        fileName: 'test.pdf',
+        fileType: 'application/pdf',
+        fileSize: 1024
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'analyze-file-with-gemma') {
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'prepare-content-chunks') {
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-content') {
+            return await fn()
+          }
+          return fn()
+        })
+
+      mockEnv.AI.run.mockResolvedValueOnce({
+        response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
+      })
+
+      const event = createMockEvent(params)
+      const result = await workflow.run(event as any, mockStep as any)
+
+      expect(result.success).toBe(true)
+      expect(result.type).toBe('pdf')
+    })
+
+    it('should process image file through run method', async () => {
+      const params = {
+        fileData: btoa('Image content'),
+        fileName: 'test.png',
+        fileType: 'image/png',
+        fileSize: 2048
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'analyze-file-with-gemma') {
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'prepare-content-chunks') {
+            return await fn()
+          }
+          return fn()
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-content') {
+            return await fn()
+          }
+          return fn()
+        })
+
+      mockEnv.AI.run.mockResolvedValueOnce({
+        response: 'DESCRIPTION: Test image\nEXTRACTED_TEXT: '
+      })
+
+      const event = createMockEvent(params)
+      const result = await workflow.run(event as any, mockStep as any)
+
+      expect(result.success).toBe(true)
+      expect(result.type).toBe('image')
     })
   })
 

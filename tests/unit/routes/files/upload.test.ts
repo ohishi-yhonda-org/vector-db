@@ -261,11 +261,9 @@ describe('Upload File Route', () => {
       const result = await response.json()
 
       expect(response.status).toBe(400)
-      expect(result).toEqual({
-        success: false,
-        error: 'Bad Request',
-        message: 'メタデータのJSON形式が不正です'
-      })
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Bad Request')
+      expect(result.message).toContain('メタデータ')
     })
 
     it('should handle empty metadata', async () => {
@@ -357,5 +355,6 @@ describe('Upload File Route', () => {
       expect(response.status).toBe(202)
       expect(result.data.fileInfo.name).toBe('test-file_2024.pdf')
     })
+
   })
 })

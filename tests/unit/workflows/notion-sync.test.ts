@@ -22,9 +22,17 @@ vi.mock('drizzle-orm', async (importOriginal) => {
 })
 
 // Import after mocking
-import { NotionSyncWorkflow } from '../../../src/workflows/notion-sync'
+import { 
+  NotionSyncWorkflow,
+  TitlePropertySchema,
+  RichTextPropertySchema,
+  SelectPropertySchema,
+  MultiSelectPropertySchema,
+  VectorizablePropertySchema
+} from '../../../src/workflows/notion-sync'
 import { NotionService } from '../../../src/services/notion.service'
 import { getDb } from '../../../src/db'
+import { notionSyncJobs } from '../../../src/db/schema'
 
 // Mock WorkflowStep
 const mockStep = {
@@ -335,11 +343,17 @@ describe('NotionSyncWorkflow', () => {
 
       mockNotionService.fetchPageFromNotion.mockResolvedValueOnce(null)
       
-      mockStep.do.mockImplementationOnce(async (name, fn) => {
-        if (name === 'fetch-and-save-page') {
-          throw new Error('Page non-existent not found')
-        }
-      })
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'fetch-and-save-page') {
+            return await fn() // Execute the callback to test the null check
+          }
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'record-error') {
+            return await fn()
+          }
+        })
 
       const event = createMockEvent(params)
       const result = await workflow.run(event as any, mockStep as any)
@@ -373,6 +387,41 @@ describe('NotionSyncWorkflow', () => {
         success: false,
         error: 'API Error'
       })
+    })
+
+    it('should handle non-Error exceptions', async () => {
+      const params = {
+        pageId: 'page-123',
+        notionToken: 'test-token'
+      }
+
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'fetch-and-save-page') {
+            throw 'String error' // Non-Error exception
+          }
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'record-error') {
+            return await fn()
+          }
+        })
+
+      const event = createMockEvent(params)
+      const result = await workflow.run(event as any, mockStep as any)
+
+      expect(result).toMatchObject({
+        success: false,
+        error: 'Sync failed',
+        pageId: 'page-123'
+      })
+      
+      // Verify the error was recorded correctly in the database
+      expect(mockDb.insert).toHaveBeenCalled()
+      const insertCall = mockDb.insert.mock.calls[0]
+      expect(insertCall[0]).toBe(notionSyncJobs)
+      const valuesCall = mockDb.insert.mock.results[0].value.values.mock.calls[0]
+      expect(valuesCall[0].error).toBe('Unknown error')
     })
 
     it('should vectorize properties correctly', async () => {
@@ -565,6 +614,364 @@ describe('NotionSyncWorkflow', () => {
       expect(result.success).toBe(false)
       expect(result.error).toBe('Blocks fetch failed')
       expect(result.blocksProcessed).toBe(0)
+    })
+
+    it('should process table_row blocks correctly', async () => {
+      const params = {
+        pageId: 'page-123',
+        notionToken: 'test-token',
+        includeBlocks: true,
+        includeProperties: false
+      }
+
+      const mockPage = {
+        id: 'page-123',
+        properties: {
+          Title: {
+            type: 'title',
+            title: [{ plain_text: 'Test' }]
+          }
+        }
+      }
+
+      const mockBlocks = [
+        {
+          id: 'block-1',
+          type: 'table_row',
+          table_row: {
+            cells: [
+              [{ plain_text: 'Cell 1' }, { plain_text: ' continued' }],
+              [{ plain_text: 'Cell 2' }],
+              [{ plain_text: 'Cell 3' }]
+            ]
+          }
+        }
+      ]
+
+      mockNotionService.fetchPageFromNotion.mockResolvedValueOnce(mockPage)
+      mockNotionService.fetchBlocksFromNotion.mockResolvedValueOnce(mockBlocks)
+      
+      mockStep.do
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'fetch-and-save-page') {
+            return await fn()
+          }
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'vectorize-page-title') {
+            return await fn()
+          }
+        })
+        .mockImplementationOnce(async (name, fn) => {
+          if (name === 'process-blocks') {
+            return await fn()
+          }
+        })
+
+      const event = createMockEvent(params)
+      const result = await workflow.run(event as any, mockStep as any)
+
+      expect(result.blocksProcessed).toBe(1)
+      expect(result.vectorsCreated).toBe(2) // 1 title + 1 table_row block
+    })
+  })
+
+  describe('extractPlainTextFromBlock', () => {
+    it('should extract text from table_row blocks', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'table_row',
+        table_row: {
+          cells: [
+            [{ plain_text: 'Cell 1' }, { plain_text: ' Part 2' }],
+            [{ plain_text: 'Cell 2' }],
+            [{ plain_text: 'Cell 3' }]
+          ]
+        }
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('Cell 1 Part 2 Cell 2 Cell 3')
+    })
+
+    it('should handle table_row with empty cells', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'table_row',
+        table_row: {
+          cells: [
+            [],
+            [{ plain_text: 'Cell 2' }],
+            []
+          ]
+        }
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe(' Cell 2 ')
+    })
+
+    it('should handle rich text without plain_text', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'paragraph',
+        paragraph: {
+          rich_text: [
+            { plain_text: 'Text 1' },
+            { annotations: { bold: true } }, // No plain_text field
+            { plain_text: 'Text 2' }
+          ]
+        }
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('Text 1Text 2')
+    })
+
+    it('should handle code blocks', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'code',
+        code: {
+          rich_text: [{ plain_text: 'console.log("Hello")' }],
+          language: 'javascript'
+        }
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('console.log("Hello")')
+    })
+
+    it('should return empty string for blocks without content', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'divider',
+        divider: {}
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('')
+    })
+
+    it('should return empty string for unsupported block types', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'unsupported_type',
+        unsupported_type: {
+          some_field: 'value'
+        }
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('')
+    })
+
+    it('should handle block without content property', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'missing_content',
+        id: 'block-id'
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('')
+    })
+
+    it('should handle malformed rich text block', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'paragraph',
+        paragraph: {
+          rich_text: 'not an array' // Invalid structure
+        }
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('')
+    })
+
+    it('should handle malformed code block', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'code',
+        code: {
+          rich_text: null // Invalid structure
+        }
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('')
+    })
+
+    it('should handle malformed table_row block', () => {
+      const workflow = new NotionSyncWorkflow(mockCtx, mockEnv)
+      const block = {
+        type: 'table_row',
+        table_row: {
+          cells: 'not an array' // Invalid structure
+        }
+      }
+
+      const result = (workflow as any).extractPlainTextFromBlock(block)
+      expect(result).toBe('')
+    })
+  })
+
+  describe('Zod Schemas', () => {
+    describe('TitlePropertySchema', () => {
+      it('should parse valid title property', () => {
+        const data = {
+          type: 'title',
+          title: [
+            { plain_text: 'Test Title' },
+            { plain_text: ' Part 2' }
+          ]
+        }
+        const result = TitlePropertySchema.parse(data)
+        expect(result.title[0].plain_text).toBe('Test Title')
+        expect(result.title[1].plain_text).toBe(' Part 2')
+      })
+
+      it('should handle missing plain_text with transform', () => {
+        const data = {
+          type: 'title',
+          title: [
+            { plain_text: 'Test' },
+            { annotations: { bold: true } }, // No plain_text
+            { plain_text: undefined }, // Undefined plain_text
+            { plain_text: null }, // Null plain_text
+          ]
+        }
+        const result = TitlePropertySchema.parse(data)
+        expect(result.title[0].plain_text).toBe('Test')
+        expect(result.title[1].plain_text).toBe('')
+        expect(result.title[2].plain_text).toBe('')
+        expect(result.title[3].plain_text).toBe('')
+      })
+    })
+
+    describe('RichTextPropertySchema', () => {
+      it('should parse valid rich_text property', () => {
+        const data = {
+          type: 'rich_text',
+          rich_text: [
+            { plain_text: 'Some text' },
+            { plain_text: ' more text' }
+          ]
+        }
+        const result = RichTextPropertySchema.parse(data)
+        expect(result.rich_text[0].plain_text).toBe('Some text')
+        expect(result.rich_text[1].plain_text).toBe(' more text')
+      })
+
+      it('should handle missing plain_text with transform', () => {
+        const data = {
+          type: 'rich_text',
+          rich_text: [
+            { plain_text: null },
+            { plain_text: undefined },
+            {}
+          ]
+        }
+        const result = RichTextPropertySchema.parse(data)
+        expect(result.rich_text[0].plain_text).toBe('')
+        expect(result.rich_text[1].plain_text).toBe('')
+        expect(result.rich_text[2].plain_text).toBe('')
+      })
+    })
+
+    describe('SelectPropertySchema', () => {
+      it('should parse valid select property', () => {
+        const data = {
+          type: 'select',
+          select: { name: 'Option 1' }
+        }
+        const result = SelectPropertySchema.parse(data)
+        expect(result.select?.name).toBe('Option 1')
+      })
+
+      it('should handle null select', () => {
+        const data = {
+          type: 'select',
+          select: null
+        }
+        const result = SelectPropertySchema.parse(data)
+        expect(result.select).toEqual({ name: '' })
+      })
+    })
+
+    describe('MultiSelectPropertySchema', () => {
+      it('should parse valid multi_select property', () => {
+        const data = {
+          type: 'multi_select',
+          multi_select: [
+            { name: 'Tag 1' },
+            { name: 'Tag 2' }
+          ]
+        }
+        const result = MultiSelectPropertySchema.parse(data)
+        expect(result.multi_select).toHaveLength(2)
+        expect(result.multi_select?.[0].name).toBe('Tag 1')
+      })
+
+      it('should handle null multi_select', () => {
+        const data = {
+          type: 'multi_select',
+          multi_select: null
+        }
+        const result = MultiSelectPropertySchema.parse(data)
+        expect(result.multi_select).toEqual([])
+      })
+    })
+
+    describe('VectorizablePropertySchema', () => {
+      it('should parse title property through discriminated union', () => {
+        const data = {
+          type: 'title',
+          title: [{ plain_text: 'Title' }]
+        }
+        const result = VectorizablePropertySchema.parse(data)
+        expect(result.type).toBe('title')
+        expect((result as any).title[0].plain_text).toBe('Title')
+      })
+
+      it('should parse rich_text property through discriminated union', () => {
+        const data = {
+          type: 'rich_text',
+          rich_text: [{ plain_text: 'Text' }]
+        }
+        const result = VectorizablePropertySchema.parse(data)
+        expect(result.type).toBe('rich_text')
+        expect((result as any).rich_text[0].plain_text).toBe('Text')
+      })
+
+      it('should parse select property through discriminated union', () => {
+        const data = {
+          type: 'select',
+          select: { name: 'Option' }
+        }
+        const result = VectorizablePropertySchema.parse(data)
+        expect(result.type).toBe('select')
+        expect((result as any).select.name).toBe('Option')
+      })
+
+      it('should parse multi_select property through discriminated union', () => {
+        const data = {
+          type: 'multi_select',
+          multi_select: [{ name: 'Tag' }]
+        }
+        const result = VectorizablePropertySchema.parse(data)
+        expect(result.type).toBe('multi_select')
+        expect((result as any).multi_select[0].name).toBe('Tag')
+      })
+
+      it('should throw error for unsupported property type', () => {
+        const data = {
+          type: 'checkbox',
+          checkbox: true
+        }
+        expect(() => VectorizablePropertySchema.parse(data)).toThrow()
+      })
     })
   })
 })

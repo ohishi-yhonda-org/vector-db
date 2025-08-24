@@ -38,10 +38,9 @@ export const listNotionPagesRoute = createRoute({
   path: '/notion/pages',
   request: {
     query: z.object({
-      start_cursor: z.string().optional(),
-      page_size: z.string().optional().transform(val => val ? parseInt(val) : 100),
-      filter_archived: z.string().optional().transform(val => val === 'true'),
-      from_cache: z.string().optional().transform(val => val === 'true')
+      page_size: z.string().default('100').transform(val => parseInt(val)),
+      filter_archived: z.string().default('false').transform(val => val === 'true'),
+      from_cache: z.string().default('false').transform(val => val === 'true')
     })
   },
   responses: {
@@ -78,7 +77,7 @@ export const listNotionPagesRoute = createRoute({
 // ページ一覧取得ハンドラー
 export const listNotionPagesHandler: RouteHandler<typeof listNotionPagesRoute, EnvType> = async (c) => {
   try {
-    const { start_cursor, page_size = 100, filter_archived = false, from_cache = false } = c.req.valid('query')
+    const { page_size, filter_archived, from_cache } = c.req.valid('query')
     
     // Notion APIトークンを取得
     const notionToken = c.env.NOTION_API_KEY
