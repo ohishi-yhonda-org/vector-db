@@ -456,7 +456,7 @@ describe('NotionManager Durable Object', () => {
     })
 
     it('should use default limit when not specified', async () => {
-      const mockPages = []
+      const mockPages: any[] = []
       
       const mockNotionService = {
         getAllPagesFromCache: vi.fn(),

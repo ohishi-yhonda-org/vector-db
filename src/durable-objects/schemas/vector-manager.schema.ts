@@ -6,7 +6,7 @@ export const findSimilarOptionsSchema = z.object({
   excludeSelf: z.boolean().default(false),
   namespace: z.string().optional(),
   returnMetadata: z.boolean().default(true),
-  filter: z.record(z.any()).optional()
+  filter: z.record(z.string(), z.any()).optional()
 })
 
 // クリーンアップオプションのスキーマ

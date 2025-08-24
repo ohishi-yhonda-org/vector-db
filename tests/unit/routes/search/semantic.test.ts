@@ -27,17 +27,25 @@ describe('Semantic Search Route', () => {
     const mockAIRun = vi.fn()
     
     mockEnv = {
+      ENVIRONMENT: 'development' as const,
+      DEFAULT_EMBEDDING_MODEL: 'test-model',
+      DEFAULT_TEXT_GENERATION_MODEL: '@cf/meta/llama-3.1-8b-instruct',
+      IMAGE_ANALYSIS_PROMPT: 'test-prompt',
+      IMAGE_ANALYSIS_MAX_TOKENS: '1000',
+      TEXT_EXTRACTION_MAX_TOKENS: '4000',
+      NOTION_API_KEY: 'test-key',
       AI: {
         run: mockAIRun
       } as any,
-      DEFAULT_EMBEDDING_MODEL: 'test-model',
       VECTORIZE_INDEX: {} as any,
-      VECTOR_MANAGER: {} as any,
       VECTOR_CACHE: {} as any,
       NOTION_MANAGER: {} as any,
       AI_EMBEDDINGS: {} as any,
       DB: {} as any,
-      NOTION_API_KEY: 'test-key'
+      BATCH_EMBEDDINGS_WORKFLOW: {} as any,
+      VECTOR_OPERATIONS_WORKFLOW: {} as any,
+      FILE_PROCESSING_WORKFLOW: {} as any,
+      NOTION_SYNC_WORKFLOW: {} as any
     }
 
     app = new OpenAPIHono<{ Bindings: Env }>()
@@ -64,7 +72,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockEnv.AI.run).toHaveBeenCalledWith('test-model', { text: 'test search query' })
@@ -106,7 +114,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorizeQuery).toHaveBeenCalledWith(mockEmbedding, {
@@ -131,7 +139,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorizeQuery).toHaveBeenCalledWith(mockEmbedding, {
@@ -192,7 +200,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result).toEqual({
@@ -212,7 +220,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result.message).toBe('Failed to generate embedding for query')
@@ -231,7 +239,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result).toEqual({
@@ -254,7 +262,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result.message).toBe('検索中にエラーが発生しました')
@@ -273,7 +281,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.matches).toEqual([])
@@ -298,7 +306,7 @@ describe('Semantic Search Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockEnv.AI.run).toHaveBeenCalledWith('test-model', { text: 'special&chars+test' })

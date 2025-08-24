@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Import just the types and interfaces, not the class
 import type { 
-  BatchEmbeddingParams, 
   BatchEmbeddingResult 
 } from '../../src/workflows/batch-embeddings'
+import type { BatchEmbeddingParams } from '../../src/workflows/schemas/workflow.schema'
 
 // Mock the actual workflow implementation
 const mockEnv = {
@@ -60,7 +60,11 @@ class TestWorkflow {
   }
 
   separateResults(allResults: Array<{text: string, embedding: number[] | null, error: string | null}>) {
-    const successful = allResults.filter(r => r.embedding !== null)
+    const successful = allResults.filter(r => r.embedding !== null) as Array<{
+      text: string
+      embedding: number[]
+      error: null
+    }>
     const failed = allResults.filter(r => r.embedding === null) as Array<{
       text: string
       embedding: null
@@ -85,7 +89,7 @@ class TestWorkflow {
     return { savedCount: vectors.length }
   }
 
-  async run(params: BatchEmbeddingParams): Promise<BatchEmbeddingResult> {
+  async run(params: any): Promise<BatchEmbeddingResult> {
     const {
       texts,
       model = '@cf/baai/bge-base-en-v1.5',
@@ -344,7 +348,7 @@ describe('BatchEmbeddingsWorkflow', () => {
 
     it('should handle mixed success and failure', async () => {
       const texts = ['success', 'fail']
-      const params: BatchEmbeddingParams = { texts }
+      const params = { texts }
 
       mockEnv.AI.run = vi.fn()
         .mockResolvedValueOnce({ data: [[0.1, 0.2]] })
@@ -360,7 +364,7 @@ describe('BatchEmbeddingsWorkflow', () => {
 
     it('should save to Vectorize when requested', async () => {
       const texts = ['text1']
-      const params: BatchEmbeddingParams = {
+      const params = {
         texts,
         saveToVectorize: true
       }
@@ -375,7 +379,7 @@ describe('BatchEmbeddingsWorkflow', () => {
 
     it('should not save to Vectorize when not requested', async () => {
       const texts = ['text1']
-      const params: BatchEmbeddingParams = {
+      const params = {
         texts,
         saveToVectorize: false
       }
@@ -389,7 +393,7 @@ describe('BatchEmbeddingsWorkflow', () => {
     })
 
     it('should use default parameters', async () => {
-      const params: BatchEmbeddingParams = {
+      const params = {
         texts: ['text1']
       }
 
@@ -401,7 +405,7 @@ describe('BatchEmbeddingsWorkflow', () => {
     })
 
     it('should handle empty texts array', async () => {
-      const params: BatchEmbeddingParams = {
+      const params = {
         texts: []
       }
 

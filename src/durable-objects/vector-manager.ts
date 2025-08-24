@@ -133,7 +133,7 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
       topK: parsedOptions.excludeSelf ? parsedOptions.topK + 1 : parsedOptions.topK,
       namespace: parsedOptions.namespace || vectors[0].namespace,
       returnMetadata: parsedOptions.returnMetadata,
-      filter: parsedOptions.filter
+      filter: parsedOptions.filter as VectorizeVectorMetadataFilter | undefined
     }
 
     const results = await this.vectorizeIndex.query(vectors[0].values, queryOptions)
@@ -416,5 +416,24 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
     })
     
     return toDelete.length
+  }
+
+  // ベクトル一覧の取得
+  async listVectors(options: {
+    namespace?: string
+    limit?: number
+    cursor?: string
+  }): Promise<{
+    vectors: VectorizeVector[]
+    count: number
+    nextCursor?: string
+  }> {
+    // 実際の実装では、Vectorizeから適切にリストを取得する
+    // 今はダミーデータを返す
+    return {
+      vectors: [],
+      count: 0,
+      nextCursor: undefined
+    }
   }
 }

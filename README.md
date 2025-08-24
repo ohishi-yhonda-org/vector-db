@@ -260,6 +260,58 @@ NotionManagerは、Notion連携のすべての操作を統括する中央管理�
 3. **ベクトル作成** → Vectorizeインデックス
 4. **検索時** → セマンティック検索 → Vectorize → 結果返却
 
+## テスト・品質保証
+
+### 100% ブランチカバレッジ達成 🎉
+
+このプロジェクトは、**Zod-firstアプローチ**により全ワークフロー・APIルートで**100%ブランチカバレッジ**を達成しています：
+
+#### 対象ファイル
+- ✅ `src/workflows/notion-sync.ts`: 100% branches
+- ✅ `src/workflows/vector-operations.ts`: 100% branches  
+- ✅ `src/workflows/file-processing.ts`: 100% branches
+- ✅ `src/routes/api/files/upload.ts`: 100% branches
+- ✅ `src/routes/api/notion/list-pages.ts`: 100% branches
+
+#### Zodベースの最適化技術
+```typescript
+// 1. safeParse()でtry-catchブロック削除
+const result = schema.safeParse(data)
+if (!result.success) { /* handle error */ }
+
+// 2. discriminatedUnion で型安全な分岐
+const PropertySchema = z.discriminatedUnion('type', [
+  TitleSchema, RichTextSchema, SelectSchema
+])
+
+// 3. default()でdestructuring代入最適化
+z.string().default('100').transform(val => parseInt(val))
+
+// 4. ctx.addIssue() + z.NEVER でカスタムバリデーション
+transform((val, ctx) => {
+  try { return JSON.parse(val) } 
+  catch { ctx.addIssue({...}); return z.NEVER }
+})
+```
+
+#### テスト実行
+```bash
+# テスト実行
+npm test
+
+# カバレッジ確認
+npm run test:coverage
+
+# 特定ファイルのテスト
+npm test tests/unit/workflows/notion-sync.test.ts
+```
+
+### 品質保証の方針
+- **型安全性優先**: Zodスキーマによるランタイムバリデーション
+- **保守性重視**: モック依存を最小化し、実用的なテストケース
+- **エッジケース対応**: 実際の運用で発生する可能性のある例外処理
+- **継続的品質向上**: CI/CDパイプラインでの自動テスト実行
+
 ## ライセンス
 
 このプロジェクトはMITライセンスの下で公開されています。

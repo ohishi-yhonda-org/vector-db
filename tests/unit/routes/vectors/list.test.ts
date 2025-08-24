@@ -21,14 +21,23 @@ describe('List Vectors Route', () => {
     vi.clearAllMocks()
     
     mockEnv = {
+      ENVIRONMENT: 'development' as const,
+      DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
+      DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image',
+      IMAGE_ANALYSIS_MAX_TOKENS: '512',
+      TEXT_EXTRACTION_MAX_TOKENS: '1024',
+      NOTION_API_KEY: 'test-key',
       AI: {} as any,
       VECTORIZE_INDEX: {} as any,
-      VECTOR_MANAGER: {} as any,
       VECTOR_CACHE: mockVectorCacheNamespace as any,
       NOTION_MANAGER: {} as any,
       AI_EMBEDDINGS: {} as any,
       DB: {} as any,
-      NOTION_API_KEY: 'test-key'
+      BATCH_EMBEDDINGS_WORKFLOW: {} as any,
+      VECTOR_OPERATIONS_WORKFLOW: {} as any,
+      FILE_PROCESSING_WORKFLOW: {} as any,
+      NOTION_SYNC_WORKFLOW: {} as any
     }
 
     app = new OpenAPIHono<{ Bindings: Env }>()
@@ -53,7 +62,7 @@ describe('List Vectors Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorManager.listVectors).toHaveBeenCalledWith({
@@ -83,7 +92,7 @@ describe('List Vectors Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorManager.listVectors).toHaveBeenCalledWith({
@@ -107,7 +116,7 @@ describe('List Vectors Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorManager.listVectors).toHaveBeenCalledWith({
@@ -132,7 +141,7 @@ describe('List Vectors Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorManager.listVectors).toHaveBeenCalledWith({
@@ -156,7 +165,7 @@ describe('List Vectors Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorManager.listVectors).toHaveBeenCalledWith({
@@ -205,7 +214,7 @@ describe('List Vectors Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result).toEqual({
@@ -223,7 +232,7 @@ describe('List Vectors Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result.message).toBe('ベクトル一覧の取得中にエラーが発生しました')
@@ -237,7 +246,7 @@ describe('List Vectors Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result).toEqual({

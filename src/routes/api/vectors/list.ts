@@ -61,13 +61,13 @@ export const listVectorsHandler: RouteHandler<typeof listVectorsRoute, EnvType> 
       cursor
     })
     
-    return c.json<VectorListResponse, 200>({
+    return c.json({
       success: true,
       data: result.vectors || [],
       count: result.count || 0,
       cursor: result.nextCursor,
       message: 'ベクトル一覧を取得しました'
-    }, 200)
+    } as any, 200)
   } catch (error) {
     console.error('List vectors error:', error)
     return c.json<ErrorResponse, 500>({

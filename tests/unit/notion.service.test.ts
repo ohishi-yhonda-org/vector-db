@@ -32,9 +32,9 @@ describe('NotionService', () => {
         object: 'page',
         created_time: '2024-01-01T00:00:00.000Z',
         last_edited_time: '2024-01-01T00:00:00.000Z',
-        created_by: { id: 'user-1' },
-        last_edited_by: { id: 'user-1' },
-        parent: { type: 'workspace', workspace: true },
+        created_by: { object: 'user' as const, id: 'user-1' },
+        last_edited_by: { object: 'user' as const, id: 'user-1' },
+        parent: { type: 'workspace' as const, workspace: true as true },
         archived: false,
         in_trash: false,
         properties: {},
@@ -89,7 +89,7 @@ describe('NotionService', () => {
           {
             id: 'block-1',
             object: 'block',
-            type: 'paragraph',
+            type: 'paragraph' as const,
             paragraph: { 
               rich_text: [{ plain_text: 'Test content' }]
             }
@@ -356,11 +356,11 @@ describe('NotionService', () => {
         object: 'page' as const,
         created_time: '2024-01-01T00:00:00.000Z',
         last_edited_time: '2024-01-01T00:00:00.000Z',
-        created_by: { id: 'user-1' },
-        last_edited_by: { id: 'user-1' },
+        created_by: { object: 'user' as const, id: 'user-1' },
+        last_edited_by: { object: 'user' as const, id: 'user-1' },
         cover: { external: { url: 'cover.jpg' } },
         icon: { emoji: '📄' },
-        parent: { type: 'workspace', workspace: true },
+        parent: { type: 'workspace' as const, workspace: true as true },
         archived: false,
         in_trash: false,
         properties: { title: { type: 'title', title: [] } },
@@ -383,11 +383,11 @@ describe('NotionService', () => {
         object: 'page' as const,
         created_time: '2024-01-01T00:00:00.000Z',
         last_edited_time: '2024-01-01T00:00:00.000Z',
-        created_by: { id: 'user-1' },
-        last_edited_by: { id: 'user-1' },
+        created_by: { object: 'user' as const, id: 'user-1' },
+        last_edited_by: { object: 'user' as const, id: 'user-1' },
         cover: null, // covers line 124
         icon: null,  // covers line 125
-        parent: { type: 'workspace', workspace: true },
+        parent: { type: 'workspace' as const, workspace: true as true },
         archived: false,
         in_trash: false,
         properties: { title: { type: 'title', title: [] } },
@@ -408,15 +408,15 @@ describe('NotionService', () => {
         {
           id: 'block-test-1',
           object: 'block' as const,
-          parent: { type: 'page_id', page_id: 'page-test-1' },
+          parent: { type: 'page_id' as const, page_id: 'page-test-1' },
           created_time: '2024-01-01T00:00:00.000Z',
           last_edited_time: '2024-01-01T00:00:00.000Z',
-          created_by: { object: 'user', id: 'user-1' },
-          last_edited_by: { object: 'user', id: 'user-1' },
+          created_by: { object: 'user' as const, id: 'user-1' },
+          last_edited_by: { object: 'user' as const, id: 'user-1' },
           has_children: false,
           archived: false,
           in_trash: false,
-          type: 'paragraph',
+          type: 'paragraph' as const,
           paragraph: { rich_text: [{ plain_text: 'Test paragraph content' }] }
         }
       ]

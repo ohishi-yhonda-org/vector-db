@@ -106,7 +106,7 @@ describe('Route Index Files', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     app = new OpenAPIHono<{ Bindings: Env }>()
-    mockOpenapi = vi.spyOn(app, 'openapi').mockImplementation(() => app)
+    mockOpenapi = vi.spyOn(app, 'openapi').mockImplementation(() => app) as any
   })
 
   describe('Embeddings Routes Index', () => {

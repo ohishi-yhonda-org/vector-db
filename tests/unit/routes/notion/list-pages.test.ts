@@ -21,14 +21,23 @@ describe('List Notion Pages Route', () => {
     vi.clearAllMocks()
     
     mockEnv = {
+      ENVIRONMENT: 'development' as const,
+      DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
+      DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image',
+      IMAGE_ANALYSIS_MAX_TOKENS: '512',
+      TEXT_EXTRACTION_MAX_TOKENS: '1024',
+      NOTION_API_KEY: 'test-notion-key',
       AI: {} as any,
       VECTORIZE_INDEX: {} as any,
-      VECTOR_MANAGER: {} as any,
       VECTOR_CACHE: {} as any,
       NOTION_MANAGER: mockNotionManagerNamespace as any,
       AI_EMBEDDINGS: {} as any,
       DB: {} as any,
-      NOTION_API_KEY: 'test-notion-key'
+      BATCH_EMBEDDINGS_WORKFLOW: {} as any,
+      VECTOR_OPERATIONS_WORKFLOW: {} as any,
+      FILE_PROCESSING_WORKFLOW: {} as any,
+      NOTION_SYNC_WORKFLOW: {} as any
     }
 
     app = new OpenAPIHono<{ Bindings: Env }>()
@@ -73,7 +82,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockNotionManager.listPages).toHaveBeenCalledWith({
@@ -135,7 +144,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockNotionManager.listPages).toHaveBeenCalledWith({
@@ -174,7 +183,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.pages[0].title).toBe('Untitled')
@@ -205,7 +214,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockNotionManager.listPages).toHaveBeenCalledWith({
@@ -225,7 +234,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockNotionManager.listPages).toHaveBeenCalledWith({
@@ -253,7 +262,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.has_more).toBe(true)
@@ -267,7 +276,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(401)
       expect(result).toEqual({
@@ -301,7 +310,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.pages[0].title).toBe('Untitled')
@@ -331,7 +340,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.pages[0].title).toBe('')
@@ -357,7 +366,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.pages[0].parent.type).toBe('')
@@ -371,7 +380,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
       
       expect(response.status).toBe(200)
       expect(mockNotionManager.listPages).toHaveBeenCalledWith({
@@ -389,7 +398,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result).toEqual({
@@ -407,7 +416,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result.message).toBe('ページ一覧取得中にエラーが発生しました')
@@ -439,7 +448,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.pages[0].title).toBe('Untitled')
@@ -470,7 +479,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.pages[0].title).toBe('Untitled')
@@ -503,7 +512,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.pages[0].parent.database_id).toBe('database-123')
@@ -540,7 +549,7 @@ describe('List Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.pages[0].title).toBe('First partSecond partThird part')

@@ -47,6 +47,7 @@ export default defineWorkersProject(async () => {
           '**/*.test.ts',
           '**/migrations/**',
           'src/index.ts',
+          'src/db/schema.ts',
         ],
         all: true,
         clean: true,

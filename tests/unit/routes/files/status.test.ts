@@ -23,14 +23,23 @@ describe('File Status Route', () => {
     vi.clearAllMocks()
     
     mockEnv = {
-      AI: {} as any,
-      VECTORIZE_INDEX: {} as any,
-      VECTOR_MANAGER: {} as any,
+      ENVIRONMENT: 'development' as const,
+      DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
+      DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image',
+      IMAGE_ANALYSIS_MAX_TOKENS: '512',
+      TEXT_EXTRACTION_MAX_TOKENS: '1024',
+      NOTION_API_KEY: 'test-key',
+      AI: {} as Ai,
+      VECTORIZE_INDEX: {} as VectorizeIndex,
       VECTOR_CACHE: mockVectorCacheNamespace as any,
       NOTION_MANAGER: {} as any,
       AI_EMBEDDINGS: {} as any,
-      DB: {} as any,
-      NOTION_API_KEY: 'test-key'
+      DB: {} as D1Database,
+      BATCH_EMBEDDINGS_WORKFLOW: {} as Workflow,
+      VECTOR_OPERATIONS_WORKFLOW: {} as Workflow,
+      FILE_PROCESSING_WORKFLOW: {} as Workflow,
+      NOTION_SYNC_WORKFLOW: {} as Workflow
     }
 
     app = new OpenAPIHono<{ Bindings: Env }>()
@@ -58,7 +67,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorManager.getFileProcessingJob).toHaveBeenCalledWith('workflow-456')
@@ -105,7 +114,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result).toEqual({
@@ -141,7 +150,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result).toEqual({
@@ -176,7 +185,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.status).toBe('running') // job.status is 'processing' so it maps to 'running'
@@ -203,7 +212,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.status).toBe('unknown')
@@ -217,7 +226,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(404)
       expect(result).toEqual({
@@ -235,7 +244,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(404)
       expect(result).toEqual({
@@ -253,7 +262,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result).toEqual({
@@ -271,7 +280,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result.message).toBe('状況確認中にエラーが発生しました')
@@ -307,7 +316,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(result.data.status).toBe('running') // Workflow status takes precedence
@@ -333,7 +342,7 @@ describe('File Status Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(200)
       expect(mockVectorManager.getFileProcessingJob).toHaveBeenCalledWith('workflow-special-123')

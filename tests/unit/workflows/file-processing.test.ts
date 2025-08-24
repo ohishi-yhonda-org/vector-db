@@ -56,7 +56,7 @@ describe('FileProcessingWorkflow', () => {
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
               description: 'Test PDF',
@@ -68,7 +68,7 @@ describe('FileProcessingWorkflow', () => {
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return [
               { text: 'Test PDF', type: 'description' },
@@ -77,7 +77,7 @@ describe('FileProcessingWorkflow', () => {
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             // Execute the callback to trigger VECTOR_OPERATIONS_WORKFLOW.create
             return await fn()
@@ -295,7 +295,7 @@ KEYWORDS: test`
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
               description: '',
@@ -307,13 +307,13 @@ KEYWORDS: test`
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return await fn() // Execute to test the logic
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             return await fn()
           }
@@ -340,7 +340,7 @@ KEYWORDS: test`
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
               description: 'Test PDF',
@@ -352,13 +352,13 @@ KEYWORDS: test`
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return await fn() // Execute to test the logic
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             return await fn()
           }
@@ -385,7 +385,7 @@ KEYWORDS: test`
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
               description: 'Test image',
@@ -397,13 +397,13 @@ KEYWORDS: test`
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return await fn() // Execute to test the logic
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             return await fn()
           }
@@ -430,20 +430,20 @@ KEYWORDS: test`
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             // Execute the callback to test the try-catch inside
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             return await fn()
           }
@@ -469,7 +469,7 @@ KEYWORDS: test`
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
               description: 'Boundary test',
@@ -481,13 +481,13 @@ KEYWORDS: test`
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             return await fn()
           }
@@ -516,19 +516,19 @@ KEYWORDS: test`
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             return await fn()
           }
@@ -621,19 +621,19 @@ KEYWORDS: test`
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             return await fn()
           }
@@ -660,19 +660,19 @@ KEYWORDS: test`
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'prepare-content-chunks') {
             return await fn()
           }
           return fn()
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-content') {
             return await fn()
           }

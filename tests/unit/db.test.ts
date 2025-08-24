@@ -34,8 +34,8 @@ describe('Database Helper', () => {
     const db = getDb(mockEnv)
     
     expect(db).toBeDefined()
-    expect(db._db).toBe(mockEnv.DB)
-    expect(db._schema).toBeDefined()
+    expect((db as any)._db).toBe(mockEnv.DB)
+    expect((db as any)._schema).toBeDefined()
   })
 
   it('should re-export all schema items', () => {
@@ -81,7 +81,7 @@ describe('Database Helper', () => {
     const db2 = getDb(env2)
     
     expect(db1).not.toBe(db2)
-    expect(db1._db).toBe(env1.DB)
-    expect(db2._db).toBe(env2.DB)
+    expect((db1 as any)._db).toBe(env1.DB)
+    expect((db2 as any)._db).toBe(env2.DB)
   })
 })

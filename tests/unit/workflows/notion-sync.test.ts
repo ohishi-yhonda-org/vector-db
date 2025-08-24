@@ -13,7 +13,7 @@ vi.mock('cloudflare:workers', () => ({
 vi.mock('../../../src/services/notion.service')
 vi.mock('../../../src/db')
 vi.mock('drizzle-orm', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal() as Record<string, any>
   return {
     ...actual,
     eq: vi.fn((field, value) => ({ field, value })),
@@ -158,27 +158,27 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.saveBlocks.mockResolvedValueOnce(undefined)
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-page-title') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-properties') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-blocks') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'complete-sync-job') {
             return await fn()
           }
@@ -221,22 +221,22 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.fetchPageFromNotion.mockResolvedValueOnce(mockPage)
       
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-page-title') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-properties') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-blocks') {
             return await fn()
           }
@@ -268,22 +268,22 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.fetchPageFromNotion.mockResolvedValueOnce(mockPage)
       
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-page-title') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-properties') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-blocks') {
             return await fn()
           }
@@ -316,12 +316,12 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.fetchPageFromNotion.mockResolvedValueOnce(mockPage)
       
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-page-title') {
             return await fn()
           }
@@ -344,12 +344,12 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.fetchPageFromNotion.mockResolvedValueOnce(null)
       
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn() // Execute the callback to test the null check
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'record-error') {
             return await fn()
           }
@@ -374,7 +374,7 @@ describe('NotionSyncWorkflow', () => {
 
       mockNotionService.fetchPageFromNotion.mockRejectedValueOnce(new Error('API Error'))
       
-      mockStep.do.mockImplementationOnce(async (name, fn) => {
+      mockStep.do.mockImplementationOnce(async (name: string, fn: () => any) => {
         if (name === 'fetch-and-save-page') {
           throw new Error('API Error')
         }
@@ -396,12 +396,12 @@ describe('NotionSyncWorkflow', () => {
       }
 
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             throw 'String error' // Non-Error exception
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'record-error') {
             return await fn()
           }
@@ -461,17 +461,17 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.fetchPageFromNotion.mockResolvedValueOnce(mockPage)
       
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-page-title') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-properties') {
             return await fn()
           }
@@ -536,17 +536,17 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.fetchBlocksFromNotion.mockResolvedValueOnce(mockBlocks)
       
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-page-title') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-blocks') {
             return await fn()
           }
@@ -581,27 +581,27 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.fetchBlocksFromNotion.mockRejectedValueOnce(new Error('Blocks fetch failed'))
       
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-page-title') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-properties') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-blocks') {
             throw new Error('Blocks fetch failed')
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'record-error') {
             return await fn()
           }
@@ -652,17 +652,17 @@ describe('NotionSyncWorkflow', () => {
       mockNotionService.fetchBlocksFromNotion.mockResolvedValueOnce(mockBlocks)
       
       mockStep.do
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'fetch-and-save-page') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'vectorize-page-title') {
             return await fn()
           }
         })
-        .mockImplementationOnce(async (name, fn) => {
+        .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'process-blocks') {
             return await fn()
           }

@@ -26,14 +26,23 @@ describe('Bulk Sync Notion Pages Route', () => {
     vi.clearAllMocks()
     
     mockEnv = {
+      ENVIRONMENT: 'development' as const,
+      DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
+      DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image',
+      IMAGE_ANALYSIS_MAX_TOKENS: '512',
+      TEXT_EXTRACTION_MAX_TOKENS: '1024',
+      NOTION_API_KEY: 'test-notion-key',
       AI: {} as any,
       VECTORIZE_INDEX: {} as any,
-      VECTOR_MANAGER: {} as any,
       VECTOR_CACHE: {} as any,
       NOTION_MANAGER: mockNotionManagerNamespace as any,
       AI_EMBEDDINGS: {} as any,
       DB: {} as any,
-      NOTION_API_KEY: 'test-notion-key'
+      BATCH_EMBEDDINGS_WORKFLOW: {} as any,
+      VECTOR_OPERATIONS_WORKFLOW: {} as any,
+      FILE_PROCESSING_WORKFLOW: {} as any,
+      NOTION_SYNC_WORKFLOW: {} as any
     }
 
     app = new OpenAPIHono<{ Bindings: Env }>()
@@ -65,7 +74,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(202)
       expect(mockNotionManagerNamespace.idFromName).toHaveBeenCalledWith('global')
@@ -125,7 +134,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(202)
       expect(mockListPages).toHaveBeenCalledWith({
@@ -180,7 +189,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(202)
       expect(mockCreateBulkSyncJob).toHaveBeenCalledWith(['notion-page-1', 'generic-page-1'], {
@@ -213,7 +222,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(202)
       expect(mockCreateBulkSyncJob).toHaveBeenCalledWith(['page-1', 'page-2'], expect.any(Object))
@@ -246,7 +255,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(202)
       expect(mockListPages).toHaveBeenCalledWith({
@@ -263,8 +272,8 @@ describe('Bulk Sync Notion Pages Route', () => {
     })
 
     it('should handle empty pageIds array', async () => {
-      const mockPages = []
-      const mockSyncJobs = []
+      const mockPages: any[] = []
+      const mockSyncJobs: any[] = []
 
       mockListPages.mockResolvedValue(mockPages)
       mockCreateBulkSyncJob.mockResolvedValue({
@@ -282,7 +291,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(202)
       expect(mockListPages).toHaveBeenCalled()
@@ -304,7 +313,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(401)
       expect(result).toEqual({
@@ -330,7 +339,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result).toEqual({
@@ -354,7 +363,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(500)
       expect(result.message).toBe('バルク同期処理の開始中にエラーが発生しました')
@@ -372,7 +381,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(400)
       expect(result.success).toBe(false)
@@ -391,7 +400,7 @@ describe('Bulk Sync Notion Pages Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json()
+      const result = await response.json() as any
 
       expect(response.status).toBe(400)
       expect(result.success).toBe(false)

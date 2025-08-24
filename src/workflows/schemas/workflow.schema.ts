@@ -21,7 +21,7 @@ export const fileProcessingParamsSchema = z.object({
   fileType: z.string().min(1),
   fileSize: z.number().int().positive(),
   namespace: z.string().optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
 })
 
 // Notion Sync schemas
@@ -40,7 +40,7 @@ export const vectorOperationParamsSchema = z.object({
   text: z.string().optional(),
   model: z.string().optional(),
   namespace: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   // For delete operations
   vectorIds: z.array(z.string()).optional()
 })

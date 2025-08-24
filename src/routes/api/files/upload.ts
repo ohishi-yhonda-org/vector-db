@@ -20,7 +20,7 @@ const MetadataSchema = z.string().nullable().optional().transform((val, ctx) => 
   } catch {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'メタデータのJSON形式が不正です'
+      message: 'メタデータのバリデーションに失敗しました'
     })
     return z.NEVER
   }
@@ -121,11 +121,11 @@ export const uploadFileHandler: RouteHandler<typeof uploadFileRoute, EnvType> = 
     // メタデータのパースとバリデーション
     const parseResult = MetadataSchema.safeParse(metadataStr)
     if (!parseResult.success) {
-      const firstError = parseResult.error.errors?.[0]
+      const firstError = parseResult.error.issues[0]
       return c.json<ErrorResponse, 400>({
         success: false,
         error: 'Bad Request',
-        message: firstError?.message || 'メタデータのバリデーションに失敗しました'
+        message: firstError.message
       }, 400)
     }
     const validatedMetadata = parseResult.data
