@@ -12,9 +12,6 @@ jobs:
     runs-on: [Windows, self-hosted,test]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
     - name: Deploy Drive API
       uses: ohishi-yhonda-pub/drive-api-deploy-action@main
       with:
