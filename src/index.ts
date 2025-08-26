@@ -47,6 +47,10 @@ app.doc('/specification', (c) => ({
   },
   servers: [
     {
+      url: 'http://localhost:8787',
+      description: 'Local development server'
+    },
+    {
       url: c.req.url.replace(/\/specification.*$/, ''),
       description: 'Current server'
     }
