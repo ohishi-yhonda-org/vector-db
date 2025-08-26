@@ -584,9 +584,10 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
         
         try {
           // Vectorizeから削除
-          const result = await this.env.VECTORIZE_INDEX.deleteByIds(idsToDelete)
-          deletedCount = result.count || idsToDelete.length
-          console.log(`[VectorManager] Deleted ${deletedCount} vectors from Vectorize`)
+          await this.env.VECTORIZE_INDEX.deleteByIds(idsToDelete)
+          // deleteByIdsは成功時にvoidまたはmutation情報を返す
+          deletedCount = idsToDelete.length
+          console.log(`[VectorManager] Delete operation enqueued for ${deletedCount} vectors`)
         } catch (error) {
           console.error('[VectorManager] Error deleting from Vectorize:', error)
           // エラーがあってもローカル状態はクリアする

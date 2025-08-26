@@ -107,9 +107,10 @@ export const bulkDeleteVectorsHandler: RouteHandler<typeof bulkDeleteVectorsRout
       const batch = ids.slice(i, Math.min(i + batchSize, ids.length))
       
       try {
-        const result = await c.env.VECTORIZE_INDEX.deleteByIds(batch)
-        deletedCount += result.count || batch.length
-        console.log(`[bulk-delete] Batch ${Math.floor(i / batchSize) + 1}: Deleted ${result.count || batch.length} vectors`)
+        await c.env.VECTORIZE_INDEX.deleteByIds(batch)
+        // deleteByIdsは成功時にvoidまたはmutation情報を返す
+        deletedCount += batch.length
+        console.log(`[bulk-delete] Batch ${Math.floor(i / batchSize) + 1}: Delete operation enqueued for ${batch.length} vectors`)
       } catch (error) {
         console.error(`[bulk-delete] Batch ${Math.floor(i / batchSize) + 1} failed:`, error)
         failedCount += batch.length
