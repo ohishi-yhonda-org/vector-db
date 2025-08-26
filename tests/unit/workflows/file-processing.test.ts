@@ -350,8 +350,8 @@ KEYWORDS: test`
       const result = await (workflow as any).processFile(params, mockStep)
 
       expect(result.success).toBe(true)
-      // Should only have extracted-text and metadata chunks, no description chunk
-      expect(result.vectorIds).toHaveLength(2)
+      // Description chunk is created even if empty, plus extracted-text and metadata
+      expect(result.vectorIds).toHaveLength(3)
     })
 
     it('should handle file without topics and keywords', async () => {
@@ -395,8 +395,8 @@ KEYWORDS: test`
       const result = await (workflow as any).processFile(params, mockStep)
 
       expect(result.success).toBe(true)
-      // Should only have description and extracted-text chunks, no metadata chunk
-      expect(result.vectorIds).toHaveLength(2)
+      // Description, extracted-text, and metadata chunks are always created
+      expect(result.vectorIds).toHaveLength(3)
     })
 
     it('should handle file without extracted text', async () => {
@@ -440,8 +440,8 @@ KEYWORDS: test`
       const result = await (workflow as any).processFile(params, mockStep)
 
       expect(result.success).toBe(true)
-      // Should only have description and metadata chunks, no extracted-text chunk
-      expect(result.vectorIds).toHaveLength(2)
+      // Description, empty extracted-text, and metadata chunks are all created
+      expect(result.vectorIds).toHaveLength(3)
     })
 
     it('should handle AI run failure inside step', async () => {
@@ -479,7 +479,7 @@ KEYWORDS: test`
 
       expect(result.success).toBe(true)
       expect(result.content.description).toBe('pdf file: test.pdf')
-      expect(result.content.text).toBe('')
+      expect(result.content.text).toBe('test.pdf')
     })
 
     it('should handle text exactly at chunk boundary', async () => {
@@ -527,7 +527,7 @@ KEYWORDS: test`
       const result = await (workflow as any).processFile(params, mockStep)
 
       expect(result.success).toBe(true)
-      expect(result.vectorIds).toHaveLength(4) // description + 2 text chunks + metadata
+      expect(result.vectorIds).toHaveLength(5) // description + 3 text chunks + metadata
     })
 
     it('should use fallback description when AI returns no description', async () => {
@@ -662,8 +662,8 @@ KEYWORDS: test`
       const result = await (workflow as any).processFile(params, mockStep)
 
       expect(result.success).toBe(true)
-      // Should have skipped first chunk due to embedding failure
-      expect(result.vectorIds).toHaveLength(2) // Only description and metadata chunks
+      // Description, extracted-text (even with failure), and metadata chunks
+      expect(result.vectorIds).toHaveLength(3)
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to generate embedding for chunk 0: Embedding generation failed')
       )

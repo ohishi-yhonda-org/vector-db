@@ -9,7 +9,7 @@ vi.mock('../../../../src/routes/api/vectors/create', () => ({
 }))
 
 vi.mock('../../../../src/routes/api/vectors/get', () => ({
-  getVectorRoute: { path: '/vectors/:id' },
+  getVectorRoute: { path: '/vectors/{id}' },
   getVectorHandler: vi.fn()
 }))
 
@@ -19,12 +19,12 @@ vi.mock('../../../../src/routes/api/vectors/list', () => ({
 }))
 
 vi.mock('../../../../src/routes/api/vectors/delete', () => ({
-  deleteVectorRoute: { path: '/vectors/:id' },
+  deleteVectorRoute: { path: '/vectors/{id}' },
   deleteVectorHandler: vi.fn()
 }))
 
 vi.mock('../../../../src/routes/api/vectors/status', () => ({
-  getJobStatusRoute: { path: '/vectors/jobs/:jobId' },
+  getJobStatusRoute: { path: '/vectors/jobs/{jobId}' },
   getJobStatusHandler: vi.fn(),
   getAllJobsRoute: { path: '/vectors/jobs' },
   getAllJobsHandler: vi.fn()
@@ -66,5 +66,7 @@ describe('Vectors Routes Index', () => {
     
     // Also check that /vectors appears twice (create and list both use /vectors)
     expect(calls.filter((p: string) => p === '/vectors').length).toBe(2)
+    // Also check that /vectors/{id} appears twice (get and delete both use /vectors/{id})
+    expect(calls.filter((p: string) => p === '/vectors/{id}').length).toBe(2)
   })
 })
