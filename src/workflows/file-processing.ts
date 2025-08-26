@@ -1,5 +1,6 @@
 import { WorkflowEntrypoint, WorkflowEvent, WorkflowStep } from 'cloudflare:workers'
 import { fileProcessingParamsSchema, type FileProcessingParams } from './schemas/workflow.schema'
+import { EmbeddingResultSchema, type EmbeddingResult } from '../schemas/embedding-result.schema'
 
 export interface FileProcessingResult {
   type: 'pdf' | 'image'
@@ -195,7 +196,7 @@ export class FileProcessingWorkflow extends WorkflowEntrypoint<Env, FileProcessi
           // Poll for workflow completion
           let attempts = 0
           const maxAttempts = 30
-          let embeddingResult = null
+          let embeddingResult: EmbeddingResult | null = null
           console.log(`[FileProcessingWorkflow] Polling embedding workflow for chunk ${i+1}`)
           
           while (attempts < maxAttempts) {
@@ -203,7 +204,7 @@ export class FileProcessingWorkflow extends WorkflowEntrypoint<Env, FileProcessi
             
             if (statusResult.status === 'complete' && statusResult.output) {
               console.log(`[FileProcessingWorkflow] Embedding completed for chunk ${i+1}`)
-              embeddingResult = statusResult.output
+              embeddingResult = EmbeddingResultSchema.parse(statusResult.output)
               break
             } else if (statusResult.status === 'errored') {
               console.error(`[FileProcessingWorkflow] Embedding workflow failed for chunk ${i+1}: ${statusResult.error}`)
@@ -248,14 +249,14 @@ export class FileProcessingWorkflow extends WorkflowEntrypoint<Env, FileProcessi
           // Wait for vector save to complete
           const vectorWorkflowInstance = await this.env.VECTOR_OPERATIONS_WORKFLOW.get(vectorId)
           attempts = 0
-          let vectorSaveResult = null
+          let vectorSaveResult: EmbeddingResult | null = null
           
           while (attempts < maxAttempts) {
             const statusResult = await vectorWorkflowInstance.status()
             
             if (statusResult.status === 'complete' && statusResult.output) {
               console.log(`[FileProcessingWorkflow] Vector saved for chunk ${i+1}`)
-              vectorSaveResult = statusResult.output
+              vectorSaveResult = EmbeddingResultSchema.parse(statusResult.output)
               break
             } else if (statusResult.status === 'errored') {
               console.error(`[FileProcessingWorkflow] Vector save failed for chunk ${i+1}: ${statusResult.error}`)

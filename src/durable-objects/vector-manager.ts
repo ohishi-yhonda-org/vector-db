@@ -1,5 +1,6 @@
 import { Agent } from 'agents'
 import { findSimilarOptionsSchema, cleanupJobsParamsSchema } from './schemas/vector-manager.schema'
+import { EmbeddingResultSchema, type EmbeddingResult } from '../schemas/embedding-result.schema'
 
 interface SearchHistoryEntry {
   timestamp: string
@@ -187,14 +188,14 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
     // Poll for workflow completion
     let attempts = 0
     const maxAttempts = 30 // 30 seconds timeout
-    let embeddingResult = null
+    let embeddingResult: EmbeddingResult | null = null
     
     while (attempts < maxAttempts) {
       const statusResult = await embeddingWorkflowInstance.status()
       console.log(`Attempt ${attempts + 1}: Workflow status:`, statusResult)
       
       if (statusResult.status === 'complete' && statusResult.output) {
-        embeddingResult = statusResult.output
+        embeddingResult = EmbeddingResultSchema.parse(statusResult.output)
         break
       } else if (statusResult.status === 'errored') {
         throw new Error(`Workflow failed: ${statusResult.error || 'Unknown error'}`)
@@ -231,14 +232,14 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
     // Wait for vector operations workflow to complete
     const vectorWorkflowInstance = await this.env.VECTOR_OPERATIONS_WORKFLOW.get(jobId)
     attempts = 0
-    let vectorResult = null
+    let vectorResult: EmbeddingResult | null = null
     
     while (attempts < maxAttempts) {
       const statusResult = await vectorWorkflowInstance.status()
       console.log(`Vector workflow attempt ${attempts + 1}:`, statusResult.status)
       
       if (statusResult.status === 'complete' && statusResult.output) {
-        vectorResult = statusResult.output
+        vectorResult = EmbeddingResultSchema.parse(statusResult.output)
         break
       } else if (statusResult.status === 'errored') {
         throw new Error(`Vector workflow failed: ${statusResult.error || 'Unknown error'}`)
