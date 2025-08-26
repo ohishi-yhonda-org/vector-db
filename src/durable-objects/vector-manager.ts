@@ -59,7 +59,8 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
   initialState: VectorManagerState = {
     searchHistory: [],
     vectorJobs: {},
-    fileProcessingJobs: {}
+    fileProcessingJobs: {},
+    recentVectors: []
   }
 
   constructor(ctx: DurableObjectState, env: Env) {
@@ -537,6 +538,77 @@ export class VectorManager extends Agent<Env, VectorManagerState> {
       vectors: resultVectors,
       count: resultVectors.length,
       nextCursor: undefined // 10件以内なのでページネーション不要
+    }
+  }
+
+  /**
+   * 削除されたベクトルIDをローカル状態から除外
+   */
+  async removeDeletedVectors(ids: string[]): Promise<void> {
+    console.log(`[VectorManager] Removing ${ids.length} vectors from local state`)
+    
+    // recentVectorsが初期化されていない場合は初期化
+    if (!this.state.recentVectors) {
+      this.state.recentVectors = []
+      console.log('[VectorManager] Initialized recentVectors array')
+      return
+    }
+    
+    const idsSet = new Set(ids)
+    this.state.recentVectors = this.state.recentVectors.filter(v => !idsSet.has(v.id))
+    console.log(`[VectorManager] Updated local state, ${this.state.recentVectors.length} vectors remaining`)
+  }
+
+  /**
+   * 全ベクトルを削除
+   */
+  async deleteAllVectors(namespace?: string): Promise<{ deletedCount: number; success: boolean }> {
+    console.log(`[VectorManager] Deleting all vectors${namespace ? ` in namespace: ${namespace}` : ' in all namespaces'}`)
+    
+    try {
+      let deletedCount = 0
+      
+      // recentVectorsが初期化されていない場合は初期化
+      if (!this.state.recentVectors) {
+        this.state.recentVectors = []
+      }
+      
+      // ローカルの状態から削除対象のIDを取得
+      const vectorsToDelete = namespace 
+        ? this.state.recentVectors.filter(v => v.namespace === namespace)
+        : this.state.recentVectors
+      
+      if (vectorsToDelete.length > 0) {
+        const idsToDelete = vectorsToDelete.map(v => v.id)
+        console.log(`[VectorManager] Deleting ${idsToDelete.length} vectors from Vectorize`)
+        
+        try {
+          // Vectorizeから削除
+          const result = await this.env.VECTORIZE_INDEX.deleteByIds(idsToDelete)
+          deletedCount = result.count || idsToDelete.length
+          console.log(`[VectorManager] Deleted ${deletedCount} vectors from Vectorize`)
+        } catch (error) {
+          console.error('[VectorManager] Error deleting from Vectorize:', error)
+          // エラーがあってもローカル状態はクリアする
+        }
+      }
+      
+      // ローカルの状態をクリア
+      if (namespace) {
+        this.state.recentVectors = this.state.recentVectors.filter(v => v.namespace !== namespace)
+      } else {
+        this.state.recentVectors = []
+      }
+      
+      console.log('[VectorManager] Local state cleared')
+      
+      return {
+        deletedCount,
+        success: true
+      }
+    } catch (error) {
+      console.error('[VectorManager] Delete all vectors error:', error)
+      throw error
     }
   }
 }
