@@ -1,5 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { app } from '../../../../src/index'
+import app from '../../../../src/index'
+
+// レスポンスの型定義
+interface DeleteAllResponse {
+  success: boolean
+  data?: {
+    deletedCount: number
+    message: string
+  }
+  error?: string
+  message: string
+}
+
+interface ErrorResponse {
+  success: boolean
+  error: string
+  message: string
+}
 
 // Envをモック
 const mockEnv = {
@@ -47,7 +64,7 @@ describe('Delete All Vectors Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(200)
-    const json = await response.json()
+    const json = await response.json<DeleteAllResponse | ErrorResponse>()
     expect(json).toEqual({
       success: true,
       data: {
@@ -76,7 +93,7 @@ describe('Delete All Vectors Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(200)
-    const json = await response.json()
+    const json = await response.json<DeleteAllResponse | ErrorResponse>()
     expect(json).toEqual({
       success: true,
       data: {
@@ -95,7 +112,7 @@ describe('Delete All Vectors Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(400)
-    const json = await response.json()
+    const json = await response.json<DeleteAllResponse | ErrorResponse>()
     expect(json).toEqual({
       success: false,
       error: 'Bad Request',
@@ -109,7 +126,7 @@ describe('Delete All Vectors Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(400)
-    const json = await response.json()
+    const json = await response.json<DeleteAllResponse | ErrorResponse>()
     expect(json).toEqual({
       success: false,
       error: 'Bad Request',
@@ -130,7 +147,7 @@ describe('Delete All Vectors Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(500)
-    const json = await response.json()
+    const json = await response.json<DeleteAllResponse | ErrorResponse>()
     expect(json).toEqual({
       success: false,
       error: 'Internal Server Error',
@@ -154,7 +171,7 @@ describe('Delete All Vectors Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(200)
-    const json = await response.json()
+    const json = await response.json<DeleteAllResponse | ErrorResponse>()
     expect(json).toEqual({
       success: true,
       data: {

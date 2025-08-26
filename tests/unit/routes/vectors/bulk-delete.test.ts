@@ -1,5 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { app } from '../../../../src/index'
+import app from '../../../../src/index'
+
+// レスポンスの型定義
+interface BulkDeleteResponse {
+  success: boolean
+  data?: {
+    requested: number
+    deleted: number
+    failed: number
+    errors?: string[]
+  }
+  error?: string
+  message: string
+}
+
+interface ErrorResponse {
+  success: boolean
+  error: string
+  message: string
+}
 
 // Envをモック
 const mockEnv = {
@@ -53,7 +72,7 @@ describe('Bulk Delete Vector Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(200)
-    const json = await response.json()
+    const json = await response.json<BulkDeleteResponse | ErrorResponse>()
     expect(json).toEqual({
       success: true,
       data: {
@@ -80,7 +99,7 @@ describe('Bulk Delete Vector Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(400)
-    const json = await response.json()
+    const json = await response.json<BulkDeleteResponse | ErrorResponse>()
     expect(json).toEqual({
       success: false,
       error: 'Bad Request',
@@ -102,7 +121,7 @@ describe('Bulk Delete Vector Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(400)
-    const json = await response.json()
+    const json = await response.json<BulkDeleteResponse | ErrorResponse>()
     expect(json).toEqual({
       success: false,
       error: 'Bad Request',
@@ -134,7 +153,7 @@ describe('Bulk Delete Vector Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(200)
-    const json = await response.json()
+    const json = await response.json<BulkDeleteResponse | ErrorResponse>()
     expect(json.success).toBe(false)
     expect(json.data.requested).toBe(150)
     expect(json.data.deleted).toBe(100)
@@ -162,7 +181,7 @@ describe('Bulk Delete Vector Route', () => {
     }, mockEnv)
 
     expect(response.status).toBe(200)
-    const json = await response.json()
+    const json = await response.json<BulkDeleteResponse | ErrorResponse>()
     expect(json).toEqual({
       success: true,
       data: {

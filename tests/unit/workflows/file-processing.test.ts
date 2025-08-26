@@ -28,16 +28,29 @@ describe('FileProcessingWorkflow', () => {
       DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
       TEXT_EXTRACTION_MAX_TOKENS: '2048',
       EMBEDDINGS_WORKFLOW: {
-        create: vi.fn().mockImplementation(async ({ params }) => ({
-          get: vi.fn().mockResolvedValue({
-            success: true,
-            embedding: [0.1, 0.2, 0.3],
-            model: '@cf/baai/bge-base-en-v1.5'
+        create: vi.fn().mockResolvedValue({ id: 'embedding-workflow-123' }),
+        get: vi.fn().mockResolvedValue({
+          status: vi.fn().mockResolvedValue({
+            status: 'complete',
+            output: {
+              success: true,
+              embedding: [0.1, 0.2, 0.3],
+              model: '@cf/baai/bge-base-en-v1.5'
+            }
           })
-        }))
+        })
       },
       VECTOR_OPERATIONS_WORKFLOW: {
-        create: vi.fn().mockResolvedValue({ id: 'workflow-123' })
+        create: vi.fn().mockResolvedValue({ id: 'vector-workflow-123' }),
+        get: vi.fn().mockResolvedValue({
+          status: vi.fn().mockResolvedValue({
+            status: 'complete',
+            output: {
+              success: true,
+              vectorId: 'vec-123'
+            }
+          })
+        })
       }
     }
 
