@@ -30,6 +30,16 @@ vi.mock('../../../../src/routes/api/vectors/status', () => ({
   getAllJobsHandler: vi.fn()
 }))
 
+vi.mock('../../../../src/routes/api/vectors/bulk-delete', () => ({
+  bulkDeleteVectorsRoute: { path: '/vectors/bulk-delete' },
+  bulkDeleteVectorsHandler: vi.fn()
+}))
+
+vi.mock('../../../../src/routes/api/vectors/delete-all', () => ({
+  deleteAllVectorsRoute: { path: '/vectors/all' },
+  deleteAllVectorsHandler: vi.fn()
+}))
+
 describe('Vectors Routes Index', () => {
   let app: OpenAPIHono<{ Bindings: Env }>
 
@@ -42,27 +52,19 @@ describe('Vectors Routes Index', () => {
   it('should register all vectors routes', () => {
     vectorsRoutes(app)
 
-    expect(app.openapi).toHaveBeenCalledTimes(6)
+    expect(app.openapi).toHaveBeenCalledTimes(8)
     
-    // Check each route was registered
-    expect(app.openapi).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/vectors' }),
-      expect.any(Function)
-    )
+    // Check that all expected routes were registered (order may vary)
+    const calls = (app.openapi as any).mock.calls.map((call: any) => call[0].path)
     
-    expect(app.openapi).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/vectors/:id' }),
-      expect.any(Function)
-    )
+    expect(calls).toContain('/vectors')
+    expect(calls).toContain('/vectors/{id}')
+    expect(calls).toContain('/vectors/jobs')
+    expect(calls).toContain('/vectors/jobs/{jobId}')
+    expect(calls).toContain('/vectors/all')
+    expect(calls).toContain('/vectors/bulk-delete')
     
-    expect(app.openapi).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/vectors/jobs/:jobId' }),
-      expect.any(Function)
-    )
-    
-    expect(app.openapi).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/vectors/jobs' }),
-      expect.any(Function)
-    )
+    // Also check that /vectors appears twice (create and list both use /vectors)
+    expect(calls.filter((p: string) => p === '/vectors').length).toBe(2)
   })
 })

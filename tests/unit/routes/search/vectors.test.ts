@@ -4,24 +4,19 @@ import { searchVectorsRoute, searchVectorsHandler } from '../../../../src/routes
 import { VectorizeService } from '../../../../src/services'
 
 // Mock VectorizeService
+const mockVectorizeQuery = vi.fn()
 vi.mock('../../../../src/services', () => ({
-  VectorizeService: vi.fn()
+  VectorizeService: vi.fn(() => ({
+    query: mockVectorizeQuery
+  }))
 }))
 
 describe('Search Vectors Route', () => {
   let app: OpenAPIHono<{ Bindings: Env }>
   let mockEnv: Env
-  let mockVectorizeQuery: any
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
-    mockVectorizeQuery = vi.fn()
-    
-    // Mock VectorizeService instance
-    ;(VectorizeService as any).mockImplementation(() => ({
-      query: mockVectorizeQuery
-    }))
     
     // Mock AI.run for embeddings
     const mockAIRun = vi.fn()
@@ -37,7 +32,9 @@ describe('Search Vectors Route', () => {
       AI: {
         run: mockAIRun
       } as any,
-      VECTORIZE_INDEX: {} as any,
+      VECTORIZE_INDEX: {
+        query: mockVectorizeQuery
+      } as any,
       VECTOR_CACHE: {} as any,
       NOTION_MANAGER: {} as any,
       AI_EMBEDDINGS: {} as any,
@@ -45,7 +42,8 @@ describe('Search Vectors Route', () => {
       BATCH_EMBEDDINGS_WORKFLOW: {} as any,
       VECTOR_OPERATIONS_WORKFLOW: {} as any,
       FILE_PROCESSING_WORKFLOW: {} as any,
-      NOTION_SYNC_WORKFLOW: {} as any
+      NOTION_SYNC_WORKFLOW: {} as any,
+      EMBEDDINGS_WORKFLOW: {} as any
     }
 
     app = new OpenAPIHono<{ Bindings: Env }>()

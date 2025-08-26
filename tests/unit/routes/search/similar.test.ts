@@ -4,24 +4,21 @@ import { similarSearchRoute, similarSearchHandler } from '../../../../src/routes
 import { VectorizeService } from '../../../../src/services'
 
 // Mock VectorizeService
+const mockFindSimilar = vi.fn()
+const mockGetByIds = vi.fn()
 vi.mock('../../../../src/services', () => ({
-  VectorizeService: vi.fn()
+  VectorizeService: vi.fn(() => ({
+    findSimilar: mockFindSimilar,
+    getByIds: mockGetByIds
+  }))
 }))
 
 describe('Similar Search Route', () => {
   let app: OpenAPIHono<{ Bindings: Env }>
   let mockEnv: Env
-  let mockFindSimilar: any
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
-    mockFindSimilar = vi.fn()
-    
-    // Mock VectorizeService instance
-    ;(VectorizeService as any).mockImplementation(() => ({
-      findSimilar: mockFindSimilar
-    }))
     
     mockEnv = {
       ENVIRONMENT: 'development' as const,

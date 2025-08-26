@@ -3,18 +3,17 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { getVectorRoute, getVectorHandler } from '../../../../src/routes/api/vectors/get'
 
 // Mock VectorizeService
+const mockGetByIds = vi.fn()
+
 vi.mock('../../../../src/services', () => ({
-  VectorizeService: vi.fn().mockImplementation(() => ({
-    getByIds: vi.fn()
+  VectorizeService: vi.fn(() => ({
+    getByIds: mockGetByIds
   }))
 }))
-
-import { VectorizeService } from '../../../../src/services'
 
 describe('Get Vector Route', () => {
   let app: OpenAPIHono<{ Bindings: Env }>
   let mockEnv: Env
-  let mockGetByIds: any
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -28,7 +27,9 @@ describe('Get Vector Route', () => {
       TEXT_EXTRACTION_MAX_TOKENS: '1024',
       NOTION_API_KEY: 'test-key',
       AI: {} as any,
-      VECTORIZE_INDEX: {} as any,
+      VECTORIZE_INDEX: {
+        getByIds: mockGetByIds
+      } as any,
       VECTOR_CACHE: {} as any,
       NOTION_MANAGER: {} as any,
       AI_EMBEDDINGS: {} as any,
@@ -36,14 +37,9 @@ describe('Get Vector Route', () => {
       BATCH_EMBEDDINGS_WORKFLOW: {} as any,
       VECTOR_OPERATIONS_WORKFLOW: {} as any,
       FILE_PROCESSING_WORKFLOW: {} as any,
-      NOTION_SYNC_WORKFLOW: {} as any
+      NOTION_SYNC_WORKFLOW: {} as any,
+      EMBEDDINGS_WORKFLOW: {} as any
     }
-
-    // Get mock instance
-    mockGetByIds = vi.fn()
-    vi.mocked(VectorizeService).mockImplementation(() => ({
-      getByIds: mockGetByIds
-    } as any))
 
     app = new OpenAPIHono<{ Bindings: Env }>()
     app.openapi(getVectorRoute, getVectorHandler)
