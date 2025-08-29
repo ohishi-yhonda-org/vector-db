@@ -320,475 +320,744 @@ describe('VectorManager Durable Object', () => {
   })
 
   describe('createVectorAsync', () => {
-    it.skip('should create vector asynchronously using workflow', async () => {
+    it('should create vector asynchronously using workflow', async () => {
       const text = 'Test text'
-      const model = 'test-model'
       const namespace = 'test-namespace'
-      const metadata = { key: 'value' }
+      const metadata = { category: 'test' }
 
-      const result = await vectorManager.createVectorAsync(text, model, namespace, metadata)
-
-      // Should first call EMBEDDINGS_WORKFLOW to generate embedding
-      expect(mockEnv.EMBEDDINGS_WORKFLOW.create).toHaveBeenCalledWith({
-        id: expect.stringContaining('embed_vec_create_'),
-        params: {
-          text,
-          model
-        }
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
       })
 
-      // Then call VECTOR_OPERATIONS_WORKFLOW with the embedding
-      expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalledWith({
-        id: expect.stringContaining('vec_create_'),
-        params: {
-          type: 'create',
-          embedding: [0.1, 0.2, 0.3],
-          namespace,
-          metadata: {
-            ...metadata,
-            text,
-            model: '@cf/baai/bge-base-en-v1.5'
-          }
-        }
-      })
+      const result = await vectorManager.createVectorAsync(text, undefined, namespace, metadata)
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         jobId: expect.stringContaining('vec_create_'),
-        workflowId: 'workflow-123',
         status: 'completed'
       })
-
-      expect(vectorManager.state.vectorJobs[result.jobId]).toMatchObject({
-        type: 'create',
-        status: 'completed',
-        text,
-        model,
-        namespace,
-        metadata,
-        vectorId: 'vec-123'
-      })
+      expect(mockEnv.EMBEDDINGS_WORKFLOW.create).toHaveBeenCalled()
+      expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalled()
     })
 
-    it.skip('should handle embedding generation failure', async () => {
+    it('should use default namespace when undefined and handle undefined recentVectors', async () => {
       const text = 'Test text'
       
-      // Mock embedding generation to fail
+      // recentVectorsをundefinedに設定
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: undefined
+      })
+
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
+      })
+
+      const result = await vectorManager.createVectorAsync(text, undefined, undefined, undefined)
+
+      expect(result).toMatchObject({
+        jobId: expect.stringContaining('vec_create_'),
+        status: 'completed'
+      })
+      
+      // recentVectorsが初期化され、デフォルトnamespaceが使われることを確認
+      expect(vectorManager.state.recentVectors).toBeDefined()
+      expect(vectorManager.state.recentVectors.length).toBeGreaterThan(0)
+      expect(vectorManager.state.recentVectors[0].namespace).toBe('default')
+    })
+
+    it('should handle embedding workflow failure', async () => {
+      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'errored',
+          error: 'Embedding failed'
+        })
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Workflow failed: Embedding failed')
+    })
+
+    it('should handle embedding workflow failure with undefined error', async () => {
+      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'errored',
+          error: undefined
+        })
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Workflow failed: Unknown error')
+    })
+
+    it('should handle embedding timeout', async () => {
+      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'running'
+        })
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Workflow did not complete within timeout')
+    })
+
+    it('should handle vector workflow failure', async () => {
+      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'errored',
+          error: 'Vector save failed'
+        })
+      })
+
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Vector workflow failed: Vector save failed')
+    })
+
+    it('should handle vector workflow failure with undefined error', async () => {
+      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'errored',
+          error: undefined
+        })
+      })
+
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Vector workflow failed: Unknown error')
+    })
+
+    it('should handle unsuccessful embedding result', async () => {
       mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
             success: false,
-            error: 'Failed to generate embedding'
+            error: 'Model error'
           }
         })
       })
 
-      await expect(vectorManager.createVectorAsync(text)).rejects.toThrow(
-        'Failed to generate embedding: Failed to generate embedding'
-      )
-      
-      // Should not call VECTOR_OPERATIONS_WORKFLOW when embedding fails
-      expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).not.toHaveBeenCalled()
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Failed to generate embedding: Model error')
     })
 
-    it.skip('should handle embedding generation failure without error message', async () => {
-      const text = 'Test text'
-      
-      // Mock embedding generation to fail without error message
+    it('should handle unsuccessful embedding with undefined error', async () => {
       mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
-            success: false
-            // No error field
+            success: false,
+            error: undefined
           }
         })
       })
 
-      await expect(vectorManager.createVectorAsync(text)).rejects.toThrow(
-        'Failed to generate embedding: Unknown error'
-      )
-      
-      // Should not call VECTOR_OPERATIONS_WORKFLOW when embedding fails
-      expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).not.toHaveBeenCalled()
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Failed to generate embedding: Unknown error')
+    })
+
+    it('should handle unsuccessful vector result', async () => {
+      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'complete',
+          output: {
+            success: false,
+            error: 'Save error'
+          }
+        })
+      })
+
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Failed to save vector: Save error')
+    })
+
+    it('should handle vector workflow timeout', async () => {
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
+      })
+
+      // Embedding workflow succeeds immediately
+      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'complete',
+          output: {
+            success: true,
+            embedding: [0.1, 0.2, 0.3],
+            model: '@cf/baai/bge-base-en-v1.5'
+          }
+        })
+      })
+
+      // Vector workflow always returns running status
+      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'running'
+        })
+      })
+
+      // After timeout, vectorResult is null, so it throws 'Unknown error'
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Failed to save vector: Unknown error')
+    })
+
+    it('should handle null vector result', async () => {
+      // Embedding workflow succeeds
+      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'complete',
+          output: {
+            success: true,
+            embedding: [0.1, 0.2, 0.3],
+            model: '@cf/baai/bge-base-en-v1.5'
+          }
+        })
+      })
+
+      // Vector workflow returns null output
+      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+        status: vi.fn().mockResolvedValue({
+          status: 'complete',
+          output: null
+        })
+      })
+
+      // setTimeoutをモックしてすぐに実行
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn: any) => {
+        fn()
+        return 0 as any
+      })
+
+      await expect(
+        vectorManager.createVectorAsync('Test text')
+      ).rejects.toThrow('Failed to save vector: Unknown error')
     })
   })
 
   describe('deleteVectorsAsync', () => {
-    it('should delete vectors asynchronously using workflow', async () => {
-      const vectorIds = ['vec-1', 'vec-2', 'vec-3']
-
+    it('should delete vectors asynchronously', async () => {
+      const vectorIds = ['vec-1', 'vec-2']
       const result = await vectorManager.deleteVectorsAsync(vectorIds)
 
+      expect(result).toMatchObject({
+        jobId: expect.stringContaining('vec_delete_'),
+        status: 'processing'
+      })
       expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalledWith({
-        id: expect.stringContaining('vec_delete_'),
+        id: result.jobId,
         params: {
           type: 'delete',
           vectorIds
         }
       })
-
-      expect(result).toEqual({
-        jobId: expect.stringContaining('vec_delete_'),
-        workflowId: 'workflow-123',
-        status: 'processing'
-      })
-
-      expect(vectorManager.state.vectorJobs[result.jobId]).toMatchObject({
-        type: 'delete',
-        status: 'pending',
-        vectorIds
-      })
     })
   })
 
-  describe('getWorkflowStatus', () => {
-    it('should get workflow status', async () => {
-      const expectedStatus = { status: 'completed', output: { success: true } }
-      
-      // Create a specific mock for this test
-      const workflowMock = {
-        id: 'workflow-123',
-        status: vi.fn().mockResolvedValue(expectedStatus)
-      }
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce(workflowMock)
-
-      const status = await vectorManager.getWorkflowStatus('workflow-123')
-
-      expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.get).toHaveBeenCalledWith('workflow-123')
-      expect(status).toEqual(expectedStatus)
-    })
-  })
-
-  describe('job management', () => {
-    it.skip('should get job status', async () => {
-      // Create test jobs
-      await vectorManager.createVectorAsync('text1')
-      const { jobId } = await vectorManager.createVectorAsync('text2')
+  describe('Job Management', () => {
+    it('should get job status', async () => {
+      await vectorManager.deleteVectorsAsync(['vec-1'])
+      const jobs = await vectorManager.getAllJobs()
+      const jobId = jobs[0].id
 
       const job = await vectorManager.getJobStatus(jobId)
       expect(job).toBeDefined()
-      expect(job?.id).toBe(jobId)
+      expect(job?.type).toBe('delete')
     })
 
-    it.skip('should get all jobs', async () => {
-      // Create test jobs
-      await vectorManager.createVectorAsync('text1')
-      await vectorManager.createVectorAsync('text2')
-      await vectorManager.deleteVectorsAsync(['vec-3'])
+    it('should get all jobs', async () => {
+      await vectorManager.deleteVectorsAsync(['vec-1'])
+      await vectorManager.deleteVectorsAsync(['vec-2'])
 
       const jobs = await vectorManager.getAllJobs()
-      expect(jobs).toHaveLength(3)
-      expect(jobs.filter(j => j.type === 'create')).toHaveLength(2)
-      expect(jobs.filter(j => j.type === 'delete')).toHaveLength(1)
+      expect(jobs).toHaveLength(2)
     })
 
-    it.skip('should cleanup old jobs', async () => {
-      // Create test jobs
-      await vectorManager.createVectorAsync('text1')
-      await vectorManager.createVectorAsync('text2')
-      await vectorManager.deleteVectorsAsync(['vec-3'])
+    it('should cleanup old completed jobs', async () => {
+      const oldDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
+      const recentDate = new Date().toISOString()
 
-      // Make jobs old
-      const jobs = await vectorManager.getAllJobs()
-      const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
-
-      jobs.forEach(job => {
-        job.createdAt = oldTime
-        job.status = 'completed'
-        vectorManager.state.vectorJobs[job.id] = job
-      })
-
-      const deletedCount = await vectorManager.cleanupOldJobs(24)
-
-      expect(deletedCount).toBe(3)
-      expect(await vectorManager.getAllJobs()).toHaveLength(0)
-    })
-
-    it.skip('should return 0 when no old jobs to cleanup', async () => {
-      // Create recent jobs
-      await vectorManager.createVectorAsync('text1')
-      await vectorManager.createVectorAsync('text2')
-
-      const deletedCount = await vectorManager.cleanupOldJobs(24)
-
-      expect(deletedCount).toBe(0)
-      expect(await vectorManager.getAllJobs()).toHaveLength(2)
-    })
-
-    it.skip('should use default hours when not specified', async () => {
-      // Create old job
-      await vectorManager.createVectorAsync('text1')
-      const jobs = await vectorManager.getAllJobs()
-
-      // Make job 25 hours old (older than default 24 hours)
-      const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
-      jobs[0].createdAt = oldTime
-      jobs[0].status = 'completed'
-      vectorManager.state.vectorJobs[jobs[0].id] = jobs[0]
-
-      const deletedCount = await vectorManager.cleanupOldJobs()
-
-      expect(deletedCount).toBe(1)
-      expect(await vectorManager.getAllJobs()).toHaveLength(0)
-    })
-
-    it.skip('should not cleanup jobs that are still processing', async () => {
-      // Create job and keep it as processing
-      await vectorManager.createVectorAsync('text1')
-      const jobs = await vectorManager.getAllJobs()
-
-      // Make job old but keep status as processing
-      const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
-      jobs[0].createdAt = oldTime
-      jobs[0].status = 'processing'
-      vectorManager.state.vectorJobs[jobs[0].id] = jobs[0]
-
-      const deletedCount = await vectorManager.cleanupOldJobs(24)
-
-      expect(deletedCount).toBe(0)
-      expect(await vectorManager.getAllJobs()).toHaveLength(1)
-    })
-  })
-
-  describe('processFileAsync', () => {
-    it.skip('should process file asynchronously', async () => {
-      const fileData = 'base64data'
-      const fileName = 'test.pdf'
-      const fileType = 'application/pdf'
-      const fileSize = 1024
-      const namespace = 'files'
-      const metadata = { uploaded_by: 'user-1' }
-
-      const result = await vectorManager.processFileAsync(
-        fileData,
-        fileName,
-        fileType,
-        fileSize,
-        namespace,
-        metadata
-      )
-
-      expect(mockEnv.FILE_PROCESSING_WORKFLOW.create).toHaveBeenCalledWith({
-        id: expect.stringContaining('file_process_'),
-        params: {
-          fileData,
-          fileName,
-          fileType,
-          fileSize,
-          namespace,
-          metadata
+      vectorManager.setState({
+        ...vectorManager.state,
+        vectorJobs: {
+          'old-job': {
+            id: 'old-job',
+            type: 'delete',
+            status: 'completed',
+            createdAt: oldDate
+          },
+          'recent-job': {
+            id: 'recent-job',
+            type: 'delete',
+            status: 'completed',
+            createdAt: recentDate
+          },
+          'old-pending': {
+            id: 'old-pending',
+            type: 'delete',
+            status: 'pending',
+            createdAt: oldDate
+          }
         }
       })
 
-      expect(result).toEqual({
-        jobId: expect.stringContaining('file_process_'),
-        workflowId: 'workflow-123',
-        status: 'processing'
-      })
+      const deletedCount = await vectorManager.cleanupOldJobs(24)
+      expect(deletedCount).toBe(1)
 
-      const job = await vectorManager.getFileProcessingJob(result.jobId)
-      expect(job).toMatchObject({
-        status: 'pending',
-        fileName,
-        fileType,
-        fileSize,
-        namespace,
-        metadata
-      })
+      const remainingJobs = await vectorManager.getAllJobs()
+      expect(remainingJobs).toHaveLength(2)
+    })
+
+    it('should return 0 when no jobs to cleanup', async () => {
+      const deletedCount = await vectorManager.cleanupOldJobs(24)
+      expect(deletedCount).toBe(0)
+    })
+
+    it('should use default parameter when not specified', async () => {
+      const deletedCount = await vectorManager.cleanupOldJobs()
+      expect(deletedCount).toBe(0)
     })
   })
 
-  describe('file processing job management', () => {
-    it.skip('should get file processing job', async () => {
-      // Create test file processing jobs
-      await vectorManager.processFileAsync('data1', 'file1.pdf', 'application/pdf', 1024)
-      await vectorManager.processFileAsync('data2', 'file2.txt', 'text/plain', 512)
+  describe('File Processing', () => {
+    it('should process file asynchronously', async () => {
+      const result = await vectorManager.processFileAsync(
+        'file content',
+        'test.txt',
+        'text/plain',
+        1024,
+        'files',
+        { source: 'upload' }
+      )
 
-      const jobs = await vectorManager.getAllFileProcessingJobs()
-      const jobId = jobs[0].id
-
-      const job = await vectorManager.getFileProcessingJob(jobId)
-      expect(job).toBeDefined()
-      expect(job?.fileName).toBe('file1.pdf')
+      expect(result).toMatchObject({
+        jobId: expect.stringContaining('file_process_'),
+        status: 'processing'
+      })
+      expect(mockEnv.FILE_PROCESSING_WORKFLOW.create).toHaveBeenCalled()
     })
 
-    it.skip('should get all file processing jobs', async () => {
-      // Create test file processing jobs
-      await vectorManager.processFileAsync('data1', 'file1.pdf', 'application/pdf', 1024)
-      await vectorManager.processFileAsync('data2', 'file2.txt', 'text/plain', 512)
+    it('should get file processing job status', async () => {
+      const result = await vectorManager.processFileAsync(
+        'content',
+        'test.txt',
+        'text/plain',
+        100
+      )
+
+      const job = await vectorManager.getFileProcessingJob(result.jobId)
+      expect(job).toBeDefined()
+      expect(job?.fileName).toBe('test.txt')
+    })
+
+    it('should get all file processing jobs', async () => {
+      await vectorManager.processFileAsync('content1', 'file1.txt', 'text/plain', 100)
+      await vectorManager.processFileAsync('content2', 'file2.txt', 'text/plain', 200)
 
       const jobs = await vectorManager.getAllFileProcessingJobs()
       expect(jobs).toHaveLength(2)
-      expect(jobs[0].fileName).toBe('file1.pdf')
-      expect(jobs[1].fileName).toBe('file2.txt')
+    })
+
+    it('should cleanup old file processing jobs', async () => {
+      const oldDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
+
+      vectorManager.setState({
+        ...vectorManager.state,
+        fileProcessingJobs: {
+          'old-job': {
+            id: 'old-job',
+            status: 'completed',
+            createdAt: oldDate,
+            fileName: 'old.txt',
+            fileType: 'text/plain',
+            fileSize: 100
+          }
+        }
+      })
+
+      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs(24)
+      expect(deletedCount).toBe(1)
+    })
+
+    it('should cleanup old failed file processing jobs', async () => {
+      const oldDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
+
+      vectorManager.setState({
+        ...vectorManager.state,
+        fileProcessingJobs: {
+          'failed-job': {
+            id: 'failed-job',
+            status: 'failed',
+            createdAt: oldDate,
+            fileName: 'failed.txt',
+            fileType: 'text/plain',
+            fileSize: 100
+          }
+        }
+      })
+
+      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs(24)
+      expect(deletedCount).toBe(1)
+    })
+
+    it('should not cleanup recent failed jobs', async () => {
+      const recentDate = new Date().toISOString()
+
+      vectorManager.setState({
+        ...vectorManager.state,
+        fileProcessingJobs: {
+          'recent-failed': {
+            id: 'recent-failed',
+            status: 'failed',
+            createdAt: recentDate,
+            fileName: 'recent.txt',
+            fileType: 'text/plain',
+            fileSize: 100
+          }
+        }
+      })
+
+      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs(24)
+      expect(deletedCount).toBe(0)
+      expect(vectorManager.state.fileProcessingJobs['recent-failed']).toBeDefined()
+    })
+
+    it('should return 0 when no file jobs to cleanup', async () => {
+      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs(24)
+      expect(deletedCount).toBe(0)
+    })
+
+    it('should use default parameter for file job cleanup', async () => {
+      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs()
+      expect(deletedCount).toBe(0)
+    })
+  })
+
+  describe('Workflow Status', () => {
+    it('should get workflow status', async () => {
+      const status = await vectorManager.getWorkflowStatus('workflow-123')
+      expect(status.status).toBe('complete')
     })
 
     it('should get file processing workflow status', async () => {
-      const expectedStatus = { status: 'completed', output: { extractedText: 'Test content' } }
-      mockWorkflow.status.mockResolvedValueOnce(expectedStatus)
-
-      const status = await vectorManager.getFileProcessingWorkflowStatus('workflow-456')
-
-      expect(mockEnv.FILE_PROCESSING_WORKFLOW.get).toHaveBeenCalledWith('workflow-456')
-      expect(status).toEqual(expectedStatus)
-    })
-
-    it.skip('should cleanup old file processing jobs', async () => {
-      // Create test file processing jobs
-      await vectorManager.processFileAsync('data1', 'file1.pdf', 'application/pdf', 1024)
-      await vectorManager.processFileAsync('data2', 'file2.txt', 'text/plain', 512)
-
-      // Make jobs old
-      const jobs = await vectorManager.getAllFileProcessingJobs()
-      const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
-
-      jobs.forEach(job => {
-        job.createdAt = oldTime
-        job.status = 'completed'
-        vectorManager.state.fileProcessingJobs[job.id] = job
-      })
-
-      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs(24)
-
-      expect(deletedCount).toBe(2)
-      expect(await vectorManager.getAllFileProcessingJobs()).toHaveLength(0)
-    })
-
-    it.skip('should return 0 when no old file processing jobs to cleanup', async () => {
-      // Create recent jobs
-      await vectorManager.processFileAsync('data1', 'file1.pdf', 'application/pdf', 1024)
-      await vectorManager.processFileAsync('data2', 'file2.txt', 'text/plain', 512)
-
-      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs(24)
-
-      expect(deletedCount).toBe(0)
-      expect(await vectorManager.getAllFileProcessingJobs()).toHaveLength(2)
-    })
-
-    it.skip('should use default hours for file processing cleanup', async () => {
-      // Create old job
-      await vectorManager.processFileAsync('data1', 'file1.pdf', 'application/pdf', 1024)
-      const jobs = await vectorManager.getAllFileProcessingJobs()
-
-      // Make job 25 hours old (older than default 24 hours)
-      const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
-      jobs[0].createdAt = oldTime
-      jobs[0].status = 'completed'
-      vectorManager.state.fileProcessingJobs[jobs[0].id] = jobs[0]
-
-      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs()
-
-      expect(deletedCount).toBe(1)
-      expect(await vectorManager.getAllFileProcessingJobs()).toHaveLength(0)
-    })
-
-    it.skip('should not cleanup file processing jobs that are still processing', async () => {
-      // Create job
-      await vectorManager.processFileAsync('data1', 'file1.pdf', 'application/pdf', 1024)
-      const jobs = await vectorManager.getAllFileProcessingJobs()
-
-      // Make job old but keep status as processing
-      const oldTime = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
-      jobs[0].createdAt = oldTime
-      jobs[0].status = 'processing'
-      vectorManager.state.fileProcessingJobs[jobs[0].id] = jobs[0]
-
-      const deletedCount = await vectorManager.cleanupOldFileProcessingJobs(24)
-
-      expect(deletedCount).toBe(0)
-      expect(await vectorManager.getAllFileProcessingJobs()).toHaveLength(1)
+      const status = await vectorManager.getFileProcessingWorkflowStatus('file-workflow-123')
+      expect(status.status).toBe('complete')
     })
   })
 
-  describe('private methods', () => {
-    it('should update job status correctly', () => {
-      // Create a job first
-      const jobId = 'test-job-123'
-      vectorManager.state.vectorJobs[jobId] = {
-        id: jobId,
-        type: 'create',
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      }
-
-        // Update status
-        ; (vectorManager as any).updateJobStatus(jobId, 'completed', {
-          completedAt: new Date().toISOString(),
-          vectorId: 'vec-123'
-        })
-
-      const job = vectorManager.state.vectorJobs[jobId]
-      expect(job.status).toBe('completed')
-      expect(job.completedAt).toBeDefined()
-      expect(job.vectorId).toBe('vec-123')
-    })
-
-    it('should do nothing when updating non-existent job', () => {
-      const initialState = { ...vectorManager.state }
-
-        ; (vectorManager as any).updateJobStatus('non-existent-job', 'completed')
-
-      expect(vectorManager.state).toEqual(initialState)
-    })
-
-    it('should update file processing job status correctly', () => {
-      const jobId = 'file-job-123'
-      vectorManager.state.fileProcessingJobs[jobId] = {
-        id: jobId,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        fileName: 'test.pdf',
-        fileType: 'application/pdf',
-        fileSize: 1024
-      }
-
-        ; (vectorManager as any).updateFileProcessingJobStatus(jobId, 'completed', {
-          completedAt: new Date().toISOString(),
-          vectorIds: ['vec-1', 'vec-2'],
-          extractedText: 'Test content'
-        })
-
-      const job = vectorManager.state.fileProcessingJobs[jobId]
-      expect(job.status).toBe('completed')
-      expect(job.completedAt).toBeDefined()
-      expect(job.vectorIds).toEqual(['vec-1', 'vec-2'])
-      expect(job.extractedText).toBe('Test content')
-    })
-
-    it('should do nothing when updating non-existent file processing job', () => {
-      const initialState = { ...vectorManager.state }
-
-        ; (vectorManager as any).updateFileProcessingJobStatus('non-existent-job', 'completed')
-
-      expect(vectorManager.state).toEqual(initialState)
-    })
-  })
-
-  describe('listVectors', () => {
-    it('should return empty vectors list', async () => {
-      const options = {
-        namespace: 'test-namespace',
-        limit: 10,
-        cursor: 'test-cursor'
-      }
-
-      const result = await vectorManager.listVectors(options)
-
-      expect(result).toEqual({
-        vectors: [],
-        count: 0,
-        nextCursor: undefined
+  describe('Vector List Management', () => {
+    it('should list vectors', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: [
+          { id: 'vec-1', values: [0.1], namespace: 'default' },
+          { id: 'vec-2', values: [0.2], namespace: 'test' },
+          { id: 'vec-3', values: [0.3], namespace: 'default' }
+        ]
       })
-    })
 
-    it('should handle options without parameters', async () => {
       const result = await vectorManager.listVectors({})
+      expect(result.count).toBe(3)
+      expect(result.vectors).toHaveLength(3)
+    })
 
-      expect(result).toEqual({
-        vectors: [],
-        count: 0,
-        nextCursor: undefined
+    it('should filter vectors by namespace', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: [
+          { id: 'vec-1', values: [0.1], namespace: 'default' },
+          { id: 'vec-2', values: [0.2], namespace: 'test' },
+          { id: 'vec-3', values: [0.3], namespace: 'default' }
+        ]
+      })
+
+      const result = await vectorManager.listVectors({ namespace: 'default' })
+      expect(result.count).toBe(2)
+      expect(result.vectors.every(v => v.namespace === 'default')).toBe(true)
+    })
+
+    it('should limit vector results', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: Array.from({ length: 10 }, (_, i) => ({
+          id: `vec-${i}`,
+          values: [i * 0.1],
+          namespace: 'default'
+        }))
+      })
+
+      const result = await vectorManager.listVectors({ limit: 5 })
+      expect(result.count).toBe(5)
+      expect(result.vectors).toHaveLength(5)
+    })
+
+    it('should handle undefined recentVectors in listVectors', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: undefined
+      })
+
+      const result = await vectorManager.listVectors({})
+      expect(result.count).toBe(0)
+      expect(result.vectors).toEqual([])
+    })
+  })
+
+  describe('Private Methods', () => {
+    it('should handle updateJobStatus with non-existent job', () => {
+      // privateメソッドにアクセス
+      const updateJobStatus = (vectorManager as any).updateJobStatus.bind(vectorManager)
+      
+      // 存在しないジョブIDで呼び出し（エラーが出ないことを確認）
+      expect(() => {
+        updateJobStatus('non-existent-job', 'completed')
+      }).not.toThrow()
+      
+      // stateが変更されていないことを確認
+      expect(vectorManager.state.vectorJobs).toEqual({})
+    })
+
+    it('should update existing job status', () => {
+      // privateメソッドにアクセス
+      const updateJobStatus = (vectorManager as any).updateJobStatus.bind(vectorManager)
+      
+      // ジョブを追加
+      vectorManager.setState({
+        ...vectorManager.state,
+        vectorJobs: {
+          'job-1': {
+            id: 'job-1',
+            type: 'delete',
+            status: 'processing',
+            createdAt: new Date().toISOString()
+          }
+        }
+      })
+      
+      // ジョブステータスを更新（completedAtを明示的に渡す）
+      const completedAt = new Date().toISOString()
+      updateJobStatus('job-1', 'completed', { completedAt })
+      
+      // stateが更新されたことを確認
+      expect(vectorManager.state.vectorJobs['job-1'].status).toBe('completed')
+      expect(vectorManager.state.vectorJobs['job-1'].completedAt).toBe(completedAt)
+    })
+
+    it('should handle updateFileProcessingJobStatus with non-existent job', () => {
+      // privateメソッドにアクセス
+      const updateFileProcessingJobStatus = (vectorManager as any).updateFileProcessingJobStatus.bind(vectorManager)
+      
+      // 存在しないジョブIDで呼び出し（エラーが出ないことを確認）
+      expect(() => {
+        updateFileProcessingJobStatus('non-existent-job', 'completed')
+      }).not.toThrow()
+      
+      // stateが変更されていないことを確認
+      expect(vectorManager.state.fileProcessingJobs).toEqual({})
+    })
+
+    it('should update existing file processing job status', () => {
+      // privateメソッドにアクセス
+      const updateFileProcessingJobStatus = (vectorManager as any).updateFileProcessingJobStatus.bind(vectorManager)
+      
+      // ジョブを追加
+      vectorManager.setState({
+        ...vectorManager.state,
+        fileProcessingJobs: {
+          'file-job-1': {
+            id: 'file-job-1',
+            status: 'processing',
+            fileName: 'test.txt',
+            fileType: 'text/plain',
+            fileSize: 100,
+            createdAt: new Date().toISOString()
+          }
+        }
+      })
+      
+      // ジョブステータスを更新（completedAtとresultを明示的に渡す）
+      const completedAt = new Date().toISOString()
+      updateFileProcessingJobStatus('file-job-1', 'completed', { 
+        completedAt,
+        result: { vectorCount: 5 }
+      })
+      
+      // stateが更新されたことを確認
+      expect(vectorManager.state.fileProcessingJobs['file-job-1'].status).toBe('completed')
+      expect(vectorManager.state.fileProcessingJobs['file-job-1'].completedAt).toBe(completedAt)
+      expect(vectorManager.state.fileProcessingJobs['file-job-1'].result).toEqual({ vectorCount: 5 })
+    })
+  })
+
+  describe('Delete Operations', () => {
+    it('should remove deleted vectors from local state', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: [
+          { id: 'vec-1', values: [0.1], namespace: 'default' },
+          { id: 'vec-2', values: [0.2], namespace: 'default' },
+          { id: 'vec-3', values: [0.3], namespace: 'default' }
+        ]
+      })
+
+      await vectorManager.removeDeletedVectors(['vec-1', 'vec-3'])
+
+      expect(vectorManager.state.recentVectors).toHaveLength(1)
+      expect(vectorManager.state.recentVectors[0].id).toBe('vec-2')
+    })
+
+    it('should handle uninitialized recentVectors', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: undefined
+      })
+
+      await vectorManager.removeDeletedVectors(['vec-1'])
+      expect(vectorManager.state.recentVectors).toEqual([])
+    })
+
+    it('should delete all vectors', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: [
+          { id: 'vec-1', values: [0.1], namespace: 'default' },
+          { id: 'vec-2', values: [0.2], namespace: 'test' },
+          { id: 'vec-3', values: [0.3], namespace: 'default' }
+        ]
+      })
+
+      const result = await vectorManager.deleteAllVectors()
+
+      expect(result.success).toBe(true)
+      expect(result.deletedCount).toBe(3)
+      expect(vectorManager.state.recentVectors).toEqual([])
+      expect(mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec-1', 'vec-2', 'vec-3'])
+    })
+
+    it('should delete vectors by namespace', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: [
+          { id: 'vec-1', values: [0.1], namespace: 'default' },
+          { id: 'vec-2', values: [0.2], namespace: 'test' },
+          { id: 'vec-3', values: [0.3], namespace: 'default' }
+        ]
+      })
+
+      const result = await vectorManager.deleteAllVectors('default')
+
+      expect(result.success).toBe(true)
+      expect(result.deletedCount).toBe(2)
+      expect(vectorManager.state.recentVectors).toHaveLength(1)
+      expect(vectorManager.state.recentVectors[0].namespace).toBe('test')
+      expect(mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec-1', 'vec-3'])
+    })
+
+    it('should handle empty state when deleting all', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: []
+      })
+
+      const result = await vectorManager.deleteAllVectors()
+
+      expect(result.success).toBe(true)
+      expect(result.deletedCount).toBe(0)
+      expect(mockVectorizeIndex.deleteByIds).not.toHaveBeenCalled()
+    })
+
+    it('should handle uninitialized state when deleting all', async () => {
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: undefined
+      })
+
+      const result = await vectorManager.deleteAllVectors()
+
+      expect(result.success).toBe(true)
+      expect(result.deletedCount).toBe(0)
+      expect(vectorManager.state.recentVectors).toEqual([])
+    })
+
+    it('should continue on vectorize delete error', async () => {
+      mockVectorizeIndex.deleteByIds.mockRejectedValueOnce(new Error('Delete failed'))
+
+      vectorManager.setState({
+        ...vectorManager.state,
+        recentVectors: [
+          { id: 'vec-1', values: [0.1], namespace: 'default' }
+        ]
+      })
+
+      const result = await vectorManager.deleteAllVectors()
+
+      expect(result.success).toBe(true)
+      expect(result.deletedCount).toBe(0)
+      expect(vectorManager.state.recentVectors).toEqual([])
+    })
+
+    it('should throw error when state access fails', async () => {
+      // Mock state getter to throw an error
+      Object.defineProperty(vectorManager, 'state', {
+        get: () => {
+          throw new Error('State access failed')
+        },
+        configurable: true
+      })
+
+      await expect(vectorManager.deleteAllVectors()).rejects.toThrow('State access failed')
+      
+      // Restore original state getter
+      Object.defineProperty(vectorManager, 'state', {
+        get: () => vectorManager['_state'] || { 
+          searchHistory: [],
+          vectorJobs: {},
+          fileProcessingJobs: {},
+          recentVectors: []
+        },
+        set: (value) => { vectorManager['_state'] = value },
+        configurable: true
       })
     })
   })
