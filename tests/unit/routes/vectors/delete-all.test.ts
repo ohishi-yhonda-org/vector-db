@@ -225,5 +225,49 @@ describe('Delete All Vectors Route', () => {
       expect(json.success).toBe(false)
       expect(json.error).toBeDefined()
     })
+
+    it('should delete vectors for specific namespace', async () => {
+      mockVectorManager.deleteAllVectors.mockResolvedValue({
+        deletedCount: 10
+      })
+
+      const response = await app.request('/vectors/all?confirm=DELETE_ALL&namespace=test-namespace', {
+        method: 'DELETE'
+      }, mockEnv)
+
+      expect(response.status).toBe(200)
+      const json = await response.json()
+      expect(json).toMatchObject({
+        success: true,
+        message: '10件のベクトルを削除しました',
+        data: {
+          deletedCount: 10,
+          message: 'Namespace "test-namespace" 内の全ベクトルを削除しました'
+        }
+      })
+      expect(mockVectorManager.deleteAllVectors).toHaveBeenCalledWith('test-namespace')
+    })
+
+    it('should handle namespace deletion with zero results', async () => {
+      mockVectorManager.deleteAllVectors.mockResolvedValue({
+        deletedCount: 0
+      })
+
+      const response = await app.request('/vectors/all?confirm=DELETE_ALL&namespace=empty-namespace', {
+        method: 'DELETE'
+      }, mockEnv)
+
+      expect(response.status).toBe(200)
+      const json = await response.json()
+      expect(json).toMatchObject({
+        success: true,
+        message: '0件のベクトルを削除しました',
+        data: {
+          deletedCount: 0,
+          message: 'Namespace "empty-namespace" 内の全ベクトルを削除しました'
+        }
+      })
+      expect(mockVectorManager.deleteAllVectors).toHaveBeenCalledWith('empty-namespace')
+    })
   })
 })
