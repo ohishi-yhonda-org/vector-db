@@ -1,61 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { OpenAPIHono } from '@hono/zod-openapi'
 import { bulkDeleteVectorsRoute, bulkDeleteVectorsHandler } from '../../../../src/routes/api/vectors/bulk-delete'
-
-// Mock Vector Manager Durable Object
-const mockVectorManager = {
-  removeDeletedVectors: vi.fn()
-}
-
-// Mock Durable Object namespace
-const mockVectorCacheNamespace = {
-  idFromName: vi.fn().mockReturnValue('mock-id'),
-  get: vi.fn().mockReturnValue(mockVectorManager)
-}
-
-// Mock Vectorize Index
-const mockVectorizeIndex = {
-  deleteByIds: vi.fn()
-}
+import { setupVectorRouteTest } from '../../test-helpers'
 
 describe('Bulk Delete Vectors Route', () => {
-  let app: OpenAPIHono<{ Bindings: Env }>
-  let mockEnv: Env
+  let testSetup: ReturnType<typeof setupVectorRouteTest>
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
-    mockEnv = {
-      ENVIRONMENT: 'development' as const,
-      DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
-      DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
-      IMAGE_ANALYSIS_PROMPT: 'Describe this image in detail. Include any text visible in the image.',
-      IMAGE_ANALYSIS_MAX_TOKENS: '512',
-      TEXT_EXTRACTION_MAX_TOKENS: '1024',
-      NOTION_API_KEY: '',
-      AI: {} as any,
-      VECTORIZE_INDEX: mockVectorizeIndex as any,
-      VECTOR_CACHE: mockVectorCacheNamespace as any,
-      NOTION_MANAGER: {} as any,
-      AI_EMBEDDINGS: {} as any,
-      DB: {} as any,
-      EMBEDDINGS_WORKFLOW: {} as any,
-      BATCH_EMBEDDINGS_WORKFLOW: {} as any,
-      VECTOR_OPERATIONS_WORKFLOW: {} as any,
-      FILE_PROCESSING_WORKFLOW: {} as any,
-      NOTION_SYNC_WORKFLOW: {} as any
-    }
-
-    app = new OpenAPIHono<{ Bindings: Env }>()
-    app.openapi(bulkDeleteVectorsRoute, bulkDeleteVectorsHandler)
+    testSetup = setupVectorRouteTest()
+    testSetup.app.openapi(bulkDeleteVectorsRoute, bulkDeleteVectorsHandler)
   })
 
   describe('POST /vectors/bulk-delete', () => {
     it('should delete vectors successfully', async () => {
-      mockVectorizeIndex.deleteByIds.mockResolvedValue({ mutationId: 'mut-123' })
-      mockVectorManager.removeDeletedVectors.mockResolvedValue(undefined)
+      testSetup.mockVectorizeIndex.deleteByIds.mockResolvedValue({ mutationId: 'mut-123' })
+      testSetup.mockVectorManager.removeDeletedVectors.mockResolvedValue(undefined)
 
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -63,7 +24,7 @@ describe('Bulk Delete Vectors Route', () => {
         body: JSON.stringify({
           ids: ['vec_1', 'vec_2', 'vec_3']
         })
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(200)
       const json = await response.json() as any
@@ -75,12 +36,12 @@ describe('Bulk Delete Vectors Route', () => {
           failed: 0
         }
       })
-      expect(mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec_1', 'vec_2', 'vec_3'])
-      expect(mockVectorManager.removeDeletedVectors).toHaveBeenCalledWith(['vec_1', 'vec_2', 'vec_3'])
+      expect(testSetup.mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec_1', 'vec_2', 'vec_3'])
+      expect(testSetup.mockVectorManager.removeDeletedVectors).toHaveBeenCalledWith(['vec_1', 'vec_2', 'vec_3'])
     })
 
     it('should handle empty ID list', async () => {
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -88,7 +49,7 @@ describe('Bulk Delete Vectors Route', () => {
         body: JSON.stringify({
           ids: []
         })
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(400)
       const json = await response.json() as any
@@ -104,7 +65,7 @@ describe('Bulk Delete Vectors Route', () => {
     it('should handle too many IDs', async () => {
       const tooManyIds = Array.from({ length: 1001 }, (_, i) => `vec_${i}`)
       
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -112,7 +73,7 @@ describe('Bulk Delete Vectors Route', () => {
         body: JSON.stringify({
           ids: tooManyIds
         })
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(400)
       const json = await response.json() as any
@@ -124,19 +85,19 @@ describe('Bulk Delete Vectors Route', () => {
 
     it('should handle deletion errors', async () => {
       // 最初のバッチは失敗、2番目のバッチは成功
-      mockVectorizeIndex.deleteByIds
+      testSetup.mockVectorizeIndex.deleteByIds
         .mockRejectedValueOnce(new Error('Delete failed'))
         .mockResolvedValueOnce({ mutationId: 'mut-123' })
 
       const ids = Array.from({ length: 150 }, (_, i) => `vec_${i}`)
       
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ ids })
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(200)
       const json = await response.json() as any
@@ -150,19 +111,19 @@ describe('Bulk Delete Vectors Route', () => {
 
     it('should handle non-Error deletion failures', async () => {
       // 最初のバッチは非Errorで失敗、2番目のバッチは成功
-      mockVectorizeIndex.deleteByIds
+      testSetup.mockVectorizeIndex.deleteByIds
         .mockRejectedValueOnce('String error')
         .mockResolvedValueOnce({ mutationId: 'mut-123' })
 
       const ids = Array.from({ length: 150 }, (_, i) => `vec_${i}`)
       
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ ids })
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(200)
       const json = await response.json() as any
@@ -175,10 +136,10 @@ describe('Bulk Delete Vectors Route', () => {
     })
 
     it('should handle VectorManager update failure gracefully', async () => {
-      mockVectorizeIndex.deleteByIds.mockResolvedValue({ mutationId: 'mut-123' })
-      mockVectorManager.removeDeletedVectors.mockRejectedValue(new Error('Update failed'))
+      testSetup.mockVectorizeIndex.deleteByIds.mockResolvedValue({ mutationId: 'mut-123' })
+      testSetup.mockVectorManager.removeDeletedVectors.mockRejectedValue(new Error('Update failed'))
 
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -186,7 +147,7 @@ describe('Bulk Delete Vectors Route', () => {
         body: JSON.stringify({
           ids: ['vec_1']
         })
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(200)
       const json = await response.json() as any
@@ -201,25 +162,25 @@ describe('Bulk Delete Vectors Route', () => {
     })
 
     it('should handle invalid JSON', async () => {
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: 'invalid json'
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(400)
     })
 
     it('should handle missing IDs field', async () => {
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({})
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(400)
       const json = await response.json() as any
@@ -227,18 +188,18 @@ describe('Bulk Delete Vectors Route', () => {
     })
 
     it('should process batches correctly', async () => {
-      mockVectorizeIndex.deleteByIds.mockResolvedValue({ mutationId: 'mut-123' })
+      testSetup.mockVectorizeIndex.deleteByIds.mockResolvedValue({ mutationId: 'mut-123' })
       
       // 250個のID（3バッチ: 100, 100, 50）
       const ids = Array.from({ length: 250 }, (_, i) => `vec_${i}`)
       
-      const response = await app.request('/vectors/bulk-delete', {
+      const response = await testSetup.app.request('/vectors/bulk-delete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ ids })
-      }, mockEnv)
+      }, testSetup.mockEnv)
 
       expect(response.status).toBe(200)
       const json = await response.json() as any
@@ -252,7 +213,7 @@ describe('Bulk Delete Vectors Route', () => {
       })
       
       // 3回呼ばれることを確認（100, 100, 50）
-      expect(mockVectorizeIndex.deleteByIds).toHaveBeenCalledTimes(3)
+      expect(testSetup.mockVectorizeIndex.deleteByIds).toHaveBeenCalledTimes(3)
     })
   })
 
@@ -263,7 +224,7 @@ describe('Bulk Delete Vectors Route', () => {
           json: vi.fn().mockResolvedValue({ ids: null })
         },
         json: vi.fn((data, status) => ({ data, status })),
-        env: mockEnv
+        env: testSetup.mockEnv
       } as any
 
       const result = await bulkDeleteVectorsHandler(c, {} as any)
@@ -286,7 +247,7 @@ describe('Bulk Delete Vectors Route', () => {
           json: vi.fn().mockResolvedValue({ ids: tooManyIds })
         },
         json: vi.fn((data, status) => ({ data, status })),
-        env: mockEnv
+        env: testSetup.mockEnv
       } as any
 
       const result = await bulkDeleteVectorsHandler(c, {} as any)
@@ -307,7 +268,7 @@ describe('Bulk Delete Vectors Route', () => {
           json: vi.fn().mockRejectedValue(new Error('Unexpected error'))
         },
         json: vi.fn((data, status) => ({ data, status })),
-        env: mockEnv
+        env: testSetup.mockEnv
       } as any
 
       const result = await bulkDeleteVectorsHandler(c, {} as any)
@@ -328,7 +289,7 @@ describe('Bulk Delete Vectors Route', () => {
           json: vi.fn().mockRejectedValue('String error')
         },
         json: vi.fn((data, status) => ({ data, status })),
-        env: mockEnv
+        env: testSetup.mockEnv
       } as any
 
       const result = await bulkDeleteVectorsHandler(c, {} as any)

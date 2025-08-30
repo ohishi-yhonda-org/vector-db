@@ -17,6 +17,7 @@ export function createMockDurableObjectNamespace(mockObject: any, idPrefix = 'mo
  */
 export function createMockVectorManager() {
   return {
+    // Vector CRUD operations
     getVector: vi.fn(),
     createVector: vi.fn(),
     createVectorAsync: vi.fn(),
@@ -24,12 +25,21 @@ export function createMockVectorManager() {
     deleteVectorsAsync: vi.fn(),
     deleteAllVectors: vi.fn(),
     bulkDeleteVectors: vi.fn(),
+    removeDeletedVectors: vi.fn(), // Used in bulk-delete.test.ts
+    
+    // Vector list and search
     listVectors: vi.fn(),
     searchVectors: vi.fn(),
     findSimilar: vi.fn(),
+    
+    // Statistics and status
     getStatistics: vi.fn(),
+    getTotalVectorCount: vi.fn(),
+    
+    // Job management
     getFileProcessingJobs: vi.fn(),
-    getTotalVectorCount: vi.fn()
+    getJobStatus: vi.fn(), // Used in status.test.ts
+    getAllJobs: vi.fn() // Used in status.test.ts
   }
 }
 

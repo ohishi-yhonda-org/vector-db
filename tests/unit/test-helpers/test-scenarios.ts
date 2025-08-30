@@ -7,6 +7,7 @@ import {
   createMockVectorizeIndex,
   createMockDurableObjectNamespace 
 } from './mock-durable-objects'
+import { createMockWorkflow, createMockWorkflowStep } from './mock-workflows'
 
 /**
  * Common test scenario setup for vector routes
@@ -132,5 +133,88 @@ export function setupEmbeddingsRouteTest() {
     mockEnv,
     mockEmbeddingsWorkflow,
     mockBatchEmbeddingsWorkflow
+  }
+}
+
+/**
+ * Setup for Durable Object tests
+ */
+export function setupDurableObjectTest() {
+  const mockVectorizeIndex = createMockVectorizeIndex()
+  const mockWorkflow = createMockWorkflow()
+  const mockWorkflowStep = createMockWorkflowStep()
+  
+  // Mock Date.now for consistent test results
+  let mockDateNow = 1000000000000
+  vi.spyOn(Date, 'now').mockImplementation(() => mockDateNow++)
+  
+  const mockEnv = createMockEnv({
+    VECTORIZE_INDEX: mockVectorizeIndex as any,
+    EMBEDDINGS_WORKFLOW: mockWorkflow as any,
+    BATCH_EMBEDDINGS_WORKFLOW: mockWorkflow as any,
+    VECTOR_OPERATIONS_WORKFLOW: mockWorkflow as any,
+    FILE_PROCESSING_WORKFLOW: mockWorkflow as any,
+    NOTION_SYNC_WORKFLOW: mockWorkflow as any
+  })
+  
+  const mockCtx = {
+    waitUntil: vi.fn(),
+    passThroughOnException: vi.fn()
+  }
+  
+  // Create a mock Agent state
+  const mockAgentState = {
+    searchHistory: [],
+    vectorJobs: {},
+    fileProcessingJobs: {},
+    recentVectors: [],
+    syncJobs: {},
+    stats: {
+      totalPages: 0,
+      totalSyncJobs: 0,
+      completedJobs: 0,
+      failedJobs: 0,
+      totalVectorsCreated: 0
+    },
+    settings: {
+      autoSyncEnabled: false,
+      defaultNamespace: 'notion',
+      maxConcurrentJobs: 5,
+      includeBlocksByDefault: true,
+      includePropertiesByDefault: true
+    }
+  }
+  
+  return {
+    mockEnv,
+    mockCtx,
+    mockVectorizeIndex,
+    mockWorkflow,
+    mockWorkflowStep,
+    mockAgentState,
+    mockDateNow
+  }
+}
+
+/**
+ * Setup for Workflow tests
+ */
+export function setupWorkflowTest() {
+  const mockStep = createMockWorkflowStep()
+  const mockAI = {
+    run: vi.fn()
+  }
+  
+  const mockEnv = createMockEnv({
+    AI: mockAI as any
+  })
+  
+  const mockCtx = {}
+  
+  return {
+    mockEnv,
+    mockCtx,
+    mockStep,
+    mockAI
   }
 }

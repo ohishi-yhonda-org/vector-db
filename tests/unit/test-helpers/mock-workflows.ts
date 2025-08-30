@@ -15,7 +15,8 @@ export function createMockWorkflow() {
  */
 export function createMockWorkflowStep() {
   return {
-    do: vi.fn()
+    do: vi.fn(),
+    sleep: vi.fn()
   }
 }
 

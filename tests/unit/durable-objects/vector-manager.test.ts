@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { VectorManager } from '../../../src/durable-objects/vector-manager'
+import { setupDurableObjectTest } from '../test-helpers'
 
 // Mock the Agent class
 vi.mock('agents', () => ({
@@ -20,93 +21,89 @@ vi.mock('agents', () => ({
 }))
 
 describe('VectorManager Durable Object', () => {
-  // Mock Date.now to return incrementing values
-  let mockDateNow = 1000000000000
-
   let vectorManager: VectorManager
-  let mockCtx: any
-  let mockEnv: any
-  let mockVectorizeIndex: any
-  let mockWorkflow: any
+  let testSetup: ReturnType<typeof setupDurableObjectTest>
   let jobCounter = 0
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.spyOn(Date, 'now').mockImplementation(() => mockDateNow++)
     jobCounter = 0
-
-    mockWorkflow = {
-      id: 'workflow-123',
-      status: vi.fn().mockResolvedValue({ status: 'complete' })
-    }
-
-    mockVectorizeIndex = {
-      insert: vi.fn().mockResolvedValue(undefined),
-      query: vi.fn().mockResolvedValue({
-        matches: [{ id: 'vec-1', score: 0.95 }]
+    testSetup = setupDurableObjectTest()
+    
+    // Configure specific mock behaviors for this test
+    testSetup.mockWorkflow.create.mockResolvedValue({
+      id: 'embedding-workflow-123'
+    })
+    testSetup.mockWorkflow.id = 'workflow-123'
+    testSetup.mockWorkflow.status = vi.fn().mockResolvedValue({ status: 'complete' })
+    
+    testSetup.mockVectorizeIndex.insert.mockResolvedValue(undefined)
+    testSetup.mockVectorizeIndex.query.mockResolvedValue({
+      matches: [{ id: 'vec-1', score: 0.95 }]
+    })
+    testSetup.mockVectorizeIndex.getByIds.mockResolvedValue([
+      { id: 'vec-1', values: [0.1, 0.2, 0.3], namespace: 'default', metadata: {} }
+    ])
+    testSetup.mockVectorizeIndex.deleteByIds.mockResolvedValue({ count: 1 })
+    testSetup.mockVectorizeIndex.upsert.mockResolvedValue(undefined)
+    
+    testSetup.mockEnv.EMBEDDINGS_WORKFLOW = {
+      create: vi.fn().mockResolvedValue({
+        id: 'embedding-workflow-123'
       }),
-      getByIds: vi.fn().mockResolvedValue([
-        { id: 'vec-1', values: [0.1, 0.2, 0.3], namespace: 'default', metadata: {} }
-      ]),
-      deleteByIds: vi.fn().mockResolvedValue({ count: 1 }),
-      upsert: vi.fn().mockResolvedValue(undefined)
-    }
-
-    mockEnv = {
-      VECTORIZE_INDEX: mockVectorizeIndex,
-      EMBEDDINGS_WORKFLOW: {
-        create: vi.fn().mockResolvedValue({
-          id: 'embedding-workflow-123'
-        }),
-        get: vi.fn().mockResolvedValue({
-          status: vi.fn().mockResolvedValue({
-            status: 'complete',
-            output: {
-              success: true,
-              embedding: [0.1, 0.2, 0.3],
-              model: '@cf/baai/bge-base-en-v1.5'
-            }
-          })
+      get: vi.fn().mockResolvedValue({
+        status: vi.fn().mockResolvedValue({
+          status: 'complete',
+          output: {
+            success: true,
+            embedding: [0.1, 0.2, 0.3],
+            model: '@cf/baai/bge-base-en-v1.5'
+          }
         })
-      },
-      VECTOR_OPERATIONS_WORKFLOW: {
-        create: vi.fn().mockResolvedValue({
-          id: 'workflow-123',
-          status: vi.fn().mockResolvedValue({ 
-            status: 'complete',
-            output: {
-              success: true,
-              vectorId: 'vec-123'
-            }
-          })
-        }),
-        get: vi.fn().mockResolvedValue({
-          id: 'workflow-123',
-          status: vi.fn().mockResolvedValue({ 
-            status: 'complete',
-            output: {
-              success: true,
-              vectorId: 'vec-123'
-            }
-          })
+      })
+    }
+    
+    testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW = {
+      create: vi.fn().mockResolvedValue({
+        id: 'workflow-123',
+        status: vi.fn().mockResolvedValue({ 
+          status: 'complete',
+          output: {
+            success: true,
+            vectorId: 'vec-123'
+          }
         })
-      },
-      FILE_PROCESSING_WORKFLOW: {
-        create: vi.fn().mockResolvedValue(mockWorkflow),
-        get: vi.fn().mockResolvedValue(mockWorkflow)
-      },
-      DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5'
+      }),
+      get: vi.fn().mockResolvedValue({
+        id: 'workflow-123',
+        status: vi.fn().mockResolvedValue({ 
+          status: 'complete',
+          output: {
+            success: true,
+            vectorId: 'vec-123'
+          }
+        })
+      })
+    }
+    
+    testSetup.mockEnv.FILE_PROCESSING_WORKFLOW = {
+      create: vi.fn().mockResolvedValue({
+        id: 'workflow-123',
+        status: vi.fn().mockResolvedValue({ status: 'complete' })
+      }),
+      get: vi.fn().mockResolvedValue({
+        id: 'workflow-123',
+        status: vi.fn().mockResolvedValue({ status: 'complete' })
+      })
+    }
+    
+    // Add storage to context
+    testSetup.mockCtx.storage = {
+      get: vi.fn(),
+      put: vi.fn()
     }
 
-    mockCtx = {
-      storage: {
-        get: vi.fn(),
-        put: vi.fn()
-      },
-      waitUntil: vi.fn()
-    }
-
-    vectorManager = new VectorManager(mockCtx, mockEnv)
+    vectorManager = new VectorManager(testSetup.mockCtx, testSetup.mockEnv)
   })
 
   describe('constructor', () => {
@@ -117,7 +114,7 @@ describe('VectorManager Durable Object', () => {
         fileProcessingJobs: {},
         recentVectors: []
       })
-      expect((vectorManager as any).vectorizeIndex).toBe(mockVectorizeIndex)
+      expect((vectorManager as any).vectorizeIndex).toBe(testSetup.mockVectorizeIndex)
     })
   })
 
@@ -129,7 +126,7 @@ describe('VectorManager Durable Object', () => {
 
       await vectorManager.insertVectors(vectors)
 
-      expect(mockVectorizeIndex.insert).toHaveBeenCalledWith(vectors)
+      expect(testSetup.mockVectorizeIndex.insert).toHaveBeenCalledWith(vectors)
     })
   })
 
@@ -140,9 +137,9 @@ describe('VectorManager Durable Object', () => {
 
       const results = await vectorManager.queryVectors(queryVector, options)
 
-      expect(mockVectorizeIndex.query).toHaveBeenCalledWith(queryVector, options)
+      expect(testSetup.mockVectorizeIndex.query).toHaveBeenCalledWith(queryVector, options)
       expect(results).toEqual({ matches: [{ id: 'vec-1', score: 0.95 }] })
-      expect(mockCtx.waitUntil).toHaveBeenCalled()
+      expect(testSetup.mockCtx.waitUntil).toHaveBeenCalled()
     })
   })
 
@@ -185,7 +182,7 @@ describe('VectorManager Durable Object', () => {
       const ids = ['vec-1', 'vec-2']
       const vectors = await vectorManager.getVectorsByIds(ids)
 
-      expect(mockVectorizeIndex.getByIds).toHaveBeenCalledWith(ids)
+      expect(testSetup.mockVectorizeIndex.getByIds).toHaveBeenCalledWith(ids)
       expect(vectors).toEqual([
         { id: 'vec-1', values: [0.1, 0.2, 0.3], namespace: 'default', metadata: {} }
       ])
@@ -197,7 +194,7 @@ describe('VectorManager Durable Object', () => {
       const ids = ['vec-1', 'vec-2']
       const result = await vectorManager.deleteVectorsByIds(ids)
 
-      expect(mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(ids)
+      expect(testSetup.mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(ids)
       expect(result).toEqual({ count: 1 })
     })
   })
@@ -210,7 +207,7 @@ describe('VectorManager Durable Object', () => {
 
       await vectorManager.upsertVectors(vectors)
 
-      expect(mockVectorizeIndex.upsert).toHaveBeenCalledWith(vectors)
+      expect(testSetup.mockVectorizeIndex.upsert).toHaveBeenCalledWith(vectors)
     })
   })
 
@@ -221,8 +218,8 @@ describe('VectorManager Durable Object', () => {
 
       const results = await vectorManager.findSimilar(vectorId, options)
 
-      expect(mockVectorizeIndex.getByIds).toHaveBeenCalledWith([vectorId])
-      expect(mockVectorizeIndex.query).toHaveBeenCalledWith(
+      expect(testSetup.mockVectorizeIndex.getByIds).toHaveBeenCalledWith([vectorId])
+      expect(testSetup.mockVectorizeIndex.query).toHaveBeenCalledWith(
         [0.1, 0.2, 0.3],
         expect.objectContaining({
           topK: 5,
@@ -238,7 +235,7 @@ describe('VectorManager Durable Object', () => {
 
       const results = await vectorManager.findSimilar(vectorId, undefined)
 
-      expect(mockVectorizeIndex.query).toHaveBeenCalledWith(
+      expect(testSetup.mockVectorizeIndex.query).toHaveBeenCalledWith(
         [0.1, 0.2, 0.3],
         expect.objectContaining({
           topK: 10,
@@ -251,7 +248,7 @@ describe('VectorManager Durable Object', () => {
 
     it('should exclude self when excludeSelf is true', async () => {
       const vectorId = 'vec-1'
-      mockVectorizeIndex.query.mockResolvedValueOnce({
+      testSetup.mockVectorizeIndex.query.mockResolvedValueOnce({
         matches: [
           { id: 'vec-1', score: 1.0 },
           { id: 'vec-2', score: 0.95 },
@@ -271,7 +268,7 @@ describe('VectorManager Durable Object', () => {
 
     it('should use default topK when not specified with excludeSelf', async () => {
       const vectorId = 'vec-1'
-      mockVectorizeIndex.query.mockResolvedValueOnce({
+      testSetup.mockVectorizeIndex.query.mockResolvedValueOnce({
         matches: Array.from({ length: 12 }, (_, i) => ({
           id: `vec-${i}`,
           score: 1.0 - i * 0.05
@@ -282,7 +279,7 @@ describe('VectorManager Durable Object', () => {
         excludeSelf: true
       })
 
-      expect(mockVectorizeIndex.query).toHaveBeenCalledWith(
+      expect(testSetup.mockVectorizeIndex.query).toHaveBeenCalledWith(
         [0.1, 0.2, 0.3],
         expect.objectContaining({ topK: 11 })
       )
@@ -291,7 +288,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should throw error if vector not found', async () => {
-      mockVectorizeIndex.getByIds.mockResolvedValueOnce([])
+      testSetup.mockVectorizeIndex.getByIds.mockResolvedValueOnce([])
 
       await expect(vectorManager.findSimilar('non-existent')).rejects.toThrow(
         'Vector non-existent not found'
@@ -306,16 +303,16 @@ describe('VectorManager Durable Object', () => {
         { vector: [0.3, 0.4], options: { topK: 5 } }
       ]
 
-      mockVectorizeIndex.query
+      testSetup.mockVectorizeIndex.query
         .mockResolvedValueOnce({ matches: [{ id: 'vec-1', score: 0.9 }] })
         .mockResolvedValueOnce({ matches: [{ id: 'vec-2', score: 0.8 }] })
 
       const results = await vectorManager.batchQuery(queries)
 
       expect(results).toHaveLength(2)
-      expect(mockVectorizeIndex.query).toHaveBeenCalledTimes(2)
-      expect(mockVectorizeIndex.query).toHaveBeenCalledWith([0.1, 0.2], { topK: 3 })
-      expect(mockVectorizeIndex.query).toHaveBeenCalledWith([0.3, 0.4], { topK: 5 })
+      expect(testSetup.mockVectorizeIndex.query).toHaveBeenCalledTimes(2)
+      expect(testSetup.mockVectorizeIndex.query).toHaveBeenCalledWith([0.1, 0.2], { topK: 3 })
+      expect(testSetup.mockVectorizeIndex.query).toHaveBeenCalledWith([0.3, 0.4], { topK: 5 })
     })
   })
 
@@ -337,8 +334,8 @@ describe('VectorManager Durable Object', () => {
         jobId: expect.stringContaining('vec_create_'),
         status: 'completed'
       })
-      expect(mockEnv.EMBEDDINGS_WORKFLOW.create).toHaveBeenCalled()
-      expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalled()
+      expect(testSetup.mockEnv.EMBEDDINGS_WORKFLOW.create).toHaveBeenCalled()
+      expect(testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalled()
     })
 
     it('should use default namespace when undefined and handle undefined recentVectors', async () => {
@@ -370,7 +367,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should handle embedding workflow failure', async () => {
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'errored',
           error: 'Embedding failed'
@@ -383,7 +380,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should handle embedding workflow failure with undefined error', async () => {
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'errored',
           error: undefined
@@ -396,7 +393,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should handle embedding timeout', async () => {
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'running'
         })
@@ -408,7 +405,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should handle vector workflow failure', async () => {
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'errored',
           error: 'Vector save failed'
@@ -427,7 +424,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should handle vector workflow failure with undefined error', async () => {
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'errored',
           error: undefined
@@ -446,7 +443,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should handle unsuccessful embedding result', async () => {
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -468,7 +465,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should handle unsuccessful embedding with undefined error', async () => {
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -490,7 +487,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should handle unsuccessful vector result', async () => {
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -519,7 +516,7 @@ describe('VectorManager Durable Object', () => {
       })
 
       // Embedding workflow succeeds immediately
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -531,7 +528,7 @@ describe('VectorManager Durable Object', () => {
       })
 
       // Vector workflow always returns running status
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'running'
         })
@@ -545,7 +542,7 @@ describe('VectorManager Durable Object', () => {
 
     it('should handle null vector result', async () => {
       // Embedding workflow succeeds
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -557,7 +554,7 @@ describe('VectorManager Durable Object', () => {
       })
 
       // Vector workflow returns null output
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValueOnce({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: null
@@ -585,7 +582,7 @@ describe('VectorManager Durable Object', () => {
         jobId: expect.stringContaining('vec_delete_'),
         status: 'processing'
       })
-      expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalledWith({
+      expect(testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalledWith({
         id: result.jobId,
         params: {
           type: 'delete',
@@ -675,7 +672,7 @@ describe('VectorManager Durable Object', () => {
         jobId: expect.stringContaining('file_process_'),
         status: 'processing'
       })
-      expect(mockEnv.FILE_PROCESSING_WORKFLOW.create).toHaveBeenCalled()
+      expect(testSetup.mockEnv.FILE_PROCESSING_WORKFLOW.create).toHaveBeenCalled()
     })
 
     it('should get file processing job status', async () => {
@@ -972,7 +969,7 @@ describe('VectorManager Durable Object', () => {
       expect(result.success).toBe(true)
       expect(result.deletedCount).toBe(3)
       expect(vectorManager.state.recentVectors).toEqual([])
-      expect(mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec-1', 'vec-2', 'vec-3'])
+      expect(testSetup.mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec-1', 'vec-2', 'vec-3'])
     })
 
     it('should delete vectors by namespace', async () => {
@@ -991,7 +988,7 @@ describe('VectorManager Durable Object', () => {
       expect(result.deletedCount).toBe(2)
       expect(vectorManager.state.recentVectors).toHaveLength(1)
       expect(vectorManager.state.recentVectors![0].namespace).toBe('test')
-      expect(mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec-1', 'vec-3'])
+      expect(testSetup.mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec-1', 'vec-3'])
     })
 
     it('should handle empty state when deleting all', async () => {
@@ -1004,7 +1001,7 @@ describe('VectorManager Durable Object', () => {
 
       expect(result.success).toBe(true)
       expect(result.deletedCount).toBe(0)
-      expect(mockVectorizeIndex.deleteByIds).not.toHaveBeenCalled()
+      expect(testSetup.mockVectorizeIndex.deleteByIds).not.toHaveBeenCalled()
     })
 
     it('should handle uninitialized state when deleting all', async () => {
@@ -1021,7 +1018,7 @@ describe('VectorManager Durable Object', () => {
     })
 
     it('should continue on vectorize delete error', async () => {
-      mockVectorizeIndex.deleteByIds.mockRejectedValueOnce(new Error('Delete failed'))
+      testSetup.mockVectorizeIndex.deleteByIds.mockRejectedValueOnce(new Error('Delete failed'))
 
       vectorManager.setState({
         ...vectorManager.state,

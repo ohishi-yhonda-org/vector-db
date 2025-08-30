@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { setupWorkflowTest } from '../test-helpers'
 
 // Mock cloudflare:workers
 vi.mock('cloudflare:workers', () => ({
@@ -12,61 +13,54 @@ vi.mock('cloudflare:workers', () => ({
 // Import after mocking  
 import { FileProcessingWorkflow } from '../../../src/workflows/file-processing'
 
+// Mock WorkflowEvent
+const createMockEvent = (payload: any) => ({
+  payload,
+  timestamp: new Date()
+})
+
 describe('FileProcessingWorkflow', () => {
   let workflow: FileProcessingWorkflow
-  let mockEnv: any
-  let mockCtx: any
+  let testSetup: ReturnType<typeof setupWorkflowTest>
 
   beforeEach(() => {
     vi.clearAllMocks()
+    testSetup = setupWorkflowTest()
     
-    mockEnv = {
-      AI: {
-        run: vi.fn()
-      },
-      DEFAULT_TEXT_GENERATION_MODEL: '@cf/meta/llama-3-8b-instruct',
-      DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
-      TEXT_EXTRACTION_MAX_TOKENS: '2048',
-      EMBEDDINGS_WORKFLOW: {
-        create: vi.fn().mockResolvedValue({ id: 'embedding-workflow-123' }),
-        get: vi.fn().mockResolvedValue({
-          status: vi.fn().mockResolvedValue({
-            status: 'complete',
-            output: {
-              success: true,
-              embedding: [0.1, 0.2, 0.3],
-              model: '@cf/baai/bge-base-en-v1.5'
-            }
-          })
+    // Add additional env variables
+    testSetup.mockEnv.DEFAULT_TEXT_GENERATION_MODEL = '@cf/meta/llama-3-8b-instruct'
+    testSetup.mockEnv.DEFAULT_EMBEDDING_MODEL = '@cf/baai/bge-base-en-v1.5'
+    testSetup.mockEnv.TEXT_EXTRACTION_MAX_TOKENS = '2048'
+    testSetup.mockEnv.EMBEDDINGS_WORKFLOW = {
+      create: vi.fn().mockResolvedValue({ id: 'embedding-workflow-123' }),
+      get: vi.fn().mockResolvedValue({
+        status: vi.fn().mockResolvedValue({
+          status: 'complete',
+          output: {
+            success: true,
+            embedding: [0.1, 0.2, 0.3],
+            model: '@cf/baai/bge-base-en-v1.5'
+          }
         })
-      },
-      VECTOR_OPERATIONS_WORKFLOW: {
-        create: vi.fn().mockResolvedValue({ id: 'vector-workflow-123' }),
-        get: vi.fn().mockResolvedValue({
-          status: vi.fn().mockResolvedValue({
-            status: 'complete',
-            output: {
-              success: true,
-              vectorId: 'vec-123'
-            }
-          })
-        })
-      }
+      })
     }
-
-    mockCtx = {}
-
-    workflow = new FileProcessingWorkflow(mockCtx, mockEnv)
+    testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW = {
+      create: vi.fn().mockResolvedValue({ id: 'vector-workflow-123' }),
+      get: vi.fn().mockResolvedValue({
+        status: vi.fn().mockResolvedValue({
+          status: 'complete',
+          output: {
+            success: true,
+            vectorId: 'vec-123'
+          }
+        })
+      })
+    }
+    
+    workflow = new FileProcessingWorkflow(testSetup.mockCtx, testSetup.mockEnv)
   })
 
   describe('processFile', () => {
-    let mockStep: any
-
-    beforeEach(() => {
-      mockStep = {
-        do: vi.fn()
-      }
-    })
 
     it('should use custom namespace and metadata for PDF', async () => {
       const params = {
@@ -78,7 +72,7 @@ describe('FileProcessingWorkflow', () => {
         metadata: { userId: 'user123' }
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
@@ -108,15 +102,15 @@ describe('FileProcessingWorkflow', () => {
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
       
       expect(result.success).toBe(true)
 
-      expect(mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalledWith(
+      expect(testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.create).toHaveBeenCalledWith(
         expect.objectContaining({
           params: expect.objectContaining({
             namespace: 'custom-namespace',
@@ -136,7 +130,7 @@ describe('FileProcessingWorkflow', () => {
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockResolvedValueOnce({
           description: 'Test PDF',
           extractedText: 'Content',
@@ -151,14 +145,14 @@ describe('FileProcessingWorkflow', () => {
         ])
         .mockResolvedValueOnce(['pdf_test.pdf_description_0_123', 'pdf_test.pdf_extracted-text_1_123', 'pdf_test.pdf_metadata_2_123'])
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: `DESCRIPTION: Test PDF
 EXTRACTED_TEXT: Content
 TOPICS: testing
 KEYWORDS: test, pdf`
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result).toMatchObject({
         type: 'pdf',
@@ -185,7 +179,7 @@ KEYWORDS: test, pdf`
         fileSize: 2048
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockResolvedValueOnce({
           description: 'A test image',
           extractedText: '',
@@ -199,14 +193,14 @@ KEYWORDS: test, pdf`
         ])
         .mockResolvedValueOnce(['image_test.jpg_description_0_123', 'image_test.jpg_metadata_1_123'])
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: `DESCRIPTION: A test image
 EXTRACTED_TEXT: 
 TOPICS: image
 KEYWORDS: test, image`
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.type).toBe('image')
       expect(result.success).toBe(true)
@@ -221,9 +215,9 @@ KEYWORDS: test, image`
         fileSize: 1024
       }
 
-      mockEnv.AI.run.mockRejectedValueOnce(new Error('AI service error'))
+      testSetup.mockAI.run.mockRejectedValueOnce(new Error('AI service error'))
       
-      mockStep.do
+      testSetup.mockStep.do
         .mockResolvedValueOnce({
           description: 'pdf file: test.pdf',
           extractedText: '',
@@ -236,7 +230,7 @@ KEYWORDS: test, image`
         ])
         .mockResolvedValueOnce(['pdf_test.pdf_description_0_123'])
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.description).toBe('pdf file: test.pdf')
@@ -251,9 +245,9 @@ KEYWORDS: test, image`
         fileSize: 1024
       }
 
-      mockStep.do.mockRejectedValueOnce(new Error('Processing failed'))
+      testSetup.mockStep.do.mockRejectedValueOnce(new Error('Processing failed'))
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result).toMatchObject({
         type: 'pdf',
@@ -273,7 +267,7 @@ KEYWORDS: test, image`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockResolvedValueOnce({
           description: 'Long PDF',
           extractedText: longText,
@@ -296,14 +290,14 @@ KEYWORDS: test, image`
           'pdf_test.pdf_metadata_4_123'
         ])
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: `DESCRIPTION: Long PDF
 EXTRACTED_TEXT: ${longText}
 TOPICS: testing
 KEYWORDS: test`
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.vectorIds).toHaveLength(5)
@@ -317,7 +311,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
@@ -343,11 +337,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: \nEXTRACTED_TEXT: Some text\nTOPICS: topics\nKEYWORDS: keywords'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       // Description chunk is created even if empty, plus extracted-text and metadata
@@ -362,7 +356,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
@@ -388,11 +382,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       // Description, extracted-text, and metadata chunks are always created
@@ -407,7 +401,7 @@ KEYWORDS: test`
         fileSize: 2048
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
@@ -433,11 +427,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test image\nEXTRACTED_TEXT: \nTOPICS: image topics\nKEYWORDS: image, test'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       // Description, empty extracted-text, and metadata chunks are all created
@@ -452,11 +446,11 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             // Simulate a non-Error object being thrown
-            mockEnv.AI.run.mockRejectedValueOnce('String error not an Error object')
+            testSetup.mockAI.run.mockRejectedValueOnce('String error not an Error object')
             try {
               return await fn()
             } catch (error) {
@@ -489,7 +483,7 @@ KEYWORDS: test`
           return fn()
         })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.vectorIds).toEqual(['vec-1', 'vec-2', 'vec-3'])
@@ -503,7 +497,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             // Execute the callback to test the try-catch inside
@@ -524,9 +518,9 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockRejectedValueOnce(new Error('AI service error'))
+      testSetup.mockAI.run.mockRejectedValueOnce(new Error('AI service error'))
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.description).toBe('pdf file: test.pdf')
@@ -542,7 +536,7 @@ KEYWORDS: test`
         fileSize: 2048
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
@@ -568,14 +562,14 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: `DESCRIPTION: Boundary test
 EXTRACTED_TEXT: ${exactBoundaryText}
 TOPICS: boundary
 KEYWORDS: test`
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.vectorIds).toHaveLength(5) // description + 3 text chunks + metadata
@@ -589,7 +583,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return await fn()
@@ -610,11 +604,11 @@ KEYWORDS: test`
         })
 
       // AI returns response without description section
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'EXTRACTED_TEXT: Some content\nTOPICS: test'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.description).toBe('pdf file: test.pdf')
@@ -629,9 +623,9 @@ KEYWORDS: test`
       }
 
       // Throw a non-Error object
-      mockStep.do.mockRejectedValueOnce('String error')
+      testSetup.mockStep.do.mockRejectedValueOnce('String error')
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result).toMatchObject({
         type: 'pdf',
@@ -648,9 +642,9 @@ KEYWORDS: test`
         fileSize: 2048
       }
 
-      mockStep.do.mockRejectedValueOnce(new Error('Image processing error'))
+      testSetup.mockStep.do.mockRejectedValueOnce(new Error('Image processing error'))
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result).toMatchObject({
         type: 'image',
@@ -667,7 +661,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -697,11 +691,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         text: 'DESCRIPTION: Text field response\nEXTRACTED_TEXT: Text content'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('DESCRIPTION: Text field response\nEXTRACTED_TEXT: Text content')
@@ -715,7 +709,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -745,11 +739,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         description: 'DESCRIPTION: Vision model response\nEXTRACTED_TEXT: Image text'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('DESCRIPTION: Vision model response\nEXTRACTED_TEXT: Image text')
@@ -763,7 +757,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -793,11 +787,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         generated_text: 'DESCRIPTION: Generated text\nEXTRACTED_TEXT: Content from generation'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('DESCRIPTION: Generated text\nEXTRACTED_TEXT: Content from generation')
@@ -811,7 +805,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -841,11 +835,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         result: 'DESCRIPTION: Result field\nEXTRACTED_TEXT: Result content'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('DESCRIPTION: Result field\nEXTRACTED_TEXT: Result content')
@@ -859,7 +853,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -889,9 +883,9 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce('DESCRIPTION: Direct string\nEXTRACTED_TEXT: Direct content')
+      testSetup.mockAI.run.mockResolvedValueOnce('DESCRIPTION: Direct string\nEXTRACTED_TEXT: Direct content')
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('DESCRIPTION: Direct string\nEXTRACTED_TEXT: Direct content')
@@ -905,7 +899,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           // Let the actual function run
           return await fn()
@@ -922,9 +916,9 @@ KEYWORDS: test`
         })
 
       // Mock AI to return boolean true (no length property, but truthy)
-      mockEnv.AI.run.mockResolvedValueOnce(true)
+      testSetup.mockAI.run.mockResolvedValueOnce(true)
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       // extractTextFromResult returns '' for non-string, so falls back to filename
@@ -940,7 +934,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -970,9 +964,9 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce(null)
+      testSetup.mockAI.run.mockResolvedValueOnce(null)
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('test.pdf')
@@ -986,7 +980,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1016,9 +1010,9 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({})
+      testSetup.mockAI.run.mockResolvedValueOnce({})
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('test.pdf')
@@ -1032,7 +1026,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           // Let the actual function run to test extractTextFromResult
           return await fn()
@@ -1049,7 +1043,7 @@ KEYWORDS: test`
         })
 
       // Mock AI to return an object with numeric value (extractTextFromResult will return '')
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 123,  // Number, not string
         text: false,    // Boolean, not string
         description: null,  // Null
@@ -1058,7 +1052,7 @@ KEYWORDS: test`
         // This will cause extractTextFromResult to return empty string
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('test.pdf')  // Falls back to filename
@@ -1073,7 +1067,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1103,7 +1097,7 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 123,
         text: null,
         description: undefined,
@@ -1111,7 +1105,7 @@ KEYWORDS: test`
         result: []
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('test.pdf')
@@ -1125,7 +1119,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1151,9 +1145,9 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce(undefined)
+      testSetup.mockAI.run.mockResolvedValueOnce(undefined)
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.vectorIds).toEqual([])
@@ -1167,7 +1161,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           // Execute the actual function to test the branches
           return await fn()
@@ -1184,11 +1178,11 @@ KEYWORDS: test`
         })
 
       // Mock AI to return response without DESCRIPTION section
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'EXTRACTED_TEXT: Just text content\nTOPICS: pdf\nKEYWORDS: test'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.vectorIds).toEqual(['vec-1', 'vec-2'])
@@ -1202,7 +1196,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1231,11 +1225,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: PDF document\nEXTRACTED_TEXT: Content only'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.vectorIds).toEqual(['vec-1', 'vec-2'])
@@ -1256,10 +1250,10 @@ KEYWORDS: test`
         }
       })
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           // Mock the AI.run to return the malicious object
-          mockEnv.AI.run.mockResolvedValueOnce(maliciousResult)
+          testSetup.mockAI.run.mockResolvedValueOnce(maliciousResult)
           // This will trigger the error in extractTextFromResult
           try {
             return await fn()
@@ -1291,7 +1285,7 @@ KEYWORDS: test`
           return fn()
         })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('test.pdf')
@@ -1306,7 +1300,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1335,9 +1329,9 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce('')  // Empty string response
+      testSetup.mockAI.run.mockResolvedValueOnce('')  // Empty string response
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.text).toBe('')
@@ -1354,7 +1348,7 @@ KEYWORDS: test`
 
       // Mock to return embedding failure for first chunk, success for second
       let callCount = 0
-      mockEnv.EMBEDDINGS_WORKFLOW.create.mockImplementation(async ({ params }: any) => ({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.create.mockImplementation(async ({ params }: any) => ({
         get: vi.fn().mockResolvedValue(
           callCount++ === 0 
             ? { success: false, error: 'Embedding generation failed' }
@@ -1362,7 +1356,7 @@ KEYWORDS: test`
         )
       }))
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return {
@@ -1389,13 +1383,13 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content\nTOPICS: test\nKEYWORDS: pdf'
       })
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       // Description, extracted-text (even with failure), and metadata chunks
@@ -1443,7 +1437,7 @@ KEYWORDS: test`
         fileSize: 1024
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return await fn()
@@ -1463,12 +1457,12 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
       })
 
       const event = createMockEvent(params)
-      const result = await workflow.run(event as any, mockStep as any)
+      const result = await workflow.run(event as any, testSetup.mockStep as any)
 
       expect(result.success).toBe(true)
       expect(result.type).toBe('pdf')
@@ -1482,7 +1476,7 @@ KEYWORDS: test`
         fileSize: 2048
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-gemma') {
             return await fn()
@@ -1502,12 +1496,12 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test image\nEXTRACTED_TEXT: '
       })
 
       const event = createMockEvent(params)
-      const result = await workflow.run(event as any, mockStep as any)
+      const result = await workflow.run(event as any, testSetup.mockStep as any)
 
       expect(result.success).toBe(true)
       expect(result.type).toBe('image')
@@ -1573,7 +1567,7 @@ KEYWORDS: test`
         fileSize: 3 * 1024 * 1024 // 3MB
       }
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return await fn()
@@ -1593,13 +1587,13 @@ KEYWORDS: test`
           return fn()
         })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.content.description).toBe('Large pdf file: large.pdf')
       expect(result.content.text).toBe('large.pdf - pdf document (large file)')
       // Should not call AI.run for large files
-      expect(mockEnv.AI.run).not.toHaveBeenCalled()
+      expect(testSetup.mockAI.run).not.toHaveBeenCalled()
     })
 
     it('should handle embedding workflow errored status', async () => {
@@ -1611,14 +1605,14 @@ KEYWORDS: test`
       }
 
       // Mock embedding workflow to return errored status
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockResolvedValue({
           status: 'errored',
           error: 'Embedding generation failed'
         })
       })
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1647,11 +1641,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       // Should continue despite embedding errors
@@ -1667,7 +1661,7 @@ KEYWORDS: test`
       }
 
       // Mock embedding to succeed but vector save to fail
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -1678,14 +1672,14 @@ KEYWORDS: test`
         })
       })
 
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockResolvedValue({
           status: 'errored',
           error: 'Vector save failed'
         })
       })
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1713,11 +1707,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       // Should have empty vectorIds due to save failure
@@ -1733,7 +1727,7 @@ KEYWORDS: test`
       }
 
       // Mock embedding to succeed
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -1745,7 +1739,7 @@ KEYWORDS: test`
       })
 
       // Mock vector save to return success: false
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -1755,7 +1749,7 @@ KEYWORDS: test`
         })
       })
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1783,11 +1777,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       // Should have empty vectorIds due to save failure
@@ -1804,7 +1798,7 @@ KEYWORDS: test`
 
       // Mock embedding workflow to return pending then complete
       let statusCallCount = 0
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockImplementation(() => {
           statusCallCount++
           if (statusCallCount === 1) {
@@ -1829,7 +1823,7 @@ KEYWORDS: test`
         return 0 as any
       })
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1857,12 +1851,12 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
       })
 
       // Reset vector save mock to default success
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -1872,7 +1866,7 @@ KEYWORDS: test`
         })
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.vectorIds).toHaveLength(1)
@@ -1890,7 +1884,7 @@ KEYWORDS: test`
       }
 
       // Mock embedding to succeed immediately
-      mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.EMBEDDINGS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockResolvedValue({
           status: 'complete',
           output: {
@@ -1903,7 +1897,7 @@ KEYWORDS: test`
 
       // Mock vector save to return pending then complete
       let vectorStatusCallCount = 0
-      mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValue({
+      testSetup.mockEnv.VECTOR_OPERATIONS_WORKFLOW.get.mockResolvedValue({
         status: vi.fn().mockImplementation(() => {
           vectorStatusCallCount++
           if (vectorStatusCallCount === 1) {
@@ -1927,7 +1921,7 @@ KEYWORDS: test`
         return 0 as any
       })
 
-      mockStep.do
+      testSetup.mockStep.do
         .mockImplementationOnce(async (name: string, fn: () => any) => {
           if (name === 'analyze-file-with-ai') {
             return {
@@ -1955,11 +1949,11 @@ KEYWORDS: test`
           return fn()
         })
 
-      mockEnv.AI.run.mockResolvedValueOnce({
+      testSetup.mockAI.run.mockResolvedValueOnce({
         response: 'DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content'
       })
 
-      const result = await (workflow as any).processFile(params, mockStep)
+      const result = await (workflow as any).processFile(params, testSetup.mockStep)
 
       expect(result.success).toBe(true)
       expect(result.vectorIds).toHaveLength(1)
