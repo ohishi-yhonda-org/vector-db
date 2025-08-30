@@ -365,8 +365,8 @@ describe('VectorManager Durable Object', () => {
       
       // recentVectorsが初期化され、デフォルトnamespaceが使われることを確認
       expect(vectorManager.state.recentVectors).toBeDefined()
-      expect(vectorManager.state.recentVectors.length).toBeGreaterThan(0)
-      expect(vectorManager.state.recentVectors[0].namespace).toBe('default')
+      expect(vectorManager.state.recentVectors!.length).toBeGreaterThan(0)
+      expect(vectorManager.state.recentVectors![0].namespace).toBe('default')
     })
 
     it('should handle embedding workflow failure', async () => {
@@ -926,7 +926,7 @@ describe('VectorManager Durable Object', () => {
       // stateが更新されたことを確認
       expect(vectorManager.state.fileProcessingJobs['file-job-1'].status).toBe('completed')
       expect(vectorManager.state.fileProcessingJobs['file-job-1'].completedAt).toBe(completedAt)
-      expect(vectorManager.state.fileProcessingJobs['file-job-1'].result).toEqual({ vectorCount: 5 })
+      expect((vectorManager.state.fileProcessingJobs['file-job-1'] as any).result).toEqual({ vectorCount: 5 })
     })
   })
 
@@ -944,7 +944,7 @@ describe('VectorManager Durable Object', () => {
       await vectorManager.removeDeletedVectors(['vec-1', 'vec-3'])
 
       expect(vectorManager.state.recentVectors).toHaveLength(1)
-      expect(vectorManager.state.recentVectors[0].id).toBe('vec-2')
+      expect(vectorManager.state.recentVectors![0].id).toBe('vec-2')
     })
 
     it('should handle uninitialized recentVectors', async () => {
@@ -990,7 +990,7 @@ describe('VectorManager Durable Object', () => {
       expect(result.success).toBe(true)
       expect(result.deletedCount).toBe(2)
       expect(vectorManager.state.recentVectors).toHaveLength(1)
-      expect(vectorManager.state.recentVectors[0].namespace).toBe('test')
+      expect(vectorManager.state.recentVectors![0].namespace).toBe('test')
       expect(mockVectorizeIndex.deleteByIds).toHaveBeenCalledWith(['vec-1', 'vec-3'])
     })
 

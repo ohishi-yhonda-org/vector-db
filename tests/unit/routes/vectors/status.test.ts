@@ -25,16 +25,17 @@ describe('Vector Job Status Routes', () => {
       ENVIRONMENT: 'development' as const,
       DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
       DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
-      IMAGE_ANALYSIS_PROMPT: 'Describe this image',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image in detail. Include any text visible in the image.',
       IMAGE_ANALYSIS_MAX_TOKENS: '512',
       TEXT_EXTRACTION_MAX_TOKENS: '1024',
-      NOTION_API_KEY: 'test-key',
+      NOTION_API_KEY: '',
       AI: {} as any,
       VECTORIZE_INDEX: {} as any,
       VECTOR_CACHE: mockVectorCacheNamespace as any,
       NOTION_MANAGER: {} as any,
       AI_EMBEDDINGS: {} as any,
       DB: {} as any,
+      EMBEDDINGS_WORKFLOW: {} as any,
       BATCH_EMBEDDINGS_WORKFLOW: {} as any,
       VECTOR_OPERATIONS_WORKFLOW: {} as any,
       FILE_PROCESSING_WORKFLOW: {} as any,
@@ -68,7 +69,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toEqual({
         success: true,
         data: mockJob
@@ -87,7 +88,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(404)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toEqual({
         success: false,
         error: 'Not Found',
@@ -103,7 +104,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toEqual({
         success: false,
         error: 'Internal Server Error',
@@ -126,7 +127,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.success).toBe(false)
       expect(json.error).toBe('Internal Server Error')
     })
@@ -163,7 +164,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toEqual({
         success: true,
         data: {
@@ -185,7 +186,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toEqual({
         success: true,
         data: {
@@ -203,7 +204,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toEqual({
         success: false,
         error: 'Internal Server Error',
@@ -219,7 +220,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toEqual({
         success: false,
         error: 'Internal Server Error',
@@ -235,7 +236,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toEqual({
         success: false,
         error: 'Internal Server Error',
@@ -259,7 +260,7 @@ describe('Vector Job Status Routes', () => {
       }, mockEnv)
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.success).toBe(false)
       expect(json.error).toBe('Internal Server Error')
     })

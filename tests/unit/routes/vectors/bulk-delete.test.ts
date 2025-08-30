@@ -66,7 +66,7 @@ describe('Bulk Delete Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         data: {
@@ -91,7 +91,7 @@ describe('Bulk Delete Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       // OpenAPIのバリデーションエラーは異なる形式
       expect(json.success).toBe(false)
       // エラーがオブジェクトとして含まれることを確認
@@ -115,7 +115,7 @@ describe('Bulk Delete Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       // Zodバリデーションエラーの形式を確認
       expect(json.success).toBe(false)
       // error フィールドがオブジェクトの可能性がある
@@ -139,7 +139,7 @@ describe('Bulk Delete Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.success).toBe(false)
       expect(json.data?.requested).toBe(150)
       expect(json.data?.deleted).toBe(50) // 2番目のバッチ（50個）は成功
@@ -165,7 +165,7 @@ describe('Bulk Delete Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.success).toBe(false)
       expect(json.data?.requested).toBe(150)
       expect(json.data?.deleted).toBe(50) // 2番目のバッチ（50個）は成功
@@ -189,7 +189,7 @@ describe('Bulk Delete Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         data: {
@@ -222,7 +222,7 @@ describe('Bulk Delete Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.success).toBe(false)
     })
 
@@ -241,7 +241,7 @@ describe('Bulk Delete Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         data: {
@@ -266,7 +266,7 @@ describe('Bulk Delete Vectors Route', () => {
         env: mockEnv
       } as any
 
-      const result = await bulkDeleteVectorsHandler(c)
+      const result = await bulkDeleteVectorsHandler(c, {} as any)
       
       expect(c.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -289,7 +289,7 @@ describe('Bulk Delete Vectors Route', () => {
         env: mockEnv
       } as any
 
-      const result = await bulkDeleteVectorsHandler(c)
+      const result = await bulkDeleteVectorsHandler(c, {} as any)
       
       expect(c.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -310,7 +310,7 @@ describe('Bulk Delete Vectors Route', () => {
         env: mockEnv
       } as any
 
-      const result = await bulkDeleteVectorsHandler(c)
+      const result = await bulkDeleteVectorsHandler(c, {} as any)
       
       expect(c.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -331,7 +331,7 @@ describe('Bulk Delete Vectors Route', () => {
         env: mockEnv
       } as any
 
-      const result = await bulkDeleteVectorsHandler(c)
+      const result = await bulkDeleteVectorsHandler(c, {} as any)
       
       expect(c.json).toHaveBeenCalledWith(
         expect.objectContaining({

@@ -22,10 +22,10 @@ describe('Get Vector Route', () => {
       ENVIRONMENT: 'development' as const,
       DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
       DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
-      IMAGE_ANALYSIS_PROMPT: 'Describe this image',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image in detail. Include any text visible in the image.',
       IMAGE_ANALYSIS_MAX_TOKENS: '512',
       TEXT_EXTRACTION_MAX_TOKENS: '1024',
-      NOTION_API_KEY: 'test-key',
+      NOTION_API_KEY: '',
       AI: {} as any,
       VECTORIZE_INDEX: {
         getByIds: mockGetByIds

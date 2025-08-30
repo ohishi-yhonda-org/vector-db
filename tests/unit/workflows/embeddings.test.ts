@@ -202,7 +202,7 @@ describe('EmbeddingsWorkflow', () => {
         text: ''
       }
 
-      const mockEmbedding = []
+      const mockEmbedding: number[] = []
       
       mockStep.do.mockImplementationOnce(async (name, fn) => {
         if (name === 'generate-embedding') {

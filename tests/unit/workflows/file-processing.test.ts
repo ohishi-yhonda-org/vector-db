@@ -1354,7 +1354,7 @@ KEYWORDS: test`
 
       // Mock to return embedding failure for first chunk, success for second
       let callCount = 0
-      mockEnv.EMBEDDINGS_WORKFLOW.create.mockImplementation(async ({ params }) => ({
+      mockEnv.EMBEDDINGS_WORKFLOW.create.mockImplementation(async ({ params }: any) => ({
         get: vi.fn().mockResolvedValue(
           callCount++ === 0 
             ? { success: false, error: 'Embedding generation failed' }

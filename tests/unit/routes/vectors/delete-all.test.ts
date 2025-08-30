@@ -61,7 +61,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         message: '5件のベクトルを削除しました',
@@ -79,7 +79,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.success).toBe(false)
       // OpenAPIのバリデーションエラーの形式
       expect(json.error).toBeDefined()
@@ -92,7 +92,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.success).toBe(false)
       expect(json.error).toBeDefined()
       expect(mockVectorManager.deleteAllVectors).not.toHaveBeenCalled()
@@ -108,7 +108,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         message: '0件のベクトルを削除しました',
@@ -129,7 +129,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         message: '1500件のベクトルを削除しました',
@@ -148,7 +148,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: false,
         error: 'Internal Server Error',
@@ -168,7 +168,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         message: '3件のベクトルを削除しました',
@@ -189,7 +189,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         message: '250件のベクトルを削除しました',
@@ -207,7 +207,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: false,
         error: 'Internal Server Error',
@@ -221,7 +221,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.success).toBe(false)
       expect(json.error).toBeDefined()
     })
@@ -236,7 +236,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         message: '10件のベクトルを削除しました',
@@ -258,7 +258,7 @@ describe('Delete All Vectors Route', () => {
       }, mockEnv)
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         success: true,
         message: '0件のベクトルを削除しました',

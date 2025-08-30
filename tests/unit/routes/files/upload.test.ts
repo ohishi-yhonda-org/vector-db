@@ -24,16 +24,17 @@ describe('Upload File Route', () => {
       ENVIRONMENT: 'development' as const,
       DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
       DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
-      IMAGE_ANALYSIS_PROMPT: 'Describe this image',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image in detail. Include any text visible in the image.',
       IMAGE_ANALYSIS_MAX_TOKENS: '512',
       TEXT_EXTRACTION_MAX_TOKENS: '1024',
-      NOTION_API_KEY: 'test-key',
+      NOTION_API_KEY: '',
       AI: {} as any,
       VECTORIZE_INDEX: {} as any,
       VECTOR_CACHE: mockVectorCacheNamespace as any,
       NOTION_MANAGER: {} as any,
       AI_EMBEDDINGS: {} as any,
       DB: {} as any,
+      EMBEDDINGS_WORKFLOW: {} as Workflow,
       BATCH_EMBEDDINGS_WORKFLOW: {} as any,
       VECTOR_OPERATIONS_WORKFLOW: {} as any,
       FILE_PROCESSING_WORKFLOW: {} as any,
@@ -65,7 +66,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(202)
       expect(mockVectorManager.processFileAsync).toHaveBeenCalledWith(
@@ -114,7 +115,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(202)
       expect(mockVectorManager.processFileAsync).toHaveBeenCalledWith(
@@ -204,7 +205,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(400)
       expect(result.success).toBe(false)
@@ -224,7 +225,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(413)
       expect(result).toEqual({
@@ -245,7 +246,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(415)
       expect(result).toEqual({
@@ -267,7 +268,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(400)
       expect(result.success).toBe(false)
@@ -311,7 +312,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(500)
       expect(result).toEqual({
@@ -334,7 +335,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(500)
       expect(result.message).toBe('ファイルアップロード中にエラーが発生しました')
@@ -359,7 +360,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(202)
       expect(result.data.fileInfo.name).toBe('test-file_2024.pdf')
@@ -376,7 +377,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(400)
       expect(result.success).toBe(false)
@@ -404,7 +405,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(202)
       expect(result.success).toBe(true)
@@ -433,7 +434,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(202)
       // Should keep original filename since decoded version has no Japanese characters
@@ -468,7 +469,7 @@ describe('Upload File Route', () => {
       })
 
       const response = await app.fetch(request, mockEnv)
-      const result = await response.json() as any
+      const result = await response.json() as any as any
 
       expect(response.status).toBe(202)
       // Should keep original filename when decoding fails
@@ -497,16 +498,17 @@ describe('Upload File Edge Cases', () => {
       ENVIRONMENT: 'development' as const,
       DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
       DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
-      IMAGE_ANALYSIS_PROMPT: 'Describe this image',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image in detail. Include any text visible in the image.',
       IMAGE_ANALYSIS_MAX_TOKENS: '512',
       TEXT_EXTRACTION_MAX_TOKENS: '1024',
-      NOTION_API_KEY: 'test-key',
+      NOTION_API_KEY: '',
       AI: {} as any,
       VECTORIZE_INDEX: {} as any,
       VECTOR_CACHE: mockVectorCacheNamespace as any,
       NOTION_MANAGER: {} as any,
       AI_EMBEDDINGS: {} as any,
       DB: {} as any,
+      EMBEDDINGS_WORKFLOW: {} as Workflow,
       BATCH_EMBEDDINGS_WORKFLOW: {} as any,
       VECTOR_OPERATIONS_WORKFLOW: {} as any,
       FILE_PROCESSING_WORKFLOW: {} as any,
@@ -545,7 +547,7 @@ describe('Upload File Edge Cases', () => {
       env: mockEnv
     } as any
 
-    const response = await uploadFileHandler(c)
+    const response = await uploadFileHandler(c, {} as any)
     
     expect(c.json).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -585,7 +587,7 @@ describe('Upload File Edge Cases', () => {
     }, mockEnv)
 
     expect(response.status).toBe(202)
-    const result = await response.json()
+    const result = await response.json() as any
     expect(result.success).toBe(true)
     
     // The handler should decode the filename and detect Japanese characters
@@ -626,7 +628,7 @@ describe('Upload File Edge Cases', () => {
     }, mockEnv)
 
     expect(response.status).toBe(202)
-    const result = await response.json()
+    const result = await response.json() as any
     expect(result.success).toBe(true)
     
     // The handler successfully decodes even with some invalid bytes, replacing them with �
@@ -671,7 +673,7 @@ describe('Upload File Edge Cases', () => {
     }, mockEnv)
 
     expect(response.status).toBe(202)
-    const result = await response.json()
+    const result = await response.json() as any
     expect(result.success).toBe(true)
     
     // Should use original filename when TextDecoder fails

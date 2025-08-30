@@ -23,12 +23,12 @@ describe('Semantic Search Route', () => {
     
     mockEnv = {
       ENVIRONMENT: 'development' as const,
-      DEFAULT_EMBEDDING_MODEL: 'test-model',
-      DEFAULT_TEXT_GENERATION_MODEL: '@cf/meta/llama-3.1-8b-instruct',
-      IMAGE_ANALYSIS_PROMPT: 'test-prompt',
-      IMAGE_ANALYSIS_MAX_TOKENS: '1000',
-      TEXT_EXTRACTION_MAX_TOKENS: '4000',
-      NOTION_API_KEY: 'test-key',
+      DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
+      DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
+      IMAGE_ANALYSIS_PROMPT: 'Describe this image in detail. Include any text visible in the image.',
+      IMAGE_ANALYSIS_MAX_TOKENS: '512',
+      TEXT_EXTRACTION_MAX_TOKENS: '1024',
+      NOTION_API_KEY: '',
       AI: {
         run: mockAIRun
       } as any,
@@ -73,7 +73,7 @@ describe('Semantic Search Route', () => {
       const result = await response.json() as any
 
       expect(response.status).toBe(200)
-      expect(mockEnv.AI.run).toHaveBeenCalledWith('test-model', { text: 'test search query' })
+      expect(mockEnv.AI.run).toHaveBeenCalledWith('@cf/baai/bge-base-en-v1.5', { text: 'test search query' })
       expect(mockVectorizeQuery).toHaveBeenCalledWith(mockEmbedding, {
         topK: 5,
         namespace: undefined,
@@ -307,7 +307,7 @@ describe('Semantic Search Route', () => {
       const result = await response.json() as any
 
       expect(response.status).toBe(200)
-      expect(mockEnv.AI.run).toHaveBeenCalledWith('test-model', { text: 'special&chars+test' })
+      expect(mockEnv.AI.run).toHaveBeenCalledWith('@cf/baai/bge-base-en-v1.5', { text: 'special&chars+test' })
       expect(result.data.query).toBe('special&chars+test')
     })
   })
