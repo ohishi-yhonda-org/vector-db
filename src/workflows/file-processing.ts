@@ -122,42 +122,7 @@ export class FileProcessingWorkflow extends WorkflowEntrypoint<Env, FileProcessi
       // Step 2: 分析結果をチャンクに分割（長いテキストの場合）
       const chunks = await step.do('prepare-content-chunks', async () => {
         console.log('[FileProcessingWorkflow] Step 2: Preparing content chunks')
-        const contentParts: Array<{ text: string; type: string }> = []
-        
-        // 説明を追加
-        if (fileAnalysis.description) {
-          contentParts.push({
-            text: fileAnalysis.description,
-            type: 'description'
-          })
-        }
-        
-        // 抽出されたテキストをチャンク分割
-        if (fileAnalysis.extractedText) {
-          const chunkSize = 1000
-          if (fileAnalysis.extractedText.length > chunkSize) {
-            for (let i = 0; i < fileAnalysis.extractedText.length; i += chunkSize) {
-              contentParts.push({
-                text: fileAnalysis.extractedText.slice(i, i + chunkSize),
-                type: 'extracted-text'
-              })
-            }
-          } else {
-            contentParts.push({
-              text: fileAnalysis.extractedText,
-              type: 'extracted-text'
-            })
-          }
-        }
-        
-        // トピックとキーワードを追加
-        if (fileAnalysis.topics || fileAnalysis.keywords) {
-          contentParts.push({
-            text: `Topics: ${fileAnalysis.topics}\nKeywords: ${fileAnalysis.keywords}`,
-            type: 'metadata'
-          })
-        }
-        
+        const contentParts = this.prepareContentChunks(fileAnalysis)
         console.log('[FileProcessingWorkflow] Created', contentParts.length, 'content chunks')
         return contentParts
       })
@@ -352,6 +317,46 @@ export class FileProcessingWorkflow extends WorkflowEntrypoint<Env, FileProcessi
     }
     
     return ''
+  }
+
+  public prepareContentChunks(fileAnalysis: any): Array<{ text: string; type: string }> {
+    const contentParts: Array<{ text: string; type: string }> = []
+    
+    // 説明を追加
+    if (fileAnalysis.description) {
+      contentParts.push({
+        text: fileAnalysis.description,
+        type: 'description'
+      })
+    }
+    
+    // 抽出されたテキストをチャンク分割
+    if (fileAnalysis.extractedText) {
+      const chunkSize = 1000
+      if (fileAnalysis.extractedText.length > chunkSize) {
+        for (let i = 0; i < fileAnalysis.extractedText.length; i += chunkSize) {
+          contentParts.push({
+            text: fileAnalysis.extractedText.slice(i, i + chunkSize),
+            type: 'extracted-text'
+          })
+        }
+      } else {
+        contentParts.push({
+          text: fileAnalysis.extractedText,
+          type: 'extracted-text'
+        })
+      }
+    }
+    
+    // トピックとキーワードを追加
+    if (fileAnalysis.topics || fileAnalysis.keywords) {
+      contentParts.push({
+        text: `Topics: ${fileAnalysis.topics}\nKeywords: ${fileAnalysis.keywords}`,
+        type: 'metadata'
+      })
+    }
+    
+    return contentParts
   }
 
   private parseAnalysisResponse(response: string): {
