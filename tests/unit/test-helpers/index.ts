@@ -48,13 +48,22 @@ export function createMockRequest(url: string, options: {
   body?: any
 } = {}) {
   const headers = new Headers(options.headers || {})
-  if (options.body && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json')
+  let body: string | undefined = undefined
+  
+  if (options.body) {
+    if (typeof options.body === 'object') {
+      if (!headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json')
+      }
+      body = JSON.stringify(options.body)
+    } else {
+      body = String(options.body)
+    }
   }
   
   return new Request(url, {
     method: options.method || 'GET',
     headers,
-    body: options.body ? JSON.stringify(options.body) : undefined
+    body
   })
 }

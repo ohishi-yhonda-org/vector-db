@@ -21,6 +21,7 @@ export function createMockVectorManager() {
     createVector: vi.fn(),
     createVectorAsync: vi.fn(),
     deleteVector: vi.fn(),
+    deleteVectorsAsync: vi.fn(),
     deleteAllVectors: vi.fn(),
     bulkDeleteVectors: vi.fn(),
     listVectors: vi.fn(),
