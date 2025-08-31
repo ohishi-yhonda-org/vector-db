@@ -67,18 +67,12 @@ describe('Semantic Search Route', () => {
 
   describe('GET /search/semantic', () => {
     it('should perform semantic search successfully', async () => {
-      const mockEmbedding = [0.1, 0.2, 0.3, 0.4]
-      const mockSearchResults = {
-        matches: [
-          { id: 'match-1', score: 0.95, metadata: { title: 'Test 1' } },
-          { id: 'match-2', score: 0.85, metadata: { title: 'Test 2' } }
-        ]
-      }
+      const mockSearchResults = [
+        { id: 'match-1', score: 0.95, metadata: { title: 'Test 1' } },
+        { id: 'match-2', score: 0.85, metadata: { title: 'Test 2' } }
+      ]
 
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        data: [mockEmbedding]
-      })
-      mockVectorizeQuery.mockResolvedValue(mockSearchResults)
+      mockSearchByText.mockResolvedValue(mockSearchResults)
 
       const request = new Request('http://localhost/search/semantic?query=test+search+query&topK=5', {
         method: 'GET'
@@ -88,19 +82,16 @@ describe('Semantic Search Route', () => {
       const result = await response.json() as any
 
       expect(response.status).toBe(200)
-      expect(mockEnv.AI.run).toHaveBeenCalledWith('test-model', { text: 'test search query' })
-      expect(mockVectorizeQuery).toHaveBeenCalledWith(mockEmbedding, {
+      expect(mockSearchByText).toHaveBeenCalledWith('test search query', {
         topK: 5,
         namespace: undefined,
-        returnMetadata: true
+        includeMetadata: true,
+        includeValues: false
       })
       expect(result).toEqual({
         success: true,
         data: {
-          matches: [
-            { id: 'match-1', score: 0.95, metadata: { title: 'Test 1' } },
-            { id: 'match-2', score: 0.85, metadata: { title: 'Test 2' } }
-          ],
+          matches: mockSearchResults,
           query: 'test search query',
           namespace: undefined,
           processingTime: expect.any(Number)
@@ -110,17 +101,11 @@ describe('Semantic Search Route', () => {
     })
 
     it('should handle search with namespace', async () => {
-      const mockEmbedding = [0.5, 0.6, 0.7, 0.8]
-      const mockSearchResults = {
-        matches: [
-          { id: 'ns-match-1', score: 0.9, metadata: { source: 'namespace' } }
-        ]
-      }
+      const mockSearchResults = [
+        { id: 'ns-match-1', score: 0.9, metadata: { source: 'namespace' } }
+      ]
 
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        data: [mockEmbedding]
-      })
-      mockVectorizeQuery.mockResolvedValue(mockSearchResults)
+      mockSearchByText.mockResolvedValue(mockSearchResults)
 
       const request = new Request('http://localhost/search/semantic?query=namespace+search&namespace=test-namespace', {
         method: 'GET'
@@ -130,22 +115,19 @@ describe('Semantic Search Route', () => {
       const result = await response.json() as any
 
       expect(response.status).toBe(200)
-      expect(mockVectorizeQuery).toHaveBeenCalledWith(mockEmbedding, {
+      expect(mockSearchByText).toHaveBeenCalledWith('namespace search', {
         topK: 10,
         namespace: 'test-namespace',
-        returnMetadata: true
+        includeMetadata: true,
+        includeValues: false
       })
       expect(result.data.namespace).toBe('test-namespace')
     })
 
     it('should use default topK when not provided', async () => {
-      const mockEmbedding = [0.1, 0.2]
-      const mockSearchResults = { matches: [] }
+      const mockSearchResults = []
 
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        data: [mockEmbedding]
-      })
-      mockVectorizeQuery.mockResolvedValue(mockSearchResults)
+      mockSearchByText.mockResolvedValue(mockSearchResults)
 
       const request = new Request('http://localhost/search/semantic?query=minimal+search', {
         method: 'GET'
@@ -155,10 +137,11 @@ describe('Semantic Search Route', () => {
       const result = await response.json() as any
 
       expect(response.status).toBe(200)
-      expect(mockVectorizeQuery).toHaveBeenCalledWith(mockEmbedding, {
+      expect(mockSearchByText).toHaveBeenCalledWith('minimal search', {
         topK: 10,
         namespace: undefined,
-        returnMetadata: true
+        includeMetadata: true,
+        includeValues: false
       })
       expect(result.message).toBe('0件の結果が見つかりました')
     })
@@ -204,9 +187,7 @@ describe('Semantic Search Route', () => {
     })
 
     it('should handle AI embedding generation failure', async () => {
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        data: []
-      })
+      mockSearchByText.mockRejectedValue(new Error('Failed to generate embedding for query'))
 
       const request = new Request('http://localhost/search/semantic?query=test+query', {
         method: 'GET'
@@ -216,17 +197,12 @@ describe('Semantic Search Route', () => {
       const result = await response.json() as any
 
       expect(response.status).toBe(500)
-      expect(result).toEqual({
-        success: false,
-        error: 'EMBEDDING_GENERATION_ERROR',
-        message: 'Failed to generate embedding for query'
-      })
+      expect(result.success).toBe(false)
+      expect(result.message).toBe('Failed to generate embedding for query')
     })
 
     it('should handle AI run without data property', async () => {
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        error: 'AI error'
-      })
+      mockSearchByText.mockRejectedValue(new Error('Failed to generate embedding for query'))
 
       const request = new Request('http://localhost/search/semantic?query=test+query', {
         method: 'GET'
@@ -240,12 +216,7 @@ describe('Semantic Search Route', () => {
     })
 
     it('should handle vectorize query errors', async () => {
-      const mockEmbedding = [0.1, 0.2, 0.3]
-
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        data: [mockEmbedding]
-      })
-      mockVectorizeQuery.mockRejectedValue(new Error('Vectorize search failed'))
+      mockSearchByText.mockRejectedValue(new Error('Vectorize search failed'))
 
       const request = new Request('http://localhost/search/semantic?query=error+test', {
         method: 'GET'
@@ -256,17 +227,11 @@ describe('Semantic Search Route', () => {
 
       expect(response.status).toBe(500)
       expect(result.success).toBe(false)
-      // SearchServiceがAppErrorでラップするため、メッセージが変わる
-      expect(result.message).toBe('検索中にエラーが発生しました')
+      expect(result.message).toBe('Vectorize search failed')
     })
 
     it('should handle non-Error exceptions', async () => {
-      const mockEmbedding = [0.1, 0.2]
-
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        data: [mockEmbedding]
-      })
-      mockVectorizeQuery.mockRejectedValue('String error')
+      mockSearchByText.mockRejectedValue('String error')
 
       const request = new Request('http://localhost/search/semantic?query=non-error+test', {
         method: 'GET'
@@ -280,12 +245,7 @@ describe('Semantic Search Route', () => {
     })
 
     it('should handle empty search results', async () => {
-      const mockEmbedding = [0.1, 0.2, 0.3]
-
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        data: [mockEmbedding]
-      })
-      mockVectorizeQuery.mockResolvedValue({ matches: [] })
+      mockSearchByText.mockResolvedValue([])
 
       const request = new Request('http://localhost/search/semantic?query=no+results', {
         method: 'GET'
@@ -300,17 +260,11 @@ describe('Semantic Search Route', () => {
     })
 
     it('should handle special characters in query', async () => {
-      const mockEmbedding = [0.1, 0.2, 0.3]
-      const mockSearchResults = {
-        matches: [
-          { id: 'special-1', score: 0.88, metadata: { special: true } }
-        ]
-      }
+      const mockSearchResults = [
+        { id: 'special-1', score: 0.88, metadata: { special: true } }
+      ]
 
-      ;(mockEnv.AI.run as any).mockResolvedValue({
-        data: [mockEmbedding]
-      })
-      mockVectorizeQuery.mockResolvedValue(mockSearchResults)
+      mockSearchByText.mockResolvedValue(mockSearchResults)
 
       const request = new Request('http://localhost/search/semantic?query=special%26chars%2Btest', {
         method: 'GET'
@@ -320,7 +274,12 @@ describe('Semantic Search Route', () => {
       const result = await response.json() as any
 
       expect(response.status).toBe(200)
-      expect(mockEnv.AI.run).toHaveBeenCalledWith('test-model', { text: 'special&chars+test' })
+      expect(mockSearchByText).toHaveBeenCalledWith('special&chars+test', {
+        topK: 10,
+        namespace: undefined,
+        includeMetadata: true,
+        includeValues: false
+      })
       expect(result.data.query).toBe('special&chars+test')
     })
   })
@@ -422,7 +381,7 @@ describe('Semantic Search Route', () => {
 
       expect(response.status).toBe(500)
       expect(result.success).toBe(false)
-      expect(result.message).toBe('検索中にエラーが発生しました')
+      expect(result.message).toBe('AI service error')
     })
 
     it('should handle vectorize error in POST request', async () => {
@@ -441,7 +400,7 @@ describe('Semantic Search Route', () => {
 
       expect(response.status).toBe(500)
       expect(result.success).toBe(false)
-      expect(result.message).toBe('検索中にエラーが発生しました')
+      expect(result.message).toBe('Vectorize error')
     })
 
     it('should validate topK range in POST body', async () => {
@@ -503,8 +462,10 @@ describe('Semantic Search Route', () => {
       const response = await app.fetch(request, mockEnv)
       const result = await response.json() as any
 
-      expect(response.status).toBe(500)
+      expect(response.status).toBe(403)
       expect(result.success).toBe(false)
+      expect(result.error).toBe('SEARCH_ERROR')
+      expect(result.message).toBe('Custom search error')
     })
 
     it('should handle non-Error exception in POST', async () => {

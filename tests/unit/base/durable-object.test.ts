@@ -9,6 +9,13 @@ vi.mock('../../../src/utils/error-handler', () => ({
       super(message)
       this.name = 'AppError'
     }
+    toJSON() {
+      return {
+        code: this.code,
+        message: this.message,
+        statusCode: this.statusCode
+      }
+    }
   },
   ErrorCodes: {
     INTERNAL_ERROR: 'INTERNAL_ERROR',
@@ -39,10 +46,6 @@ class TestDurableObject extends BaseDurableObject {
     return this.putMultipleToStorage(entries)
   }
 
-  async testGetMultiple(keys: string[]) {
-    return this.getMultipleFromStorage(keys)
-  }
-
   async testTransaction(fn: any) {
     return this.transaction(fn)
   }
@@ -59,11 +62,28 @@ class TestDurableObject extends BaseDurableObject {
     if (path === '/test') {
       return new Response('test response')
     }
+    if (path === '/json') {
+      return this.jsonResponse({ message: 'json response' }, 200)
+    }
+    if (path === '/error') {
+      return this.errorResponse('Test error', 400, 'TEST_ERROR')
+    }
+    if (path === '/app-error') {
+      throw new AppError('TEST_ERROR', 'App error test', 403)
+    }
     return new Response('Not found', { status: 404 })
   }
 
   async testGetState() {
     return this.getState()
+  }
+  
+  testJsonResponse(data: any, status?: number) {
+    return this.jsonResponse(data, status)
+  }
+  
+  testErrorResponse(message: string, status?: number, code?: string) {
+    return this.errorResponse(message, status, code)
   }
 
   async testSetState(newState: any) {
@@ -347,6 +367,65 @@ describe('BaseDurableObject', () => {
       expect(response.status).toBe(500)
       const body = await response.json()
       expect(body.error).toBe('INTERNAL_ERROR')
+    })
+
+    it('should handle AppError in request handling', async () => {
+      const request = new Request('http://example.com/app-error')
+      const response = await durableObject.fetch(request)
+      
+      expect(response.status).toBe(403)
+      const body = await response.json()
+      expect(body).toEqual({
+        code: 'TEST_ERROR',
+        message: 'App error test',
+        statusCode: 403
+      })
+    })
+
+    it('should return JSON response using jsonResponse helper', async () => {
+      const request = new Request('http://example.com/json')
+      const response = await durableObject.fetch(request)
+      
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      expect(body).toEqual({ message: 'json response' })
+    })
+
+    it('should return error response using errorResponse helper', async () => {
+      const request = new Request('http://example.com/error')
+      durableObject['handleRequest'] = durableObject['handleRequest'].bind(durableObject)
+      const response = await durableObject.fetch(request)
+      
+      expect(response.status).toBe(400)
+      const body = await response.json()
+      expect(body).toEqual({
+        success: false,
+        error: 'TEST_ERROR',
+        message: 'Test error'
+      })
+    })
+  })
+
+  describe('Helper methods', () => {
+    it('should create JSON response with default status', () => {
+      const response = durableObject.testJsonResponse({ test: 'data' })
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Content-Type')).toBe('application/json')
+    })
+
+    it('should create JSON response with custom status', () => {
+      const response = durableObject.testJsonResponse({ test: 'data' }, 201)
+      expect(response.status).toBe(201)
+    })
+
+    it('should create error response with all parameters', () => {
+      const response = durableObject.testErrorResponse('Error message', 400, 'ERROR_CODE')
+      expect(response.status).toBe(400)
+    })
+
+    it('should create error response with default values', () => {
+      const response = durableObject.testErrorResponse('Error message')
+      expect(response.status).toBe(500)
     })
   })
 })

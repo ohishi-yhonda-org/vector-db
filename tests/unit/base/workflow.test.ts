@@ -40,14 +40,23 @@ vi.mock('../../../src/utils/retry', () => ({
     conservative: { maxAttempts: 2, delay: 2000 }
   },
   retryWithBackoff: vi.fn(async (fn, config) => {
-    try {
-      return await fn()
-    } catch (error) {
-      if (config?.onRetry) {
-        config.onRetry(1, error, 1000)
+    let attempt = 0
+    let lastError: any
+    
+    while (attempt < (config?.maxAttempts || 3)) {
+      try {
+        return await fn()
+      } catch (error) {
+        lastError = error
+        attempt++
+        
+        if (attempt < (config?.maxAttempts || 3) && config?.onRetry) {
+          config.onRetry(attempt, error, config.baseDelay || 1000)
+        }
       }
-      throw error
     }
+    
+    throw lastError
   })
 }))
 
@@ -74,9 +83,17 @@ describe('BaseWorkflow', () => {
   let mockEnv: any
   let mockStep: any
   let mockEvent: WorkflowEvent<{ input: string }>
+  let mockLogger: any
 
   beforeEach(() => {
     vi.clearAllMocks()
+    
+    mockLogger = {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn()
+    }
     
     mockCtx = {}
     mockEnv = {}
@@ -90,6 +107,8 @@ describe('BaseWorkflow', () => {
     } as WorkflowEvent<{ input: string }>
 
     workflow = new TestWorkflow(mockCtx, mockEnv)
+    // Override logger for testing
+    ;(workflow as any).logger = mockLogger
   })
 
   describe('run', () => {
@@ -236,6 +255,40 @@ describe('BaseWorkflow', () => {
       )
 
       expect(result.success).toBe(true)
+    })
+
+    it('should log retry attempts with backoff', async () => {
+      let callCount = 0
+      const stepFn = vi.fn().mockImplementation(() => {
+        callCount++
+        if (callCount < 3) {
+          throw new Error('Temporary failure')
+        }
+        return 'success'
+      })
+      
+      const result = await (workflow as any).executeStep(
+        mockStep,
+        'retry-step',
+        stepFn,
+        { 
+          retry: {
+            maxAttempts: 3,
+            baseDelay: 10,
+            maxDelay: 100
+          }
+        }
+      )
+
+      expect(result.success).toBe(true)
+      expect(result.data).toBe('success')
+      expect(callCount).toBe(3)
+      expect(mockLogger.warn).toHaveBeenCalledTimes(2)
+      expect(mockLogger.warn).toHaveBeenCalledWith('Step retry: retry-step', expect.objectContaining({
+        attempt: 1,
+        error: 'Temporary failure',
+        delay: expect.any(Number)
+      }))
     })
   })
 

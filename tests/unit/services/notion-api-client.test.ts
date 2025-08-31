@@ -118,6 +118,20 @@ describe('NotionAPIClient', () => {
 
       expect(result).toEqual([])
     })
+
+    it('should throw and log error when fetchBlocks fails', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      
+      ;(global.fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
+
+      await expect(client.fetchBlocks('page-123')).rejects.toThrow('Notion API error: 500')
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch blocks from Notion:', expect.any(Error))
+      
+      consoleErrorSpy.mockRestore()
+    })
   })
 
   describe('fetchProperty', () => {
@@ -146,6 +160,20 @@ describe('NotionAPIClient', () => {
           }
         }
       )
+    })
+
+    it('should throw and log error when fetchProperty fails', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      
+      ;(global.fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 403
+      })
+
+      await expect(client.fetchProperty('page-123', 'prop-123')).rejects.toThrow('Notion API error: 403')
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch property from Notion:', expect.any(Error))
+      
+      consoleErrorSpy.mockRestore()
     })
   })
 
@@ -199,6 +227,20 @@ describe('NotionAPIClient', () => {
       const callBody = JSON.parse((global.fetch as any).mock.calls[0][1].body)
       expect(callBody.start_cursor).toBe('start-cursor')
       expect(callBody.page_size).toBe(50)
+    })
+
+    it('should throw and log error when searchPages fails', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      
+      ;(global.fetch as any).mockResolvedValueOnce({
+        ok: false,
+        status: 400
+      })
+
+      await expect(client.searchPages()).rejects.toThrow('Notion API error: 400')
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to search pages from Notion:', expect.any(Error))
+      
+      consoleErrorSpy.mockRestore()
     })
   })
 })

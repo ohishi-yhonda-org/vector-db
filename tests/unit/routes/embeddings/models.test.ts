@@ -295,7 +295,7 @@ describe('List Models Route', () => {
 
     it('should handle AppError with MODEL_NOT_FOUND in getModelDetails', async () => {
       const { AppError } = await import('../../../../src/utils/error-handler')
-      mockAIEmbeddings.getAvailableModels.mockRejectedValue(
+      mockEmbeddingService.getAvailableModels.mockRejectedValue(
         new AppError('MODEL_NOT_FOUND', 'Model not found: test-model', 404)
       )
 
@@ -314,7 +314,7 @@ describe('List Models Route', () => {
 
     it('should handle AppError with custom error code in getModelDetails', async () => {
       const { AppError } = await import('../../../../src/utils/error-handler')
-      mockAIEmbeddings.getAvailableModels.mockRejectedValue(
+      mockEmbeddingService.getAvailableModels.mockRejectedValue(
         new AppError('EMBEDDING_ERROR', 'Embedding service error', 500)
       )
 

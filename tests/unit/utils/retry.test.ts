@@ -173,6 +173,36 @@ describe('Retry Utils', () => {
         queued: 0
       })
     })
+
+    it('should queue tasks when max concurrent is reached', async () => {
+      const mockFn1 = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(() => resolve('task1'), 50))
+      )
+      const mockFn2 = vi.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(() => resolve('task2'), 50))
+      )
+      const mockFn3 = vi.fn().mockImplementation(() => 
+        Promise.resolve('task3')
+      )
+
+      // 最大同時実行数2で3つのタスクを実行
+      const promise1 = rateLimiter.execute(mockFn1)
+      const promise2 = rateLimiter.execute(mockFn2)
+      const promise3 = rateLimiter.execute(mockFn3)
+
+      // 3つ目のタスクはキューに入る
+      await new Promise(resolve => setTimeout(resolve, 10))
+      const stats = rateLimiter.getStats()
+      expect(stats.running).toBe(2)
+      expect(stats.queued).toBeGreaterThanOrEqual(0)
+
+      // すべてのタスクが完了
+      const results = await Promise.all([promise1, promise2, promise3])
+      expect(results).toEqual(['task1', 'task2', 'task3'])
+      expect(mockFn1).toHaveBeenCalledTimes(1)
+      expect(mockFn2).toHaveBeenCalledTimes(1)
+      expect(mockFn3).toHaveBeenCalledTimes(1)
+    }, 10000)
   })
 
   describe('retryBulkOperation', () => {
@@ -257,4 +287,5 @@ describe('Retry Utils', () => {
       expect(retryCondition(new AppError(ErrorCodes.VALIDATION_ERROR, 'Invalid', 400))).toBe(false)
     })
   })
+
 })

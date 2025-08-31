@@ -419,11 +419,31 @@ describe('validation utils', () => {
       it('should validate base64 strings', () => {
         const schema = z.string().refine(CustomValidators.isBase64)
         expect(schema.safeParse('SGVsbG8gV29ybGQ=').success).toBe(true)
+        expect(CustomValidators.isBase64('SGVsbG8gV29ybGQ=')).toBe(true)
+        expect(CustomValidators.isBase64('YWJjMTIz')).toBe(true)
+        expect(CustomValidators.isBase64('')).toBe(true) // Empty string is valid Base64
       })
 
-      it('should reject invalid base64', () => {
+      it('should reject invalid base64 (line 431)', () => {
         const schema = z.string().refine(CustomValidators.isBase64)
         expect(schema.safeParse('not base64!').success).toBe(false)
+        expect(CustomValidators.isBase64('Invalid@Base64')).toBe(false)
+        expect(CustomValidators.isBase64('SGVsbG8gV29ybGQ')).toBe(false) // Missing padding
+        expect(CustomValidators.isBase64('SGVsbG8gV29ybGQ===')).toBe(false) // Too much padding
+      })
+
+      it('should handle Base64 validation errors (line 431)', () => {
+        // Test the catch block in isBase64 by mocking the regex test to throw
+        const originalTest = RegExp.prototype.test
+        RegExp.prototype.test = function() {
+          throw new Error('Test error')
+        }
+        
+        const result = CustomValidators.isBase64('test')
+        expect(result).toBe(false)
+        
+        // Restore original method
+        RegExp.prototype.test = originalTest
       })
     })
 
@@ -471,6 +491,16 @@ describe('validation utils', () => {
         expect(schema.safeParse('notajwt').success).toBe(false)
         expect(schema.safeParse('invalid').success).toBe(false)
         expect(schema.safeParse('a.b').success).toBe(false) // Only 2 parts
+      })
+
+      it('should handle JWT with invalid base64 parts', () => {
+        const schema = z.string().refine(CustomValidators.isJWT)
+        // JWT with invalid base64 characters
+        expect(schema.safeParse('invalid!.base64@.parts#').success).toBe(false)
+        // JWT with empty parts
+        expect(schema.safeParse('..').success).toBe(false)
+        // JWT with non-base64 characters in parts
+        expect(schema.safeParse('header$.payload%.signature^').success).toBe(false)
       })
     })
   })
@@ -779,14 +809,6 @@ describe('validation utils', () => {
       expect(schema.safeParse([Infinity]).success).toBe(false)
     })
 
-    it.skip('should validate metadata size limit', () => {
-      const schema = CustomValidators.metadata
-      const smallMetadata = { key: 'value' }
-      const largeMetadata = { key: 'x'.repeat(11000) }
-      
-      expect(schema.safeParse(smallMetadata).success).toBe(true)
-      expect(schema.safeParse(largeMetadata).success).toBe(false)
-    })
 
     it('should validate fileType', () => {
       const schema = CustomValidators.fileType(['pdf', 'txt'])
@@ -816,6 +838,27 @@ describe('validation utils', () => {
       expect(schema.safeParse('some-value').success).toBe(true)
       expect(schema.safeParse('').success).toBe(false)
     })
+
+
+    describe('fileType validation (line 367)', () => {
+      it('should handle disallowed file types', () => {
+        const validator = CustomValidators.fileType(['pdf', 'jpg'])
+        
+        const result = validator.safeParse('png')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe('File type must be one of: pdf, jpg')
+        }
+      })
+
+      it('should handle allowed file types', () => {
+        const validator = CustomValidators.fileType(['pdf', 'jpg'])
+        
+        expect(validator.safeParse('pdf').success).toBe(true)
+        expect(validator.safeParse('PDF').success).toBe(true) // Test case insensitive
+        expect(validator.safeParse('jpg').success).toBe(true)
+      })
+    })
   })
 
   describe('CommonSchemas helpers', () => {
@@ -825,15 +868,6 @@ describe('validation utils', () => {
       expect(schema.safeParse([]).success).toBe(false)
     })
 
-    it.skip('should validate nonEmptyString', () => {
-      const schema = CommonSchemas.nonEmptyString
-      expect(schema.safeParse('text').success).toBe(true)
-      expect(schema.safeParse('  text  ').success).toBe(true)
-      expect(schema.safeParse('').success).toBe(false)
-      // Empty string with spaces is trimmed so it becomes empty
-      const spaceResult = schema.safeParse('   ')
-      expect(spaceResult.success).toBe(false)
-    })
 
     it('should validate numberInRange', () => {
       const schema = CommonSchemas.numberInRange(1, 10)
@@ -910,4 +944,29 @@ describe('validation utils', () => {
       }).toThrow()
     })
   })
+
+
+
+  describe('Error handling edge cases (line 67-68)', () => {
+    it('should handle validation errors from custom validators', async () => {
+      const schema = z.object({
+        test: z.string().refine(() => {
+          throw new AppError(ErrorCodes.VALIDATION_ERROR, 'Custom validation failed', 400)
+        })
+      })
+
+      const ctx = createMockContext({
+        body: { test: 'value' }
+      })
+
+      try {
+        await validateBody(ctx, schema)
+        expect.fail('Should have thrown an error')
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError)
+      }
+    })
+  })
+
+
 })

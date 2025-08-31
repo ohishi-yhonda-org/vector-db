@@ -10,6 +10,7 @@ const mockWorkflowStep = {
 describe('SyncStateMachine', () => {
   let syncContext: SyncContext
   let stateMachine: SyncStateMachine
+  let consoleLogSpy: any
 
   beforeEach(() => {
     syncContext = {
@@ -23,7 +24,12 @@ describe('SyncStateMachine', () => {
       errors: []
     }
     stateMachine = new SyncStateMachine(syncContext)
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    consoleLogSpy.mockRestore()
   })
 
   describe('constructor', () => {
@@ -91,6 +97,17 @@ describe('SyncStateMachine', () => {
       expect(result.success).toBe(false)
       expect(result.error).toContain('Page ID is required')
       expect(invalidStateMachine.getCurrentState()).toBe('failed')
+    })
+
+    it('should log initialization details', async () => {
+      mockWorkflowStep.do.mockImplementation((name, fn) => fn())
+
+      await stateMachine.initialize(mockWorkflowStep)
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(`[SyncStateMachine] Initializing sync for page: ${syncContext.pageId}`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`[SyncStateMachine] Include blocks: ${syncContext.includeBlocks}`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`[SyncStateMachine] Include properties: ${syncContext.includeProperties}`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`[SyncStateMachine] Namespace: ${syncContext.namespace}`)
     })
 
     it('should handle workflow step error', async () => {
@@ -316,6 +333,17 @@ describe('SyncStateMachine', () => {
       expect(result.blocksProcessed).toBe(15)
       expect(result.data).toEqual(completionSummary)
       expect(mockWorkflowStep.do).toHaveBeenCalledWith('complete', expect.any(Function))
+    })
+
+    it('should log completion details', async () => {
+      mockWorkflowStep.do.mockImplementation((name, fn) => fn())
+
+      await stateMachine.complete(mockWorkflowStep)
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(`[SyncStateMachine] Sync completed for page: ${syncContext.pageId}`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`[SyncStateMachine] Total vectors created: 25`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`[SyncStateMachine] Properties processed: 10`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`[SyncStateMachine] Blocks processed: 15`)
     })
 
     it('should handle completion error', async () => {

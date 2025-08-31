@@ -243,4 +243,112 @@ describe('NotionDataManager', () => {
       )
     })
   })
+
+  describe('getPages method', () => {
+    it('should get pages with archived filter', async () => {
+      const mockResults = [{ id: 'page-1' }, { id: 'page-2' }]
+      mockDb.where.mockResolvedValue(mockResults)
+      
+      const result = await manager.getAllPages({ archived: true })
+      expect(result).toBe(mockResults)
+    })
+  })
+
+  describe('extractPlainTextFromBlock (private method)', () => {
+    it('should return empty string when block has no type', () => {
+      const block = { type: '' } as any
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromBlock(block)
+      expect(result).toBe('')
+    })
+
+    it('should handle table_row blocks', () => {
+      const block = {
+        type: 'table_row',
+        table_row: {
+          cells: [
+            [{ plain_text: 'Cell 1' }],
+            [{ plain_text: 'Cell 2' }]
+          ]
+        }
+      } as any
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromBlock(block)
+      expect(result).toBe('Cell 1 Cell 2')
+    })
+
+    it('should handle table_row blocks without cells', () => {
+      const block = {
+        type: 'table_row',
+        table_row: {}
+      } as any
+      // @ts-ignore accessing private method for testing  
+      const result = manager.extractPlainTextFromBlock(block)
+      expect(result).toBe('')
+    })
+  })
+
+  describe('extractPlainTextFromProperty (private method)', () => {
+    it('should handle number property', () => {
+      const property = { type: 'number', number: 42 }
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromProperty(property)
+      expect(result).toBe('42')
+    })
+
+    it('should handle multi_select property', () => {
+      const property = { 
+        type: 'multi_select', 
+        multi_select: [{ name: 'Tag1' }, { name: 'Tag2' }] 
+      }
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromProperty(property)
+      expect(result).toBe('Tag1, Tag2')
+    })
+
+    it('should handle date property', () => {
+      const property = { type: 'date', date: { start: '2024-01-01' } }
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromProperty(property)
+      expect(result).toBe('2024-01-01')
+    })
+
+    it('should handle people property', () => {
+      const property = { 
+        type: 'people', 
+        people: [{ name: 'John' }, { id: 'user-123' }] 
+      }
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromProperty(property)
+      expect(result).toBe('John, user-123')
+    })
+
+    it('should handle url property', () => {
+      const property = { type: 'url', url: 'https://example.com' }
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromProperty(property)
+      expect(result).toBe('https://example.com')
+    })
+
+    it('should handle email property', () => {
+      const property = { type: 'email', email: 'test@example.com' }
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromProperty(property)
+      expect(result).toBe('test@example.com')
+    })
+
+    it('should handle phone_number property', () => {
+      const property = { type: 'phone_number', phone_number: '+1234567890' }
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromProperty(property)
+      expect(result).toBe('+1234567890')
+    })
+
+    it('should handle unknown property types', () => {
+      const property = { type: 'unknown_type' }
+      // @ts-ignore accessing private method for testing
+      const result = manager.extractPlainTextFromProperty(property)
+      expect(result).toBe('')
+    })
+  })
 })
