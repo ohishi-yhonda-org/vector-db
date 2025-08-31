@@ -36,6 +36,60 @@ describe('Retry Utils', () => {
       await expect(retryWithBackoff(mockFn, { maxAttempts: 1 })).rejects.toThrow(error)
       expect(mockFn).toHaveBeenCalledTimes(1)
     })
+
+    it('should return result without timeout when timeout not specified (line 58)', async () => {
+      const mockFn = vi.fn().mockResolvedValue('success')
+      
+      const result = await retryWithBackoff(mockFn, { timeout: undefined })
+
+      expect(result).toBe('success')
+      expect(mockFn).toHaveBeenCalledTimes(1)
+    })
+
+    it('should call onRetry callback on retry (lines 68-70)', async () => {
+      const error = new AppError(ErrorCodes.SERVICE_UNAVAILABLE, 'Service down', 503)
+      const mockFn = vi.fn()
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue('success')
+      const onRetry = vi.fn()
+      
+      const result = await retryWithBackoff(mockFn, { 
+        maxAttempts: 2,
+        onRetry,
+        initialDelay: 10
+      })
+
+      expect(result).toBe('success')
+      expect(onRetry).toHaveBeenCalledWith(1, error, 10)
+    })
+
+    it('should apply backoff multiplier and max delay (lines 73-76)', async () => {
+      const error = new AppError(ErrorCodes.SERVICE_UNAVAILABLE, 'Service down', 503)
+      const mockFn = vi.fn()
+        .mockRejectedValueOnce(error)
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue('success')
+      const onRetry = vi.fn()
+      
+      const result = await retryWithBackoff(mockFn, { 
+        maxAttempts: 3,
+        onRetry,
+        initialDelay: 100,
+        backoffMultiplier: 2,
+        maxDelay: 150
+      })
+
+      expect(result).toBe('success')
+      expect(onRetry).toHaveBeenCalledWith(1, error, 100)
+      expect(onRetry).toHaveBeenCalledWith(2, error, 150)
+    })
+
+    it('should throw last error after loop completion (line 80)', async () => {
+      const error = new AppError(ErrorCodes.SERVICE_UNAVAILABLE, 'Service down', 503)
+      const mockFn = vi.fn().mockRejectedValue(error)
+      
+      await expect(retryWithBackoff(mockFn, { maxAttempts: 0 })).rejects.toThrow()
+    })
   })
 
   describe('withTimeout', () => {
@@ -145,6 +199,49 @@ describe('Retry Utils', () => {
         failures: 0,
         lastFailureTime: 0
       })
+    })
+
+    it('should transition to HALF_OPEN after reset timeout (line 112)', async () => {
+      const error = new Error('Service error')
+      const mockFn = vi.fn().mockRejectedValue(error)
+      
+      // Open the circuit
+      await expect(circuitBreaker.execute(mockFn)).rejects.toThrow(error)
+      await expect(circuitBreaker.execute(mockFn)).rejects.toThrow(error)
+      expect(circuitBreaker.getState()).toBe('OPEN')
+      
+      // Advance time past reset timeout
+      vi.advanceTimersByTime(6000)
+      
+      // Next execution should transition to HALF_OPEN and try again
+      await expect(circuitBreaker.execute(mockFn)).rejects.toThrow(error)
+      expect(mockFn).toHaveBeenCalledTimes(3) // 2 initial + 1 in HALF_OPEN
+    })
+
+    it('should reset circuit from HALF_OPEN on success (lines 120, 146-148)', async () => {
+      const error = new Error('Service error')
+      const mockFn = vi.fn()
+        .mockRejectedValueOnce(error)
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue('success')
+      
+      // Open the circuit
+      await expect(circuitBreaker.execute(mockFn)).rejects.toThrow(error)
+      await expect(circuitBreaker.execute(mockFn)).rejects.toThrow(error)
+      expect(circuitBreaker.getState()).toBe('OPEN')
+      
+      // Advance time past reset timeout
+      vi.advanceTimersByTime(6000)
+      
+      // Next execution should succeed and reset the circuit
+      const result = await circuitBreaker.execute(mockFn)
+      expect(result).toBe('success')
+      expect(circuitBreaker.getState()).toBe('CLOSED')
+      
+      // Verify the circuit is fully reset
+      const stats = circuitBreaker.getStats()
+      expect(stats.failures).toBe(0)
+      expect(stats.lastFailureTime).toBe(0)
     })
   })
 
@@ -285,6 +382,12 @@ describe('Retry Utils', () => {
       expect(retryCondition(new Error('429 Too Many Requests'))).toBe(true)
       expect(retryCondition(new AppError(ErrorCodes.TIMEOUT, 'Timeout', 504))).toBe(true)
       expect(retryCondition(new AppError(ErrorCodes.VALIDATION_ERROR, 'Invalid', 400))).toBe(false)
+      
+      // Test line 360 - non-Error object and non-rate-limit Error message
+      expect(retryCondition('string error')).toBe(false)
+      expect(retryCondition(new Error('Some other error'))).toBe(false)
+      expect(retryCondition(null)).toBe(false)
+      expect(retryCondition(undefined)).toBe(false)
     })
   })
 

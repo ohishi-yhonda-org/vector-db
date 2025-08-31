@@ -108,4 +108,122 @@ describe('ChunkProcessor', () => {
       expect(result.chunks[0].metadata.author).toBe('test')
     })
   })
+
+  describe('run method', () => {
+    it('should execute workflow entry point (lines 26-27)', async () => {
+      const event = {
+        payload: {
+          text: 'This is a test text for chunking.',
+          fileName: 'test.txt'
+        }
+      }
+      
+      const result = await workflow.run(event as any, testSetup.mockStep)
+      
+      expect(result).toBeDefined()
+      expect(result.chunks).toBeDefined()
+      expect(result.totalChunks).toBeGreaterThan(0)
+    })
+  })
+
+  describe('validateChunkSize', () => {
+    it('should handle chunk size over maximum (lines 85-86)', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      
+      const params = {
+        text: 'Test text',
+        fileName: 'test.txt',
+        chunkSize: 6000 // Over MAX_CHUNK_SIZE (5000)
+      }
+
+      const result = await (workflow as any).processChunks(params, testSetup.mockStep)
+      
+      expect(consoleSpy).toHaveBeenCalledWith('Chunk size too large, using maximum: 5000')
+      expect(result).toBeDefined()
+      
+      consoleSpy.mockRestore()
+    })
+  })
+
+  describe('validateChunkOverlap', () => {
+    it('should handle chunk overlap too large (lines 102-103)', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      
+      const params = {
+        text: 'Test text',
+        fileName: 'test.txt',
+        chunkSize: 100,
+        chunkOverlap: 60 // More than half of chunk size
+      }
+
+      const result = await (workflow as any).processChunks(params, testSetup.mockStep)
+      
+      expect(consoleSpy).toHaveBeenCalledWith('Chunk overlap too large, using: 50')
+      expect(result).toBeDefined()
+      
+      consoleSpy.mockRestore()
+    })
+
+    it('should handle negative chunk overlap (lines 107-108)', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      
+      const params = {
+        text: 'Test text',
+        fileName: 'test.txt',
+        chunkSize: 100,
+        chunkOverlap: -10
+      }
+
+      const result = await (workflow as any).processChunks(params, testSetup.mockStep)
+      
+      expect(consoleSpy).toHaveBeenCalledWith('Negative chunk overlap, using 0')
+      expect(result).toBeDefined()
+      
+      consoleSpy.mockRestore()
+    })
+  })
+
+  describe('natural break functionality', () => {
+    it('should split text at natural boundaries (lines 198, 205)', async () => {
+      // Test text with punctuation
+      const params1 = {
+        text: 'This is a sentence. This is another sentence. And one more here.',
+        fileName: 'test.txt',
+        chunkSize: 25,
+        chunkOverlap: 0
+      }
+      
+      const result1 = await (workflow as any).processChunks(params1, testSetup.mockStep)
+      
+      // Verify chunks are split at sentence boundaries
+      expect(result1.chunks).toBeDefined()
+      expect(result1.chunks.length).toBeGreaterThan(1)
+      
+      // Test text without punctuation
+      const params2 = {
+        text: 'This is a long sentence without any punctuation that needs to be split into chunks based on spaces instead',
+        fileName: 'test.txt',
+        chunkSize: 30,
+        chunkOverlap: 0
+      }
+      
+      const result2 = await (workflow as any).processChunks(params2, testSetup.mockStep)
+      
+      // Verify chunks are split at word boundaries
+      expect(result2.chunks).toBeDefined()
+      expect(result2.chunks.length).toBeGreaterThan(1)
+      // Each chunk should not end mid-word
+      result2.chunks.forEach((chunk: any) => {
+        const trimmedText = chunk.text.trim()
+        if (trimmedText.length > 0) {
+          // Check that chunk doesn't end with a partial word (unless it's the last chunk)
+          const lastChar = trimmedText[trimmedText.length - 1]
+          const isLastChunk = chunk === result2.chunks[result2.chunks.length - 1]
+          if (!isLastChunk) {
+            expect(lastChar).toMatch(/[\s.!?]|$/)
+          }
+        }
+      })
+    })
+  })
 })

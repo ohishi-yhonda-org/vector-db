@@ -172,6 +172,60 @@ describe('validation utils', () => {
     })
   })
 
+  describe('validateBody', () => {
+    it('should validate body data', async () => {
+      const schema = z.object({ name: z.string() })
+      const ctx = createMockContext({ body: { name: 'John' } })
+      
+      const result = await validateBody(ctx, schema)
+      expect(result).toEqual({ name: 'John' })
+    })
+
+    it('should handle JSON parse error (lines 101-107)', async () => {
+      const schema = z.object({ name: z.string() })
+      const ctx = {
+        req: {
+          json: vi.fn().mockRejectedValue(new SyntaxError('Invalid JSON'))
+        }
+      } as any
+      
+      await expect(validateBody(ctx, schema)).rejects.toThrow(AppError)
+      await expect(validateBody(ctx, schema)).rejects.toThrow('Invalid JSON in request body')
+    })
+
+    it('should rethrow non-SyntaxError (line 108)', async () => {
+      const schema = z.object({ name: z.string() })
+      const customError = new Error('Custom error')
+      const ctx = {
+        req: {
+          json: vi.fn().mockRejectedValue(customError)
+        }
+      } as any
+      
+      await expect(validateBody(ctx, schema)).rejects.toThrow(customError)
+    })
+  })
+
+  describe('validateWithContext', () => {
+    it('should validate with context and custom error message (lines 115-131)', async () => {
+      const schema = z.object({ name: z.string() })
+      const ctx = createMockContext({ body: { name: 'John' } })
+      
+      const { validateWithContext } = await import('../../../src/utils/validation')
+      const result = await validateWithContext(ctx, schema, 'Custom error')
+      expect(result).toEqual({ name: 'John' })
+    })
+
+    it('should throw with custom error message (lines 115-131)', async () => {
+      const schema = z.object({ name: z.string() })
+      const ctx = createMockContext({ body: { name: 123 } })
+      
+      const { validateWithContext } = await import('../../../src/utils/validation')
+      await expect(validateWithContext(ctx, schema, 'Custom validation error'))
+        .rejects.toThrow('Custom validation error')
+    })
+  })
+
   describe('validateQuery', () => {
     it('should validate query parameters', () => {
       const schema = z.object({ page: z.string() })
@@ -205,6 +259,25 @@ describe('validation utils', () => {
         expect((error as AppError).message).toBe('Invalid page number')
       }
     })
+
+    it('should return curried function', () => {
+      const schema = z.object({ page: z.string() })
+      const validator = validateQuery(schema)
+      
+      expect(typeof validator).toBe('function')
+      
+      const ctx = createMockContext({ query: { page: '1' } })
+      const result = validator(ctx)
+      expect(result).toEqual({ page: '1' })
+    })
+
+    it('should handle curried function with invalid data (lines 186)', () => {
+      const schema = z.object({ page: z.string() })
+      const validator = validateQuery(schema)
+      
+      const ctx = createMockContext({ query: {} })
+      expect(() => validator(ctx)).toThrow()
+    })
   })
 
   describe('validateParams', () => {
@@ -228,6 +301,25 @@ describe('validation utils', () => {
       const ctx = createMockContext({})
       
       expect(() => validateParams(ctx, schema)).toThrow()
+    })
+
+    it('should return curried function (lines 267)', () => {
+      const schema = z.object({ id: z.string() })
+      const validator = validateParams(schema)
+      
+      expect(typeof validator).toBe('function')
+      
+      const ctx = createMockContext({ params: { id: '123' } })
+      const result = validator(ctx)
+      expect(result).toEqual({ id: '123' })
+    })
+
+    it('should handle curried function with invalid data (lines 267)', () => {
+      const schema = z.object({ id: z.string() })
+      const validator = validateParams(schema)
+      
+      const ctx = createMockContext({ params: {} })
+      expect(() => validator(ctx)).toThrow()
     })
   })
 
@@ -669,14 +761,14 @@ describe('validation utils', () => {
   })
 
   describe('validateQuery with custom error message', () => {
-    it('should use custom error message', async () => {
+    it('should use custom error message', () => {
       const schema = z.object({ name: z.string() })
       const ctx = createMockContext({
         query: { name: 123 }
       })
 
       try {
-        await validateQuery(ctx, schema, 'Custom query validation error')
+        validateQuery(ctx, schema, 'Custom query validation error')
         expect.fail('Should have thrown')
       } catch (error) {
         expect(error).toBeInstanceOf(AppError)
@@ -867,6 +959,7 @@ describe('validation utils', () => {
       expect(schema.safeParse(['item']).success).toBe(true)
       expect(schema.safeParse([]).success).toBe(false)
     })
+
 
 
     it('should validate numberInRange', () => {
