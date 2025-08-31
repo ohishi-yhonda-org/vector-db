@@ -3,60 +3,38 @@
  * FileProcessingWorkflowから分離したチャンク処理機能
  */
 
-import { WorkflowStep } from 'cloudflare:workers'
-import { BaseWorkflow } from '../base/workflow'
+import { WorkflowEntrypoint, WorkflowStep, WorkflowEvent } from 'cloudflare:workers'
 import { AppError, ErrorCodes } from '../utils/error-handler'
+import { TextChunk, ChunkProcessingParams, ChunkProcessingResult } from './types'
 
-/**
- * チャンク処理パラメータ
- */
-export interface ChunkProcessingParams {
-  text: string
-  fileName: string
-  namespace?: string
-  metadata?: Record<string, any>
-  chunkSize?: number
-  chunkOverlap?: number
-}
-
-/**
- * チャンク処理結果
- */
-export interface ChunkProcessingResult {
-  chunks: TextChunk[]
-  totalChunks: number
-  averageChunkSize: number
-}
-
-/**
- * テキストチャンク
- */
-export interface TextChunk {
-  id: string
-  text: string
-  index: number
-  startOffset: number
-  endOffset: number
-  metadata?: Record<string, any>
-}
+// Re-export for backward compatibility
+export type { TextChunk, ChunkProcessingParams, ChunkProcessingResult }
 
 /**
  * チャンク処理ワークフロー
  */
-export class ChunkProcessor extends BaseWorkflow<ChunkProcessingParams, ChunkProcessingResult> {
+export class ChunkProcessor extends WorkflowEntrypoint<Env, ChunkProcessingParams> {
   private readonly DEFAULT_CHUNK_SIZE = 1000
   private readonly DEFAULT_CHUNK_OVERLAP = 100
   private readonly MIN_CHUNK_SIZE = 100
   private readonly MAX_CHUNK_SIZE = 5000
 
   /**
-   * ワークフロー実行
+   * ワークフローエントリーポイント
    */
-  protected async execute(
+  async run(event: WorkflowEvent<ChunkProcessingParams>, step: WorkflowStep): Promise<ChunkProcessingResult> {
+    const params = event.payload
+    return this.processChunks(params, step)
+  }
+
+  /**
+   * チャンク処理実行
+   */
+  private async processChunks(
     params: ChunkProcessingParams,
     step: WorkflowStep
   ): Promise<ChunkProcessingResult> {
-    this.logger.info('Starting chunk processing', {
+    console.log('Starting chunk processing', {
       textLength: params.text.length,
       fileName: params.fileName,
       namespace: params.namespace
@@ -67,32 +45,18 @@ export class ChunkProcessor extends BaseWorkflow<ChunkProcessingParams, ChunkPro
     const chunkOverlap = this.validateChunkOverlap(params.chunkOverlap, chunkSize)
 
     // テキストをチャンクに分割
-    const chunks = await this.executeStep(
-      step,
-      'split-into-chunks',
-      () => this.splitTextIntoChunks(params.text, chunkSize, chunkOverlap, params),
-      { critical: true }
-    )
+    const chunks = await step.do('split-into-chunks', async () => {
+      return this.splitTextIntoChunks(params.text, chunkSize, chunkOverlap, params)
+    })
 
-    if (!chunks.success || !chunks.data) {
-      throw new AppError(
-        ErrorCodes.WORKFLOW_ERROR,
-        `Chunk processing failed: ${chunks.error}`,
-        500
-      )
+    if (!chunks || chunks.length === 0) {
+      console.warn('No chunks created from text')
     }
 
     // チャンクのメタデータを追加
-    const enrichedChunks = await this.executeStep(
-      step,
-      'enrich-chunks',
-      () => this.enrichChunks(chunks.data!, params),
-      { critical: false }
-    )
-
-    const finalChunks = enrichedChunks.success && enrichedChunks.data 
-      ? enrichedChunks.data 
-      : chunks.data!
+    const finalChunks = await step.do('enrich-chunks', async () => {
+      return this.enrichChunks(chunks || [], params)
+    })
 
     // 統計情報を計算
     const stats = this.calculateStatistics(finalChunks)
@@ -113,12 +77,12 @@ export class ChunkProcessor extends BaseWorkflow<ChunkProcessingParams, ChunkPro
     }
     
     if (chunkSize < this.MIN_CHUNK_SIZE) {
-      this.logger.warn(`Chunk size too small, using minimum: ${this.MIN_CHUNK_SIZE}`)
+      console.warn(`Chunk size too small, using minimum: ${this.MIN_CHUNK_SIZE}`)
       return this.MIN_CHUNK_SIZE
     }
     
     if (chunkSize > this.MAX_CHUNK_SIZE) {
-      this.logger.warn(`Chunk size too large, using maximum: ${this.MAX_CHUNK_SIZE}`)
+      console.warn(`Chunk size too large, using maximum: ${this.MAX_CHUNK_SIZE}`)
       return this.MAX_CHUNK_SIZE
     }
     
@@ -135,12 +99,12 @@ export class ChunkProcessor extends BaseWorkflow<ChunkProcessingParams, ChunkPro
     
     const maxOverlap = Math.floor(chunkSize / 2)
     if (chunkOverlap > maxOverlap) {
-      this.logger.warn(`Chunk overlap too large, using: ${maxOverlap}`)
+      console.warn(`Chunk overlap too large, using: ${maxOverlap}`)
       return maxOverlap
     }
     
     if (chunkOverlap < 0) {
-      this.logger.warn('Negative chunk overlap, using 0')
+      console.warn('Negative chunk overlap, using 0')
       return 0
     }
     
@@ -160,7 +124,7 @@ export class ChunkProcessor extends BaseWorkflow<ChunkProcessingParams, ChunkPro
     const cleanText = this.cleanText(text)
     
     if (!cleanText || cleanText.length === 0) {
-      this.logger.warn('No text to chunk')
+      console.warn('No text to chunk')
       return []
     }
 
@@ -196,13 +160,13 @@ export class ChunkProcessor extends BaseWorkflow<ChunkProcessingParams, ChunkPro
       // 次のチャンクの開始位置を計算（オーバーラップを考慮）
       startOffset = adjustedEndOffset - chunkOverlap
       
-      // 無限ループを防ぐ
-      if (startOffset >= cleanText.length - 1) {
+      // 無限ループを防ぐ - startOffsetが進まない場合も考慮
+      if (startOffset >= adjustedEndOffset || adjustedEndOffset >= cleanText.length) {
         break
       }
     }
 
-    this.logger.info(`Split text into ${chunks.length} chunks`)
+    console.log(`Split text into ${chunks.length} chunks`)
     return chunks
   }
 

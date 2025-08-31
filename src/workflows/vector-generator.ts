@@ -6,7 +6,7 @@
 import { WorkflowStep } from 'cloudflare:workers'
 import { BaseWorkflow } from '../base/workflow'
 import { AppError, ErrorCodes } from '../utils/error-handler'
-import { TextChunk } from './chunk-processor'
+import { TextChunk } from './types'
 import { EmbeddingResult } from '../schemas/embedding-result.schema'
 
 /**
@@ -46,7 +46,7 @@ export class VectorGenerator extends BaseWorkflow<VectorGenerationParams, Vector
     step: WorkflowStep
   ): Promise<VectorGenerationResult> {
     this.logger.info('Starting vector generation', {
-      chunks: params.chunks.length,
+      chunks: params.chunks?.length || 0,
       namespace: params.namespace,
       model: params.model
     })
