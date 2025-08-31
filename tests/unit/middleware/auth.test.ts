@@ -306,5 +306,24 @@ describe('Auth Middleware', () => {
       expect(mockContext.header).toHaveBeenCalledWith('Access-Control-Allow-Origin', 'subdomain.example.com')
       expect(mockNext).toHaveBeenCalled()
     })
+
+    it('should set Access-Control-Expose-Headers when exposeHeaders are provided', async () => {
+      corsMiddleware = corsAuth({
+        origin: 'https://example.com',
+        exposeHeaders: ['X-Custom-Header', 'X-Another-Header']
+      })
+      // Mock OPTIONS request to trigger exposeHeaders logic
+      mockContext.req!.header = vi.fn().mockImplementation((name) => {
+        if (name === 'Origin') return 'https://example.com'
+        return undefined
+      })
+      mockContext.req!.method = 'OPTIONS'
+
+      const result = await corsMiddleware(mockContext as Context, mockNext)
+
+      expect(mockContext.header).toHaveBeenCalledWith('Access-Control-Expose-Headers', 'X-Custom-Header, X-Another-Header')
+      expect(result).toBeInstanceOf(Response)
+      expect((result as Response).status).toBe(204)
+    })
   })
 })

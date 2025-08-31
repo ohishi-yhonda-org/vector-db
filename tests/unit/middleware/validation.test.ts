@@ -412,4 +412,59 @@ describe('Validation Middleware', () => {
       expect(mockNext).toHaveBeenCalled()
     })
   })
+
+  describe('validator error handling edge cases', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it('should rethrow AppError from body validation (line 68)', async () => {
+      const schema = z.object({
+        value: z.string().refine(() => {
+          throw new AppError(ErrorCodes.VALIDATION_ERROR, 'Custom validation error', 400)
+        })
+      })
+
+      const mockContext = {
+        req: {
+          json: vi.fn().mockResolvedValue({ value: 'test' })
+        },
+        set: vi.fn()
+      } as any
+
+      const middleware = validator({ body: schema })
+
+      await expect(middleware(mockContext, vi.fn())).rejects.toThrow(AppError)
+    })
+
+    it('should throw non-ZodError from query validation (line 111)', async () => {
+      const schema = z.object({
+        value: z.string()
+      })
+
+      // Mock validateQuery to throw non-ZodError
+      ;(validateQuery as any).mockImplementation(() => {
+        throw new Error('Non-ZodError from query')
+      })
+
+      const middleware = validator({ query: schema })
+
+      await expect(middleware(mockContext as any, vi.fn())).rejects.toThrow('Non-ZodError from query')
+    })
+
+    it('should throw non-ZodError from params validation (lines 121-124)', async () => {
+      const schema = z.object({
+        id: z.string()
+      })
+
+      // Mock validateParams to throw non-ZodError
+      ;(validateParams as any).mockImplementation(() => {
+        throw new Error('Non-ZodError from params')
+      })
+
+      const middleware = validator({ params: schema })
+
+      await expect(middleware(mockContext as any, vi.fn())).rejects.toThrow('Non-ZodError from params')
+    })
+  })
 })
