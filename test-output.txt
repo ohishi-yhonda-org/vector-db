@@ -1,0 +1,3539 @@
+yarn run v1.22.22
+$ vitest run
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/node/vector-db[39m
+      [2mCoverage enabled with [22m[33mistanbul[39m
+
+[vpw:info] Starting single runtime for vitest.config.ts...
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould use custom namespace and metadata for PDF
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content"}
+[FileProcessingWorkflow] Extracted text length: 45
+[FileProcessingWorkflow] Step 3: Vectorizing 2 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/2: embed_pdf_test.pdf_0_mezfakkv
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/2: pdf_test.pdf_0_mezfakkv
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/2: embed_pdf_test.pdf_1_mezfakkw
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/2: pdf_test.pdf_1_mezfakkw
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Vectorization complete. Saved 2 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 2
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould process PDF file successfully
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould process image file successfully
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: image
+[FileProcessingWorkflow.processFile] File buffer size: 13
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 2
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI analysis failure
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 1
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle processing error
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle processing error
+[22m[39m[FileProcessingWorkflow] File processing failed: Error: Processing failed
+    at /C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:206:51
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+[FileProcessingWorkflow] Error details: Error: Processing failed
+    at /C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:206:51
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle long text chunking
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 5
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle file without description
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"DESCRIPTION: \nEXTRACTED_TEXT: Some text\nTOPICS: topics\nKEYWORDS: keywords"}
+[FileProcessingWorkflow] Extracted text length: 73
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_pdf_test.pdf_0_mezfakl5
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: pdf_test.pdf_0_mezfakl5
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_pdf_test.pdf_1_mezfakl5
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: pdf_test.pdf_1_mezfakl5
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_pdf_test.pdf_2_mezfakl5
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: pdf_test.pdf_2_mezfakl5
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle file without topics and keywords
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content"}
+[FileProcessingWorkflow] Extracted text length: 45
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_pdf_test.pdf_0_mezfakl6
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: pdf_test.pdf_0_mezfakl6
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_pdf_test.pdf_1_mezfakl6
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: pdf_test.pdf_1_mezfakl6
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_pdf_test.pdf_2_mezfakl6
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: pdf_test.pdf_2_mezfakl6
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle file without extracted text
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: image
+[FileProcessingWorkflow.processFile] File buffer size: 13
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 13
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"DESCRIPTION: Test image\nEXTRACTED_TEXT: \nTOPICS: image topics\nKEYWORDS: image, test"}
+[FileProcessingWorkflow] Extracted text length: 83
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_ima_test.jpg_0_mezfakl7
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: ima_test.jpg_0_mezfakl7
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_ima_test.jpg_1_mezfakl8
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: ima_test.jpg_1_mezfakl8
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_ima_test.jpg_2_mezfakl8
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: ima_test.jpg_2_mezfakl8
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle non-Error thrown in AI analysis
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle non-Error thrown in AI analysis
+[22m[39m[FileProcessingWorkflow] AI analysis failed: String error not an Error object
+[FileProcessingWorkflow] Error stack: No stack
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI run failure inside step
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_pdf_test.pdf_0_mezfakla
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: pdf_test.pdf_0_mezfakla
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_pdf_test.pdf_1_mezfakla
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: pdf_test.pdf_1_mezfakla
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_pdf_test.pdf_2_mezfakla
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: pdf_test.pdf_2_mezfakla
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI run failure inside step
+[22m[39m[FileProcessingWorkflow] AI analysis failed: Error: AI service error
+    at /C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:426:50
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+[FileProcessingWorkflow] Error stack: Error: AI service error
+    at /C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:426:50
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle text exactly at chunk boundary
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"DESCRIPTION: Boundary test\nEXTRACTED_TEXT: BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+[FileProcessingWorkflow] Extracted text length: 2075
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 5 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 5 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/5: embed_pdf_boundary.p_0_mezfaklb
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/5: pdf_boundary.p_0_mezfaklb
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/5: embed_pdf_boundary.p_1_mezfaklb
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/5: pdf_boundary.p_1_mezfaklb
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/5: embed_pdf_boundary.p_2_mezfaklb
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/5: pdf_boundary.p_2_mezfaklb
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Creating embedding workflow 4/5: embed_pdf_boundary.p_3_mezfaklb
+[FileProcessingWorkflow] Polling embedding workflow for chunk 4
+[FileProcessingWorkflow] Embedding completed for chunk 4
+[FileProcessingWorkflow] Embedding generated for chunk 4, vector dims: 3
+[FileProcessingWorkflow] Saving vector 4/5: pdf_boundary.p_3_mezfaklb
+[FileProcessingWorkflow] Vector saved for chunk 4
+[FileProcessingWorkflow] Successfully saved vector for chunk 4
+[FileProcessingWorkflow] Creating embedding workflow 5/5: embed_pdf_boundary.p_4_mezfaklb
+[FileProcessingWorkflow] Polling embedding workflow for chunk 5
+[FileProcessingWorkflow] Embedding completed for chunk 5
+[FileProcessingWorkflow] Embedding generated for chunk 5, vector dims: 3
+[FileProcessingWorkflow] Saving vector 5/5: pdf_boundary.p_4_mezfaklb
+[FileProcessingWorkflow] Vector saved for chunk 5
+[FileProcessingWorkflow] Successfully saved vector for chunk 5
+[FileProcessingWorkflow] Vectorization complete. Saved 5 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 5
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould use fallback description when AI returns no description
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"EXTRACTED_TEXT: Some content\nTOPICS: test"}
+[FileProcessingWorkflow] Extracted text length: 41
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_pdf_test.pdf_0_mezfaklc
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: pdf_test.pdf_0_mezfaklc
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_pdf_test.pdf_1_mezfaklc
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: pdf_test.pdf_1_mezfaklc
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_pdf_test.pdf_2_mezfakld
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: pdf_test.pdf_2_mezfakld
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle non-Error exception in catch block
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle non-Error exception in catch block
+[22m[39m[FileProcessingWorkflow] File processing failed: String error
+[FileProcessingWorkflow] Error details: No stack
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle image error with proper type
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: image
+[FileProcessingWorkflow.processFile] File buffer size: 13
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle image error with proper type
+[22m[39m[FileProcessingWorkflow] File processing failed: Error: Image processing error
+    at /C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:524:51
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+[FileProcessingWorkflow] Error details: Error: Image processing error
+    at /C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:524:51
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response with text field
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response with description field
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: image
+[FileProcessingWorkflow.processFile] File buffer size: 13
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response with generated_text field
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response with result field
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response as direct string
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response that returns boolean true
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: boolean
+[FileProcessingWorkflow] AI result: true
+[FileProcessingWorkflow] Extracted text length: 0
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 0
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response with null result
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response with empty object
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response that returns object without string properties
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":123,"text":false,"description":null,"result":{}}
+[FileProcessingWorkflow] Extracted text length: 0
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 2
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle AI response with non-string fields
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle undefined response from extractTextFromResult
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 0
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle file analysis without description
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"EXTRACTED_TEXT: Just text content\nTOPICS: pdf\nKEYWORDS: test"}
+[FileProcessingWorkflow] Extracted text length: 60
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 2
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle file analysis without topics and keywords
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 2
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle error in extractTextFromResult
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle error in extractTextFromResult
+[22m[39m[FileProcessingWorkflow] AI analysis failed: Error: Property access error
+    at Object.get (/C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:1014:17)
+    at Promise.resolve (<anonymous>)
+    at Object.<anonymous> (C:/node/vector-db/node_modules/@vitest/spy/dist/index.js:124:83)
+    at Object.mockCall (C:/node/vector-db/node_modules/@vitest/spy/dist/index.js:61:17)
+    at Object.spy (C:/node/vector-db/node_modules/tinyspy/dist/index.js:45:80)
+    at /C:/node/vector-db/src/workflows/file-processing.ts:3635:71
+    at Object.<anonymous> (/C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:1020:24)
+    at Object.mockCall (C:/node/vector-db/node_modules/@vitest/spy/dist/index.js:61:17)
+    at Object.spy [as do] (C:/node/vector-db/node_modules/tinyspy/dist/index.js:45:80)
+    at FileProcessingWorkflow.processFile (/C:/node/vector-db/src/workflows/file-processing.ts:3600:68)
+[FileProcessingWorkflow] Error stack: Error: Property access error
+    at Object.get (/C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:1014:17)
+    at Promise.resolve (<anonymous>)
+    at Object.<anonymous> (C:/node/vector-db/node_modules/@vitest/spy/dist/index.js:124:83)
+    at Object.mockCall (C:/node/vector-db/node_modules/@vitest/spy/dist/index.js:61:17)
+    at Object.spy (C:/node/vector-db/node_modules/tinyspy/dist/index.js:45:80)
+    at /C:/node/vector-db/src/workflows/file-processing.ts:3635:71
+    at Object.<anonymous> (/C:/node/vector-db/tests/unit/workflows/file-processing.test.ts:1020:24)
+    at Object.mockCall (C:/node/vector-db/node_modules/@vitest/spy/dist/index.js:61:17)
+    at Object.spy [as do] (C:/node/vector-db/node_modules/tinyspy/dist/index.js:45:80)
+    at FileProcessingWorkflow.processFile (/C:/node/vector-db/src/workflows/file-processing.ts:3600:68)
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle empty string response from AI
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 2
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mprocessFile[2m > [22m[2mshould handle embedding generation failure and skip chunk
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content\nTOPICS: test\nKEYWORDS: pdf"}
+[FileProcessingWorkflow] Extracted text length: 72
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_pdf_test.pdf_0_mezfaklp
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: pdf_test.pdf_0_mezfaklp
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_pdf_test.pdf_1_mezfaklp
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: pdf_test.pdf_1_mezfaklp
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_pdf_test.pdf_2_mezfaklp
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: pdf_test.pdf_2_mezfaklp
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mrun[2m > [22m[2mshould handle unsupported file type
+[22m[39m[FileProcessingWorkflow] Starting file processing workflow
+[FileProcessingWorkflow] File info: {
+  fileName: 'test.txt',
+  fileType: 'text/plain',
+  fileSize: 100,
+  namespace: undefined
+}
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mrun[2m > [22m[2mshould process PDF file through run method
+[22m[39m[FileProcessingWorkflow] Starting file processing workflow
+[FileProcessingWorkflow] File info: {
+  fileName: 'test.pdf',
+  fileType: 'application/pdf',
+  fileSize: 1024,
+  namespace: undefined
+}
+[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 11
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"DESCRIPTION: Test PDF\nEXTRACTED_TEXT: Content"}
+[FileProcessingWorkflow] Extracted text length: 45
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_pdf_test.pdf_0_mezfakls
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: pdf_test.pdf_0_mezfakls
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_pdf_test.pdf_1_mezfaklt
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: pdf_test.pdf_1_mezfaklt
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_pdf_test.pdf_2_mezfaklt
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: pdf_test.pdf_2_mezfaklt
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mrun[2m > [22m[2mshould process image file through run method
+[22m[39m[FileProcessingWorkflow] Starting file processing workflow
+[FileProcessingWorkflow] File info: {
+  fileName: 'test.png',
+  fileType: 'image/png',
+  fileSize: 2048,
+  namespace: undefined
+}
+[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: image
+[FileProcessingWorkflow.processFile] File buffer size: 13
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] Using AI model for text extraction: @cf/meta/llama-3-8b-instruct
+[FileProcessingWorkflow] Sending file data to Gemma, buffer length: 13
+[FileProcessingWorkflow] AI result type: object
+[FileProcessingWorkflow] AI result: {"response":"DESCRIPTION: Test image\nEXTRACTED_TEXT: "}
+[FileProcessingWorkflow] Extracted text length: 40
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_ima_test.png_0_mezfaklu
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: ima_test.png_0_mezfaklu
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_ima_test.png_1_mezfaklu
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: ima_test.png_1_mezfaklu
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_ima_test.png_2_mezfaklu
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: ima_test.png_2_mezfaklu
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle large file (>2MB) with simple extraction
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 17
+[FileProcessingWorkflow] Step 1: Analyzing file with AI
+[FileProcessingWorkflow] File too large for AI analysis (>2MB), using simple extraction
+[FileProcessingWorkflow] Step 2: Preparing content chunks
+[FileProcessingWorkflow] Created 3 content chunks
+[FileProcessingWorkflow] Step 3: Vectorizing 3 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/3: embed_pdf_large.pdf_0_mezfakly
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/3: pdf_large.pdf_0_mezfakly
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/3: embed_pdf_large.pdf_1_mezfakly
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Embedding completed for chunk 2
+[FileProcessingWorkflow] Embedding generated for chunk 2, vector dims: 3
+[FileProcessingWorkflow] Saving vector 2/3: pdf_large.pdf_1_mezfakly
+[FileProcessingWorkflow] Vector saved for chunk 2
+[FileProcessingWorkflow] Successfully saved vector for chunk 2
+[FileProcessingWorkflow] Creating embedding workflow 3/3: embed_pdf_large.pdf_2_mezfakly
+[FileProcessingWorkflow] Polling embedding workflow for chunk 3
+[FileProcessingWorkflow] Embedding completed for chunk 3
+[FileProcessingWorkflow] Embedding generated for chunk 3, vector dims: 3
+[FileProcessingWorkflow] Saving vector 3/3: pdf_large.pdf_2_mezfakly
+[FileProcessingWorkflow] Vector saved for chunk 3
+[FileProcessingWorkflow] Successfully saved vector for chunk 3
+[FileProcessingWorkflow] Vectorization complete. Saved 3 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 3
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle embedding workflow errored status
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 3: Vectorizing 2 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/2: embed_pdf_test.pdf_0_mezfaklz
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Creating embedding workflow 2/2: embed_pdf_test.pdf_1_mezfaklz
+[FileProcessingWorkflow] Polling embedding workflow for chunk 2
+[FileProcessingWorkflow] Vectorization complete. Saved 0 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 0
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle embedding workflow errored status
+[22m[39m[FileProcessingWorkflow] Embedding workflow failed for chunk 1: Embedding generation failed
+[FileProcessingWorkflow] Failed to generate embedding for chunk 1: Timeout
+[FileProcessingWorkflow] Embedding workflow failed for chunk 2: Embedding generation failed
+[FileProcessingWorkflow] Failed to generate embedding for chunk 2: Timeout
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle vector save workflow errored status
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 3: Vectorizing 1 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/1: embed_pdf_test.pdf_0_mezfakm0
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/1: pdf_test.pdf_0_mezfakm0
+[FileProcessingWorkflow] Vectorization complete. Saved 0 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 0
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle vector save workflow errored status
+[22m[39m[FileProcessingWorkflow] Vector save failed for chunk 1: Vector save failed
+[FileProcessingWorkflow] Failed to save vector for chunk 1
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle vector save success false result
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 3: Vectorizing 1 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/1: embed_pdf_test.pdf_0_mezfakm1
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/1: pdf_test.pdf_0_mezfakm1
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Vectorization complete. Saved 0 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 0
+
+[90mstderr[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle vector save success false result
+[22m[39m[FileProcessingWorkflow] Failed to save vector for chunk 1
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle embedding workflow with pending status then complete
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 3: Vectorizing 1 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/1: embed_pdf_test.pdf_0_mezfakm1
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/1: pdf_test.pdf_0_mezfakm1
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Vectorization complete. Saved 1 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 1
+
+[90mstdout[2m | tests/unit/workflows/file-processing.test.ts[2m > [22m[2mFileProcessingWorkflow[2m > [22m[2mLarge file and workflow errors[2m > [22m[2mshould handle vector save workflow with pending status then complete
+[22m[39m[FileProcessingWorkflow.processFile] Starting file processing
+[FileProcessingWorkflow.processFile] File type: pdf
+[FileProcessingWorkflow.processFile] File buffer size: 11
+[FileProcessingWorkflow] Step 3: Vectorizing 1 chunks
+[FileProcessingWorkflow] Creating embedding workflow 1/1: embed_pdf_test.pdf_0_mezfakm3
+[FileProcessingWorkflow] Polling embedding workflow for chunk 1
+[FileProcessingWorkflow] Embedding completed for chunk 1
+[FileProcessingWorkflow] Embedding generated for chunk 1, vector dims: 3
+[FileProcessingWorkflow] Saving vector 1/1: pdf_test.pdf_0_mezfakm3
+[FileProcessingWorkflow] Vector saved for chunk 1
+[FileProcessingWorkflow] Successfully saved vector for chunk 1
+[FileProcessingWorkflow] Vectorization complete. Saved 1 vectors
+[FileProcessingWorkflow] File processing completed successfully
+[FileProcessingWorkflow] Total vectors created: 1
+
+ [32m✓[39m tests/unit/workflows/file-processing.test.ts [2m([22m[2m58 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould create vector asynchronously using workflow
+[22m[39mAttempt 1: Workflow status: {
+  status: 'complete',
+  output: {
+    success: true,
+    embedding: [ 0.1, 0.2, 0.3 ],
+    model: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+Vector workflow attempt 1: complete
+Vector saved successfully: vec-123
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould use default namespace when undefined and handle undefined recentVectors
+[22m[39mAttempt 1: Workflow status: {
+  status: 'complete',
+  output: {
+    success: true,
+    embedding: [ 0.1, 0.2, 0.3 ],
+    model: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+Vector workflow attempt 1: complete
+Vector saved successfully: vec-123
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle embedding workflow failure
+[22m[39mAttempt 1: Workflow status: { status: 'errored', error: 'Embedding failed' }
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle embedding workflow failure with undefined error
+[22m[39mAttempt 1: Workflow status: { status: 'errored', error: undefined }
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle embedding timeout
+[22m[39mAttempt 1: Workflow status: { status: 'running' }
+Attempt 2: Workflow status: { status: 'running' }
+Attempt 3: Workflow status: { status: 'running' }
+Attempt 4: Workflow status: { status: 'running' }
+Attempt 5: Workflow status: { status: 'running' }
+Attempt 6: Workflow status: { status: 'running' }
+Attempt 7: Workflow status: { status: 'running' }
+Attempt 8: Workflow status: { status: 'running' }
+Attempt 9: Workflow status: { status: 'running' }
+Attempt 10: Workflow status: { status: 'running' }
+Attempt 11: Workflow status: { status: 'running' }
+Attempt 12: Workflow status: { status: 'running' }
+Attempt 13: Workflow status: { status: 'running' }
+Attempt 14: Workflow status: { status: 'running' }
+Attempt 15: Workflow status: { status: 'running' }
+Attempt 16: Workflow status: { status: 'running' }
+Attempt 17: Workflow status: { status: 'running' }
+Attempt 18: Workflow status: { status: 'running' }
+Attempt 19: Workflow status: { status: 'running' }
+Attempt 20: Workflow status: { status: 'running' }
+Attempt 21: Workflow status: { status: 'running' }
+Attempt 22: Workflow status: { status: 'running' }
+Attempt 23: Workflow status: { status: 'running' }
+Attempt 24: Workflow status: { status: 'running' }
+Attempt 25: Workflow status: { status: 'running' }
+Attempt 26: Workflow status: { status: 'running' }
+Attempt 27: Workflow status: { status: 'running' }
+Attempt 28: Workflow status: { status: 'running' }
+Attempt 29: Workflow status: { status: 'running' }
+Attempt 30: Workflow status: { status: 'running' }
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle vector workflow failure
+[22m[39mAttempt 1: Workflow status: {
+  status: 'complete',
+  output: {
+    success: true,
+    embedding: [ 0.1, 0.2, 0.3 ],
+    model: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+Vector workflow attempt 1: errored
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle vector workflow failure with undefined error
+[22m[39mAttempt 1: Workflow status: {
+  status: 'complete',
+  output: {
+    success: true,
+    embedding: [ 0.1, 0.2, 0.3 ],
+    model: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+Vector workflow attempt 1: errored
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle unsuccessful embedding result
+[22m[39mAttempt 1: Workflow status: {
+  status: 'complete',
+  output: { success: false, error: 'Model error' }
+}
+
+[90mstderr[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle unsuccessful embedding result
+[22m[39mFinal embedding result: {
+  success: false,
+  embedding: [],
+  model: 'unknown',
+  error: 'Model error',
+  vectorId: ''
+}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle unsuccessful embedding with undefined error
+[22m[39mAttempt 1: Workflow status: { status: 'complete', output: { success: false, error: undefined } }
+
+[90mstderr[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle unsuccessful embedding with undefined error
+[22m[39mFinal embedding result: {
+  success: false,
+  embedding: [],
+  model: 'unknown',
+  error: undefined,
+  vectorId: ''
+}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle unsuccessful vector result
+[22m[39mAttempt 1: Workflow status: {
+  status: 'complete',
+  output: {
+    success: true,
+    embedding: [ 0.1, 0.2, 0.3 ],
+    model: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+Vector workflow attempt 1: complete
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle vector workflow timeout
+[22m[39mAttempt 1: Workflow status: {
+  status: 'complete',
+  output: {
+    success: true,
+    embedding: [ 0.1, 0.2, 0.3 ],
+    model: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+Vector workflow attempt 1: running
+Vector workflow attempt 2: running
+Vector workflow attempt 3: running
+Vector workflow attempt 4: running
+Vector workflow attempt 5: running
+Vector workflow attempt 6: running
+Vector workflow attempt 7: running
+Vector workflow attempt 8: running
+Vector workflow attempt 9: running
+Vector workflow attempt 10: running
+Vector workflow attempt 11: running
+Vector workflow attempt 12: running
+Vector workflow attempt 13: running
+Vector workflow attempt 14: running
+Vector workflow attempt 15: running
+Vector workflow attempt 16: running
+Vector workflow attempt 17: running
+Vector workflow attempt 18: running
+Vector workflow attempt 19: running
+Vector workflow attempt 20: running
+Vector workflow attempt 21: running
+Vector workflow attempt 22: running
+Vector workflow attempt 23: running
+Vector workflow attempt 24: running
+Vector workflow attempt 25: running
+Vector workflow attempt 26: running
+Vector workflow attempt 27: running
+Vector workflow attempt 28: running
+Vector workflow attempt 29: running
+Vector workflow attempt 30: running
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mcreateVectorAsync[2m > [22m[2mshould handle null vector result
+[22m[39mAttempt 1: Workflow status: {
+  status: 'complete',
+  output: {
+    success: true,
+    embedding: [ 0.1, 0.2, 0.3 ],
+    model: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+Vector workflow attempt 1: complete
+Vector workflow attempt 2: complete
+Vector workflow attempt 3: complete
+Vector workflow attempt 4: complete
+Vector workflow attempt 5: complete
+Vector workflow attempt 6: complete
+Vector workflow attempt 7: complete
+Vector workflow attempt 8: complete
+Vector workflow attempt 9: complete
+Vector workflow attempt 10: complete
+Vector workflow attempt 11: complete
+Vector workflow attempt 12: complete
+Vector workflow attempt 13: complete
+Vector workflow attempt 14: complete
+Vector workflow attempt 15: complete
+Vector workflow attempt 16: complete
+Vector workflow attempt 17: complete
+Vector workflow attempt 18: complete
+Vector workflow attempt 19: complete
+Vector workflow attempt 20: complete
+Vector workflow attempt 21: complete
+Vector workflow attempt 22: complete
+Vector workflow attempt 23: complete
+Vector workflow attempt 24: complete
+Vector workflow attempt 25: complete
+Vector workflow attempt 26: complete
+Vector workflow attempt 27: complete
+Vector workflow attempt 28: complete
+Vector workflow attempt 29: complete
+Vector workflow attempt 30: complete
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould remove deleted vectors from local state
+[22m[39m[VectorManager] Removing 2 vectors from local state
+[VectorManager] Updated local state, 1 vectors remaining
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould handle uninitialized recentVectors
+[22m[39m[VectorManager] Removing 1 vectors from local state
+[VectorManager] Initialized recentVectors array
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould delete all vectors
+[22m[39m[VectorManager] Deleting all vectors in all namespaces
+[VectorManager] Deleting 3 vectors from Vectorize
+[VectorManager] Delete operation enqueued for 3 vectors
+[VectorManager] Local state cleared
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould delete vectors by namespace
+[22m[39m[VectorManager] Deleting all vectors in namespace: default
+[VectorManager] Deleting 2 vectors from Vectorize
+[VectorManager] Delete operation enqueued for 2 vectors
+[VectorManager] Local state cleared
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould handle empty state when deleting all
+[22m[39m[VectorManager] Deleting all vectors in all namespaces
+[VectorManager] Local state cleared
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould handle uninitialized state when deleting all
+[22m[39m[VectorManager] Deleting all vectors in all namespaces
+[VectorManager] Local state cleared
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould continue on vectorize delete error
+[22m[39m[VectorManager] Deleting all vectors in all namespaces
+[VectorManager] Deleting 1 vectors from Vectorize
+[VectorManager] Local state cleared
+
+[90mstderr[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould continue on vectorize delete error
+[22m[39m[VectorManager] Error deleting from Vectorize: Error: Delete failed
+    at /C:/node/vector-db/tests/unit/durable-objects/vector-manager.test.ts:834:70
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstdout[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould throw error when state access fails
+[22m[39m[VectorManager] Deleting all vectors in all namespaces
+
+[90mstderr[2m | tests/unit/durable-objects/vector-manager.test.ts[2m > [22m[2mVectorManager Durable Object[2m > [22m[2mDelete Operations[2m > [22m[2mshould throw error when state access fails
+[22m[39m[VectorManager] Delete all vectors error: Error: State access failed
+    at VectorManager.get [as state] (/C:/node/vector-db/tests/unit/durable-objects/vector-manager.test.ts:849:17)
+    at VectorManager.deleteAllVectors (/C:/node/vector-db/src/durable-objects/vector-manager.ts:5004:17)
+    at /C:/node/vector-db/tests/unit/durable-objects/vector-manager.test.ts:853:56
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+
+ [32m✓[39m tests/unit/durable-objects/vector-manager.test.ts [2m([22m[2m58 tests[22m[2m)[22m[90m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/workflows/notion-sync.test.ts [2m([22m[2m34 tests[22m[2m | [22m[33m11 skipped[39m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/response-builder.test.ts [2m([22m[2m90 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+[90mstderr[2m | tests/unit/notion.service.test.ts[2m > [22m[2mNotionService[2m > [22m[2mfetchPageFromNotion[2m > [22m[2mshould throw error on API failure (non-404)
+[22m[39mFailed to fetch page from Notion: Error: Notion API error: 500
+    at NotionService.fetchPageFromNotion (/C:/node/vector-db/src/services/notion.service.ts:3823:15)
+
+[90mstderr[2m | tests/unit/notion.service.test.ts[2m > [22m[2mNotionService[2m > [22m[2mfetchPagePropertyFromNotion[2m > [22m[2mshould throw error on property fetch failure
+[22m[39mFailed to fetch property from Notion: Error: Notion API error: 500
+    at NotionService.fetchPagePropertyFromNotion (/C:/node/vector-db/src/services/notion.service.ts:3900:15)
+
+[90mstderr[2m | tests/unit/notion.service.test.ts[2m > [22m[2mNotionService[2m > [22m[2mfetchPagePropertyFromNotion[2m > [22m[2mshould handle fetch errors
+[22m[39mFailed to fetch property from Notion: Error: Network error
+    at /C:/node/vector-db/tests/unit/notion.service.test.ts:159:70
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstderr[2m | tests/unit/notion.service.test.ts[2m > [22m[2mNotionService[2m > [22m[2msearchAllPages[2m > [22m[2mshould throw error on search failure
+[22m[39mFailed to search pages from Notion: Error: Notion API error: 400
+    at NotionService.searchAllPages (/C:/node/vector-db/src/services/notion.service.ts:4110:15)
+
+[90mstderr[2m | tests/unit/notion.service.test.ts[2m > [22m[2mNotionService[2m > [22m[2mError handling[2m > [22m[2mshould handle fetch errors in fetchBlocksFromNotion
+[22m[39mFailed to fetch blocks from Notion: Error: Notion API error: 500
+    at NotionService.fetchBlocksFromNotion (/C:/node/vector-db/src/services/notion.service.ts:3866:17)
+
+[90mstderr[2m | tests/unit/notion.service.test.ts[2m > [22m[2mNotionService[2m > [22m[2mError handling[2m > [22m[2mshould handle network errors in fetchPageFromNotion
+[22m[39mFailed to fetch page from Notion: Error: Network failed
+    at /C:/node/vector-db/tests/unit/notion.service.test.ts:690:70
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+ [32m✓[39m tests/unit/notion.service.test.ts [2m([22m[2m37 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/validation.test.ts [2m([22m[2m70 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould upload PDF file successfully
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=e33f3e20152cd5ebd1950982680d99b2',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567576,
+  constructor: 'File'
+}
+Original filename: test.pdf
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 112,
+  100, 102
+]
+Decoded filename: test.pdf
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould upload image file with namespace and metadata
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=214a96c39243778daf061e2a6d6b3ded',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.jpg',
+  type: 'image/jpeg',
+  size: 3,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.jpg
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 106,
+  112, 103
+]
+Decoded filename: test.jpg
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould accept PNG files
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=2efb77e58d210be51cc39c47640bd46c',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.png',
+  type: 'image/png',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.png
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 112,
+  110, 103
+]
+Decoded filename: test.png
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould accept GIF files
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=fdd4f436df0eaf01c046aaf6cf0cd7d4',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.gif',
+  type: 'image/gif',
+  size: 3,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.gif
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 103,
+  105, 102
+]
+Decoded filename: test.gif
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould accept WebP files
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=2a53f097722b9de8e75257007a23c261',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.webp',
+  type: 'image/webp',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.webp
+Filename char codes: [
+  116, 101, 115, 116,
+   46, 119, 101,  98,
+  112
+]
+Decoded filename: test.webp
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould reject files over 10MB
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=73a32edd6d7228b254ccee04d28f2f2e',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'large.pdf',
+  type: 'application/pdf',
+  size: 11534336,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: large.pdf
+Filename char codes: [
+  108, 97, 114, 103,
+  101, 46, 112, 100,
+  102
+]
+Decoded filename: large.pdf
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould reject unsupported file types
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=7731aba71ae117c4a2de1c797ee60716',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.txt',
+  type: 'text/plain',
+  size: 5,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.txt
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 116,
+  120, 116
+]
+Decoded filename: test.txt
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould reject invalid metadata JSON
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=fa95ff595dcb9525f783a52262a8f420',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.pdf
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 112,
+  100, 102
+]
+Decoded filename: test.pdf
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle empty metadata
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=c302bb99e908a6b86f7c2b8a6c01fdad',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.pdf
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 112,
+  100, 102
+]
+Decoded filename: test.pdf
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle Durable Object errors
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=4a480b502e226ced67fc6b96f7f0f5a7',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.pdf
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 112,
+  100, 102
+]
+Decoded filename: test.pdf
+No Japanese characters found in decoded name
+
+[90mstderr[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle Durable Object errors
+[22m[39mFile upload error: Error: Processing failed
+    at /C:/node/vector-db/tests/unit/routes/files/upload.test.ts:221:70
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle non-Error exceptions
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=ad788feba1297574ac56a836231b2c26',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test.pdf
+Filename char codes: [
+  116, 101, 115,
+  116,  46, 112,
+  100, 102
+]
+Decoded filename: test.pdf
+No Japanese characters found in decoded name
+
+[90mstderr[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle non-Error exceptions
+[22m[39mFile upload error: String error
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle file with special characters in name
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=b9b42a2b981e8f84926a74f4df12ad10',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test-file_2024.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test-file_2024.pdf
+Filename char codes: [
+  116, 101, 115, 116,  45, 102,
+  105, 108, 101,  95,  50,  48,
+   50,  52,  46, 112, 100, 102
+]
+Decoded filename: test-file_2024.pdf
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle Japanese filename with direct Japanese characters
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=4dae97ec2ba65732137deb89751bdca3',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'テスト文書.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: テスト文書.pdf
+Filename char codes: [
+  12486, 12473, 12488,
+  25991, 26360,    46,
+    112,   100,   102
+]
+Decoded filename: ƹȇ�.pdf
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle filename with percent encoding but no Japanese characters
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=9d3aec63ffcfe06a4fa961c003d27d9b',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test%20file.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test%20file.pdf
+Filename char codes: [
+  116, 101, 115, 116,  37,
+   50,  48, 102, 105, 108,
+  101,  46, 112, 100, 102
+]
+Decoded filename: test%20file.pdf
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Route[2m > [22m[2mPOST /files/upload[2m > [22m[2mshould handle malformed percent-encoded filename
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=fe21d94043e2b7a8ee467aef55517739',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'test%ZZinvalid.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: test%ZZinvalid.pdf
+Filename char codes: [
+  116, 101, 115, 116,  37,  90,
+   90, 105, 110, 118,  97, 108,
+  105, 100,  46, 112, 100, 102
+]
+Decoded filename: test%ZZinvalid.pdf
+No Japanese characters found in decoded name
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Edge Cases[2m > [22m[2mshould handle FormData with non-File value after validation bypass
+[22m[39mRequest headers: {
+  'content-type': undefined,
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+
+[90mstderr[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Edge Cases[2m > [22m[2mshould handle FormData with non-File value after validation bypass
+[22m[39mNot a File object: not-a-file-object
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Edge Cases[2m > [22m[2mshould decode Japanese filename from Latin-1 encoding
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=e327628a4a1087f426405aa4a43abfe2',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'ã\x83\x86ã\x82¹ã\x83\x88æ\x96\x87æ\x9B¸.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: ãã¹ãææ¸.pdf
+Filename char codes: [
+  227, 131, 134, 227, 130,
+  185, 227, 131, 136, 230,
+  150, 135, 230, 155, 184,
+   46, 112, 100, 102
+]
+Decoded filename: テスト文書.pdf
+Using decoded filename: テスト文書.pdf
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Edge Cases[2m > [22m[2mshould handle filename decoding errors gracefully
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=d068a2bfeefe01c0a97bfe07b8e7058b',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'ã\x82¹ã\x83\x88ÿÿ.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: ã¹ãÿÿ.pdf
+Filename char codes: [
+  227, 130, 185, 227,
+  131, 136, 255, 255,
+   46, 112, 100, 102
+]
+Decoded filename: スト��.pdf
+Using decoded filename: スト��.pdf
+
+[90mstdout[2m | tests/unit/routes/files/upload.test.ts[2m > [22m[2mUpload File Edge Cases[2m > [22m[2mshould handle TextDecoder throwing error on invalid sequences
+[22m[39mRequest headers: {
+  'content-type': 'multipart/form-data; boundary=d1a71209300c1d548284e6ec30dcae3d',
+  'content-length': undefined,
+  'accept-charset': undefined
+}
+File object: {
+  name: 'ã\x83\x86.pdf',
+  type: 'application/pdf',
+  size: 4,
+  lastModified: 1756628567584,
+  constructor: 'File'
+}
+Original filename: ã.pdf
+Filename char codes: [
+  227, 131, 134,
+   46, 112, 100,
+  102
+]
+Failed to decode filename, using original: ã.pdf Error: Invalid byte sequence
+    at Object.<anonymous> (/C:/node/vector-db/tests/unit/routes/files/upload.test.ts:474:15)
+    at Object.mockCall (C:/node/vector-db/node_modules/@vitest/spy/dist/index.js:61:17)
+    at Object.spy [as decode] (C:/node/vector-db/node_modules/tinyspy/dist/index.js:45:80)
+    at FileProcessor.decodeFileName (/C:/node/vector-db/src/routes/api/files/file-processor.ts:603:60)
+    at Array.uploadFileHandler (/C:/node/vector-db/src/routes/api/files/upload.ts:688:84)
+    at /C:/node/vector-db/tests/unit/routes/files/upload.test.ts:481:22
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+
+ [32m✓[39m tests/unit/routes/files/upload.test.ts [2m([22m[2m21 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+[90mstderr[2m | tests/unit/durable-objects/notion-manager.test.ts[2m > [22m[2mNotionManager Durable Object[2m > [22m[2mgetWorkflowStatus[2m > [22m[2mshould handle errors gracefully
+[22m[39mFailed to get workflow status: Error: Not found
+    at /C:/node/vector-db/tests/unit/durable-objects/notion-manager.test.ts:434:72
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+ [32m✓[39m tests/unit/durable-objects/notion-manager.test.ts [2m([22m[2m30 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+[90mstderr[2m | tests/unit/routes/notion/list-pages.test.ts[2m > [22m[2mList Notion Pages Route[2m > [22m[2mGET /notion/pages[2m > [22m[2mshould handle errors
+[22m[39mList pages error: Error: Notion API error
+    at /C:/node/vector-db/tests/unit/routes/notion/list-pages.test.ts:313:63
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstderr[2m | tests/unit/routes/notion/list-pages.test.ts[2m > [22m[2mList Notion Pages Route[2m > [22m[2mGET /notion/pages[2m > [22m[2mshould handle non-Error exceptions
+[22m[39mList pages error: String error
+
+ [32m✓[39m tests/unit/routes/notion/list-pages.test.ts [2m([22m[2m17 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/durable-objects/notion-sync-manager.test.ts [2m([22m[2m33 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+ [32m✓[39m tests/unit/workflows/notion-sync-run.test.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+[90mstderr[2m | tests/unit/workflows/property-handlers.test.ts[2m > [22m[2mPropertyHandlers[2m > [22m[2mextractText[2m > [22m[2mshould handle extraction errors gracefully
+[22m[39mFailed to extract text from property: Cannot read properties of null (reading 'map')
+
+[90mstderr[2m | tests/unit/workflows/property-handlers.test.ts[2m > [22m[2mPropertyHandlers[2m > [22m[2mprocessProperties[2m > [22m[2mshould skip unsupported property types
+[22m[39mSkipping unsupported property type: unsupported_relation
+
+[90mstderr[2m | tests/unit/workflows/property-handlers.test.ts[2m > [22m[2mPropertyHandlers[2m > [22m[2mprocessProperties[2m > [22m[2mshould handle property processing errors gracefully
+[22m[39mSkipping unsupported property type: invalid_property
+
+ [32m✓[39m tests/unit/workflows/property-handlers.test.ts [2m([22m[2m37 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould perform semantic search successfully
+[22m[39m[2025-08-31T08:22:48.264Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'test search query',
+    topK: 5,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.265Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search completed',
+    resultCount: 2,
+    processingTime: 1
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould handle search with namespace
+[22m[39m[2025-08-31T08:22:48.266Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'namespace search',
+    topK: 10,
+    namespace: 'test-namespace'
+  }
+}
+[2025-08-31T08:22:48.267Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search completed',
+    resultCount: 1,
+    processingTime: 1
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould use default topK when not provided
+[22m[39m[2025-08-31T08:22:48.268Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'minimal search',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.268Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search completed',
+    resultCount: 0,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould handle AI embedding generation failure
+[22m[39m[2025-08-31T08:22:48.274Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'test query',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.274Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search failed with AppError',
+    error: {
+      name: 'AppError',
+      message: 'Failed to generate embedding for query',
+      stack: 'AppError: Failed to generate embedding for query\n' +
+        '    at SearchService.embedText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1075:15)\n' +
+        '    at SearchService.searchByText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1113:49)\n' +
+        '    at semanticSearchHandler (/C:/node/vector-db/src/routes/api/search/semantic.ts:760:47)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/search/semantic.test.ts:144:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)'
+    },
+    code: 'EMBEDDING_GENERATION_ERROR',
+    statusCode: 500,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould handle AI run without data property
+[22m[39m[2025-08-31T08:22:48.276Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'test query',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.276Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search failed with AppError',
+    error: {
+      name: 'AppError',
+      message: 'Failed to generate embedding for query',
+      stack: 'AppError: Failed to generate embedding for query\n' +
+        '    at SearchService.embedText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1075:15)\n' +
+        '    at SearchService.searchByText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1113:49)\n' +
+        '    at semanticSearchHandler (/C:/node/vector-db/src/routes/api/search/semantic.ts:760:47)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/search/semantic.test.ts:161:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)'
+    },
+    code: 'EMBEDDING_GENERATION_ERROR',
+    statusCode: 500,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould handle vectorize query errors
+[22m[39m[2025-08-31T08:22:48.277Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'error test',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.277Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search failed with AppError',
+    error: {
+      name: 'AppError',
+      message: '検索中にエラーが発生しました',
+      stack: 'AppError: 検索中にエラーが発生しました\n' +
+        '    at SearchService.searchByVector (/C:/node/vector-db/src/routes/api/search/search-service.ts:1105:13)\n' +
+        '    at SearchService.searchByText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1114:53)\n' +
+        '    at semanticSearchHandler (/C:/node/vector-db/src/routes/api/search/semantic.ts:760:47)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/search/semantic.test.ts:175:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)'
+    },
+    code: undefined,
+    statusCode: 500,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould handle non-Error exceptions
+[22m[39m[2025-08-31T08:22:48.279Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'non-error test',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.279Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search failed with AppError',
+    error: {
+      name: 'AppError',
+      message: '検索中にエラーが発生しました',
+      stack: 'AppError: 検索中にエラーが発生しました\n' +
+        '    at SearchService.searchByVector (/C:/node/vector-db/src/routes/api/search/search-service.ts:1105:13)\n' +
+        '    at SearchService.searchByText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1114:53)\n' +
+        '    at semanticSearchHandler (/C:/node/vector-db/src/routes/api/search/semantic.ts:760:47)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/search/semantic.test.ts:192:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)'
+    },
+    code: undefined,
+    statusCode: 500,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould handle empty search results
+[22m[39m[2025-08-31T08:22:48.281Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'no results',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.281Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search completed',
+    resultCount: 0,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mGET /search/semantic[2m > [22m[2mshould handle special characters in query
+[22m[39m[2025-08-31T08:22:48.287Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Starting semantic search',
+    query: 'special&chars+test',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.287Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearch',
+    message: 'Semantic search completed',
+    resultCount: 1,
+    processingTime: 1
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mPOST /search/semantic[2m > [22m[2mshould perform semantic search via POST successfully
+[22m[39m[2025-08-31T08:22:48.289Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Starting semantic search (POST)',
+    query: 'test search query',
+    topK: 5,
+    namespace: 'test-namespace'
+  }
+}
+[2025-08-31T08:22:48.289Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Semantic search (POST) completed',
+    resultCount: 2,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mPOST /search/semantic[2m > [22m[2mshould handle empty results via POST
+[22m[39m[2025-08-31T08:22:48.291Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Starting semantic search (POST)',
+    query: 'no results query',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.291Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Semantic search (POST) completed',
+    resultCount: 0,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mPOST /search/semantic[2m > [22m[2mshould handle embedding error via POST
+[22m[39m[2025-08-31T08:22:48.292Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Starting semantic search (POST)',
+    query: 'error test query',
+    topK: 5,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.292Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Semantic search (POST) failed with AppError',
+    error: {
+      name: 'AppError',
+      message: 'Embedding generation failed: AI service error',
+      stack: 'AppError: Embedding generation failed: AI service error\n' +
+        '    at SearchService.embedText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1091:13)\n' +
+        '    at SearchService.searchByText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1113:49)\n' +
+        '    at semanticSearchPostHandler (/C:/node/vector-db/src/routes/api/search/semantic.ts:874:48)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at mw (C:/node/vector-db/node_modules/@hono/zod-openapi/dist/index.js:91:26)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/search/semantic.test.ts:299:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5'
+    },
+    code: 'EMBEDDING_GENERATION_ERROR',
+    statusCode: 500,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mPOST /search/semantic[2m > [22m[2mshould handle vectorize error via POST
+[22m[39m[2025-08-31T08:22:48.294Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Starting semantic search (POST)',
+    query: 'vectorize error test',
+    topK: 5,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.294Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Semantic search (POST) failed with AppError',
+    error: {
+      name: 'AppError',
+      message: '検索中にエラーが発生しました',
+      stack: 'AppError: 検索中にエラーが発生しました\n' +
+        '    at SearchService.searchByVector (/C:/node/vector-db/src/routes/api/search/search-service.ts:1105:13)\n' +
+        '    at SearchService.searchByText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1114:53)\n' +
+        '    at semanticSearchPostHandler (/C:/node/vector-db/src/routes/api/search/semantic.ts:874:48)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at mw (C:/node/vector-db/node_modules/@hono/zod-openapi/dist/index.js:91:26)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/search/semantic.test.ts:319:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5'
+    },
+    code: undefined,
+    statusCode: 500,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mPOST /search/semantic[2m > [22m[2mshould handle non-Error exception via POST
+[22m[39m[2025-08-31T08:22:48.296Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Starting semantic search (POST)',
+    query: 'non-error test',
+    topK: 5,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.296Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Semantic search (POST) failed with AppError',
+    error: {
+      name: 'AppError',
+      message: 'Embedding generation failed: Unknown error',
+      stack: 'AppError: Embedding generation failed: Unknown error\n' +
+        '    at SearchService.embedText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1091:13)\n' +
+        '    at SearchService.searchByText (/C:/node/vector-db/src/routes/api/search/search-service.ts:1113:49)\n' +
+        '    at semanticSearchPostHandler (/C:/node/vector-db/src/routes/api/search/semantic.ts:874:48)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at mw (C:/node/vector-db/node_modules/@hono/zod-openapi/dist/index.js:91:26)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/search/semantic.test.ts:336:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5'
+    },
+    code: 'EMBEDDING_GENERATION_ERROR',
+    statusCode: 500,
+    processingTime: 0
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/search/semantic.test.ts[2m > [22m[2mSemantic Search Route[2m > [22m[2mPOST /search/semantic[2m > [22m[2mshould handle special characters in query via POST
+[22m[39m[2025-08-31T08:22:48.298Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Starting semantic search (POST)',
+    query: 'special&chars+test',
+    topK: 10,
+    namespace: undefined
+  }
+}
+[2025-08-31T08:22:48.298Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'SemanticSearchPost',
+    message: 'Semantic search (POST) completed',
+    resultCount: 1,
+    processingTime: 0
+  }
+}
+
+ [32m✓[39m tests/unit/routes/search/semantic.test.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/base/workflow.test.ts [2m([22m[2m26 tests[22m[2m)[22m[90m 24[2mms[22m[39m
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcreateJob[2m > [22m[2mshould create a vector creation job
+[22m[39m{"timestamp":"2025-08-31T08:22:48.533Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.533Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568533_uzrbpums3","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.533Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568533_uzrbpums3","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.535Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568533_uzrbpums3","duration":2,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcreateJob[2m > [22m[2mshould create a vector deletion job
+[22m[39m{"timestamp":"2025-08-31T08:22:48.536Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.536Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568536_oh5kh4ord","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.536Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568536_oh5kh4ord","type":"vector:delete","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.536Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568536_oh5kh4ord","duration":0,"type":"vector:delete"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcreateJob[2m > [22m[2mshould create a file processing job
+[22m[39m{"timestamp":"2025-08-31T08:22:48.536Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.536Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568536_q1f0lw0kb","type":"file:process","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.536Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568536_q1f0lw0kb","type":"file:process","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.536Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568536_q1f0lw0kb","duration":0,"type":"file:process"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mjob processing[2m > [22m[2mshould process vector creation job successfully
+[22m[39m{"timestamp":"2025-08-31T08:22:48.537Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.537Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568537_2uuxcrpwl","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.537Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568537_2uuxcrpwl","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.537Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568537_2uuxcrpwl","duration":0,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mjob processing[2m > [22m[2mshould handle vector creation job failure
+[22m[39m{"timestamp":"2025-08-31T08:22:48.539Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.539Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568539_fnxkv96mg","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.539Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568539_fnxkv96mg","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.539Z","level":"ERROR","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job failed: job_vector_1756628568539_fnxkv96mg","error":{"name":"Error","message":"Workflow failed: Embedding failed","stack":"Error: Workflow failed: Embedding failed\n    at VectorJobManager.waitForWorkflow (/C:/node/vector-db/src/durable-objects/vector-job-manager.ts:1987:17)\n    at VectorJobManager.processCreateVector (/C:/node/vector-db/src/durable-objects/vector-job-manager.ts:1856:56)\n    at /C:/node/vector-db/src/durable-objects/vector-job-manager.ts:1813:14\n    at VectorJobManager.processJob (/C:/node/vector-db/src/base/job-manager.ts:3125:48)"},"type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.539Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Retrying job: job_vector_1756628568539_fnxkv96mg","attempt":1,"maxRetries":3}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mjob processing[2m > [22m[2mshould process vector deletion job successfully
+[22m[39m{"timestamp":"2025-08-31T08:22:48.541Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.541Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568541_b2z8n2nr1","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.541Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568541_b2z8n2nr1","type":"vector:delete","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.541Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568541_b2z8n2nr1","duration":0,"type":"vector:delete"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mjob processing[2m > [22m[2mshould process file job successfully
+[22m[39m{"timestamp":"2025-08-31T08:22:48.542Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.542Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568542_jdcmva9zp","type":"file:process","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.542Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568542_jdcmva9zp","type":"file:process","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.542Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568542_jdcmva9zp","duration":0,"type":"file:process"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mgetJob[2m > [22m[2mshould return job by ID
+[22m[39m{"timestamp":"2025-08-31T08:22:48.543Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.543Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568543_luwp48z76","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.543Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568543_luwp48z76","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.543Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568543_luwp48z76","duration":0,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mgetJob[2m > [22m[2mshould return undefined for non-existent job
+[22m[39m{"timestamp":"2025-08-31T08:22:48.543Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mgetAllJobs and getJobsByStatus/Type[2m > [22m[2mshould list all jobs
+[22m[39m{"timestamp":"2025-08-31T08:22:48.544Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.544Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568544_m8t9oiu1k","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.544Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568544_m8t9oiu1k","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.544Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568544_k7z67nyto","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.545Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568544_m8t9oiu1k","duration":1,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mgetAllJobs and getJobsByStatus/Type[2m > [22m[2mshould filter jobs by status
+[22m[39m{"timestamp":"2025-08-31T08:22:48.545Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.545Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568545_82cog4fqd","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.545Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568545_82cog4fqd","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.545Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568545_rfyjf4ph3","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.546Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568545_82cog4fqd","duration":1,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mgetAllJobs and getJobsByStatus/Type[2m > [22m[2mshould filter jobs by type
+[22m[39m{"timestamp":"2025-08-31T08:22:48.546Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.546Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568546_3f91jb7vv","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.546Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568546_3f91jb7vv","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.546Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568546_udq5c09tc","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.546Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568546_tqfaoobsc","type":"file:process","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.546Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568546_3f91jb7vv","duration":0,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcancelJob[2m > [22m[2mshould cancel a queued job
+[22m[39m{"timestamp":"2025-08-31T08:22:48.547Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.547Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568547_0fgj04phn","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.547Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568547_0fgj04phn","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.547Z","level":"WARN","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Cannot cancel job with status processing: job_vector_1756628568547_0fgj04phn"}}
+{"timestamp":"2025-08-31T08:22:48.547Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568547_0fgj04phn","duration":0,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcancelJob[2m > [22m[2mshould not cancel a completed job
+[22m[39m{"timestamp":"2025-08-31T08:22:48.548Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.548Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568548_7lm9qi1h2","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.548Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568548_7lm9qi1h2","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.548Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568548_7lm9qi1h2","duration":0,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcancelJob[2m > [22m[2mshould not cancel a completed job
+[22m[39m{"timestamp":"2025-08-31T08:22:48.558Z","level":"WARN","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Cannot cancel job with status completed: job_vector_1756628568548_7lm9qi1h2"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mclearJobs[2m > [22m[2mshould clear all jobs
+[22m[39m{"timestamp":"2025-08-31T08:22:48.549Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.549Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568549_keg8p2e0w","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.549Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568549_keg8p2e0w","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.549Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568549_92z9jay2y","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.549Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Cleared 2 jobs","onlyCompleted":false}}
+{"timestamp":"2025-08-31T08:22:48.550Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568549_keg8p2e0w","duration":1,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mgetStatistics[2m > [22m[2mshould return job statistics
+[22m[39m{"timestamp":"2025-08-31T08:22:48.550Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.550Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568550_k45ke326j","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.550Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568550_k45ke326j","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.550Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568550_tzmhxtikw","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.550Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568550_dtt8pke77","type":"file:process","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.550Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568550_k45ke326j","duration":0,"type":"vector:create"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcleanupOldJobs[2m > [22m[2mshould remove completed jobs older than retention period
+[22m[39m{"timestamp":"2025-08-31T08:22:48.551Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.551Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1700000000000_1wd92xhef","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.551Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1700000000000_1wd92xhef","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.551Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1700000000000_i3f4sblf3","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.551Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1700000000000_1wd92xhef","duration":0,"type":"vector:create"}}
+{"timestamp":"2025-08-31T08:22:48.561Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1700000000000_i3f4sblf3","type":"vector:delete","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.561Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1700000000000_i3f4sblf3","duration":0,"type":"vector:delete"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcleanupOldJobs[2m > [22m[2mshould remove completed jobs older than retention period
+[22m[39m{"timestamp":"2025-08-31T08:22:48.571Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Cleaned up 1 old jobs","olderThanHours":24}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcleanupOldJobs[2m > [22m[2mshould not remove active jobs
+[22m[39m{"timestamp":"2025-08-31T08:22:48.553Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Config updated","pollInterval":10}}
+{"timestamp":"2025-08-31T08:22:48.553Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568553_otw6h7wh0","type":"vector:create","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.553Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568553_otw6h7wh0","type":"vector:create","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.553Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job created","jobId":"job_vector_1756628568553_wou3l0hpx","type":"vector:delete","priority":"NORMAL"}}
+{"timestamp":"2025-08-31T08:22:48.553Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568553_otw6h7wh0","duration":0,"type":"vector:create"}}
+{"timestamp":"2025-08-31T08:22:48.563Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Processing job: job_vector_1756628568553_wou3l0hpx","type":"vector:delete","retryCount":0}}
+{"timestamp":"2025-08-31T08:22:48.563Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Job completed: job_vector_1756628568553_wou3l0hpx","duration":0,"type":"vector:delete"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-job-manager.test.ts[2m > [22m[2mVectorJobManager[2m > [22m[2mcleanupOldJobs[2m > [22m[2mshould not remove active jobs
+[22m[39m{"timestamp":"2025-08-31T08:22:48.573Z","level":"INFO","method":"","path":"","metadata":{"context":"JobManager:vector","message":"Cleaned up 0 old jobs","olderThanHours":24}}
+
+ [32m✓[39m tests/unit/durable-objects/vector-job-manager.test.ts [2m([22m[2m18 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/middleware/validation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[90m 27[2mms[22m[39m
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mexecute (via run)[2m > [22m[2mshould generate vectors for all chunks
+[22m[39m[2025-08-31T08:22:48.803Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Workflow started',
+    params: {
+      chunks: [Array],
+      namespace: 'test-namespace',
+      model: '@cf/baai/bge-base-en-v1.5'
+    },
+    timestamp: '2025-08-31T08:22:48.803Z'
+  }
+}
+[2025-08-31T08:22:48.803Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Starting vector generation',
+    chunks: 3,
+    namespace: 'test-namespace',
+    model: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+[2025-08-31T08:22:48.803Z] INFO   - 
+  Details: {
+  metadata: { context: 'VectorGenerator', message: 'Processing 1 batches' }
+}
+[2025-08-31T08:22:48.803Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Processing batch-1-of-1',
+    current: 1,
+    total: 1
+  }
+}
+[2025-08-31T08:22:48.803Z] DEBUG   - 
+  Details: {
+  metadata: { context: 'VectorGenerator', message: 'Step started: batch-1-of-1' }
+}
+[2025-08-31T08:22:48.804Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-1',
+    namespace: 'test-namespace'
+  }
+}
+[2025-08-31T08:22:48.804Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-2',
+    namespace: 'test-namespace'
+  }
+}
+[2025-08-31T08:22:48.804Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-3',
+    namespace: 'test-namespace'
+  }
+}
+[2025-08-31T08:22:48.804Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Step completed: batch-1-of-1'
+  }
+}
+[2025-08-31T08:22:48.804Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector generation completed',
+    totalVectors: 3,
+    failedChunks: 0,
+    successRate: '100%'
+  }
+}
+[2025-08-31T08:22:48.804Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Workflow completed',
+    duration: 2,
+    result: {
+      vectorIds: [Array],
+      totalVectors: 3,
+      failedChunks: 0,
+      metadata: [Object]
+    }
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mexecute (via run)[2m > [22m[2mshould handle empty chunks array
+[22m[39m[2025-08-31T08:22:48.805Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Workflow started',
+    params: { chunks: [], namespace: 'test-namespace' },
+    timestamp: '2025-08-31T08:22:48.805Z'
+  }
+}
+[2025-08-31T08:22:48.805Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Starting vector generation',
+    chunks: 0,
+    namespace: 'test-namespace',
+    model: undefined
+  }
+}
+[2025-08-31T08:22:48.805Z] WARN   - 
+  Details: {
+  metadata: { context: 'VectorGenerator', message: 'No chunks to process' }
+}
+[2025-08-31T08:22:48.805Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Workflow completed',
+    duration: 0,
+    result: { vectorIds: [], totalVectors: 0, failedChunks: 0 }
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mexecute (via run)[2m > [22m[2mshould handle undefined chunks
+[22m[39m[2025-08-31T08:22:48.806Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Workflow started',
+    params: { chunks: undefined, namespace: 'test-namespace' },
+    timestamp: '2025-08-31T08:22:48.806Z'
+  }
+}
+[2025-08-31T08:22:48.806Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Starting vector generation',
+    chunks: 0,
+    namespace: 'test-namespace',
+    model: undefined
+  }
+}
+[2025-08-31T08:22:48.806Z] WARN   - 
+  Details: {
+  metadata: { context: 'VectorGenerator', message: 'No chunks to process' }
+}
+[2025-08-31T08:22:48.806Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Workflow completed',
+    duration: 0,
+    result: { vectorIds: [], totalVectors: 0, failedChunks: 0 }
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mexecute (via run)[2m > [22m[2mshould handle embedding generation failures
+[22m[39m[2025-08-31T08:22:48.806Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Workflow started',
+    params: { chunks: [Array], namespace: 'test-namespace' },
+    timestamp: '2025-08-31T08:22:48.806Z'
+  }
+}
+[2025-08-31T08:22:48.806Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Starting vector generation',
+    chunks: 3,
+    namespace: 'test-namespace',
+    model: undefined
+  }
+}
+[2025-08-31T08:22:48.806Z] INFO   - 
+  Details: {
+  metadata: { context: 'VectorGenerator', message: 'Processing 1 batches' }
+}
+[2025-08-31T08:22:48.806Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Processing batch-1-of-1',
+    current: 1,
+    total: 1
+  }
+}
+[2025-08-31T08:22:48.806Z] DEBUG   - 
+  Details: {
+  metadata: { context: 'VectorGenerator', message: 'Step started: batch-1-of-1' }
+}
+[2025-08-31T08:22:48.807Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Embedding generation failed',
+    error: {
+      name: 'Error',
+      message: 'Embedding failed',
+      stack: 'Error: Embedding failed\n' +
+        '    at /C:/node/vector-db/tests/unit/workflows/vector-generator.test.ts:116:93\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11\n' +
+        '    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)'
+    }
+  }
+}
+[2025-08-31T08:22:48.807Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-1',
+    namespace: 'test-namespace'
+  }
+}
+[2025-08-31T08:22:48.807Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-3',
+    namespace: 'test-namespace'
+  }
+}
+[2025-08-31T08:22:48.807Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Chunk vector generation failed',
+    error: {
+      name: 'Error',
+      message: 'Failed to generate embedding: Embedding failed',
+      stack: 'Error: Failed to generate embedding: Embedding failed\n' +
+        '    at VectorGenerator.generateVectorForChunk (/C:/node/vector-db/src/workflows/vector-generator.ts:2185:13)\n' +
+        '    at async Promise.allSettled (index 1)\n' +
+        '    at VectorGenerator.processBatch (/C:/node/vector-db/src/workflows/vector-generator.ts:2147:47)'
+    }
+  }
+}
+[2025-08-31T08:22:48.807Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Step completed: batch-1-of-1'
+  }
+}
+[2025-08-31T08:22:48.807Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector generation completed',
+    totalVectors: 2,
+    failedChunks: 1,
+    successRate: '67%'
+  }
+}
+[2025-08-31T08:22:48.807Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Workflow completed',
+    duration: 1,
+    result: {
+      vectorIds: [Array],
+      totalVectors: 2,
+      failedChunks: 1,
+      metadata: [Object]
+    }
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mdetermineBatchSize[2m > [22m[2mshould limit to maximum batch size
+[22m[39m[2025-08-31T08:22:48.808Z] WARN   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Batch size too large, using maximum: 10'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mdetermineBatchSize[2m > [22m[2mshould use default for invalid sizes
+[22m[39m[2025-08-31T08:22:48.809Z] WARN   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Invalid batch size, using default'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mgenerateEmbedding[2m > [22m[2mshould handle unexpected response format
+[22m[39m[2025-08-31T08:22:48.812Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Embedding generation failed',
+    error: {
+      name: 'Error',
+      message: 'Unexpected embedding response format',
+      stack: 'Error: Unexpected embedding response format\n' +
+        '    at VectorGenerator.generateEmbedding (/C:/node/vector-db/src/workflows/vector-generator.ts:2251:13)\n' +
+        '    at /C:/node/vector-db/tests/unit/workflows/vector-generator.test.ts:201:22\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)\n' +
+        '    at C:/node/vector-db/node_modules/vitest/dist/chunks/runBaseTests.3qpJUEJM.js:126:11'
+    }
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mgenerateEmbedding[2m > [22m[2mshould handle AI service errors
+[22m[39m[2025-08-31T08:22:48.813Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Embedding generation failed',
+    error: {
+      name: 'Error',
+      message: 'AI service unavailable',
+      stack: 'Error: AI service unavailable\n' +
+        '    at /C:/node/vector-db/tests/unit/workflows/vector-generator.test.ts:207:50\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11\n' +
+        '    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)'
+    }
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mgenerateEmbedding[2m > [22m[2mshould handle non-Error exceptions
+[22m[39m[2025-08-31T08:22:48.813Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Embedding generation failed',
+    error: 'String error'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2msaveVector[2m > [22m[2mshould save vector successfully
+[22m[39m[2025-08-31T08:22:48.814Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'test-vector',
+    namespace: 'test'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2msaveVector[2m > [22m[2mshould handle vectorize errors
+[22m[39m[2025-08-31T08:22:48.815Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Failed to save vector',
+    error: {
+      name: 'Error',
+      message: 'Vectorize error',
+      stack: 'Error: Vectorize error\n' +
+        '    at /C:/node/vector-db/tests/unit/workflows/vector-generator.test.ts:233:66\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11\n' +
+        '    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)'
+    },
+    vectorId: 'test-vector'
+  }
+}
+[2025-08-31T08:22:48.815Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Failed to save vector',
+    error: {
+      name: 'Error',
+      message: 'Vectorize error',
+      stack: 'Error: Vectorize error\n' +
+        '    at /C:/node/vector-db/tests/unit/workflows/vector-generator.test.ts:233:66\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11\n' +
+        '    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)'
+    },
+    vectorId: 'test-vector'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2maggregateResults[2m > [22m[2mshould aggregate successful results
+[22m[39m[2025-08-31T08:22:48.815Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector generation completed',
+    totalVectors: 5,
+    failedChunks: 1,
+    successRate: '83%'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2maggregateResults[2m > [22m[2mshould handle all failed results
+[22m[39m[2025-08-31T08:22:48.816Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector generation completed',
+    totalVectors: 0,
+    failedChunks: 3,
+    successRate: '0%'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2maggregateResults[2m > [22m[2mshould handle empty results
+[22m[39m[2025-08-31T08:22:48.816Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector generation completed',
+    totalVectors: 0,
+    failedChunks: 0,
+    successRate: '0%'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mprocessBatch[2m > [22m[2mshould process all chunks in batch successfully
+[22m[39m[2025-08-31T08:22:48.817Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-1',
+    namespace: 'test'
+  }
+}
+[2025-08-31T08:22:48.817Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-2',
+    namespace: 'test'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mprocessBatch[2m > [22m[2mshould handle mixed success and failure in batch
+[22m[39m[2025-08-31T08:22:48.817Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Embedding generation failed',
+    error: {
+      name: 'Error',
+      message: 'Failed',
+      stack: 'Error: Failed\n' +
+        '    at /C:/node/vector-db/tests/unit/workflows/vector-generator.test.ts:291:93\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11\n' +
+        '    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)'
+    }
+  }
+}
+[2025-08-31T08:22:48.818Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-1',
+    namespace: 'test'
+  }
+}
+[2025-08-31T08:22:48.818Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Chunk vector generation failed',
+    error: {
+      name: 'Error',
+      message: 'Failed to generate embedding: Failed',
+      stack: 'Error: Failed to generate embedding: Failed\n' +
+        '    at VectorGenerator.generateVectorForChunk (/C:/node/vector-db/src/workflows/vector-generator.ts:2185:13)\n' +
+        '    at async Promise.allSettled (index 1)\n' +
+        '    at VectorGenerator.processBatch (/C:/node/vector-db/src/workflows/vector-generator.ts:2147:47)\n' +
+        '    at /C:/node/vector-db/tests/unit/workflows/vector-generator.test.ts:297:22\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)'
+    }
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mgenerateVectorForChunk[2m > [22m[2mshould generate vector for chunk successfully
+[22m[39m[2025-08-31T08:22:48.818Z] DEBUG   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Vector saved',
+    id: 'chunk-1',
+    namespace: 'test'
+  }
+}
+
+[90mstdout[2m | tests/unit/workflows/vector-generator.test.ts[2m > [22m[2mVectorGenerator Workflow[2m > [22m[2mgenerateVectorForChunk[2m > [22m[2mshould handle embedding generation failure
+[22m[39m[2025-08-31T08:22:48.819Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'VectorGenerator',
+    message: 'Embedding generation failed',
+    error: {
+      name: 'Error',
+      message: 'Embedding failed',
+      stack: 'Error: Embedding failed\n' +
+        '    at /C:/node/vector-db/tests/unit/workflows/vector-generator.test.ts:330:50\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11\n' +
+        '    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)'
+    }
+  }
+}
+
+ [32m✓[39m tests/unit/workflows/vector-generator.test.ts [2m([22m[2m28 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/response-builder-compat.test.ts [2m([22m[2m43 tests[22m[2m)[22m[90m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/routes/embeddings/embedding-service.test.ts [2m([22m[2m27 tests[22m[2m)[22m[90m 31[2mms[22m[39m
+ [32m✓[39m tests/unit/utils/error-handler.test.ts [2m([22m[2m41 tests[22m[2m)[22m[90m 37[2mms[22m[39m
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mstate management[2m > [22m[2mshould set new state
+[22m[39m[SyncStateMachine] State transition: initializing -> fetching_page
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2minitialize[2m > [22m[2mshould initialize successfully with valid context
+[22m[39m[SyncStateMachine] State transition: initializing -> initializing
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2minitialize[2m > [22m[2mshould fail with invalid page ID
+[22m[39m[SyncStateMachine] State transition: initializing -> initializing
+[SyncStateMachine] State transition: initializing -> failed
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2minitialize[2m > [22m[2mshould handle workflow step error
+[22m[39m[SyncStateMachine] State transition: initializing -> initializing
+[SyncStateMachine] State transition: initializing -> failed
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mfetchPage[2m > [22m[2mshould fetch page successfully
+[22m[39m[SyncStateMachine] State transition: initializing -> fetching_page
+[SyncStateMachine] State transition: fetching_page -> fetching_page
+[SyncStateMachine] Page fetched successfully: test-page-123
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mfetchPage[2m > [22m[2mshould fail when page not found
+[22m[39m[SyncStateMachine] State transition: initializing -> fetching_page
+[SyncStateMachine] State transition: fetching_page -> fetching_page
+[SyncStateMachine] State transition: fetching_page -> failed
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mfetchPage[2m > [22m[2mshould handle fetch error
+[22m[39m[SyncStateMachine] State transition: initializing -> fetching_page
+[SyncStateMachine] State transition: fetching_page -> fetching_page
+[SyncStateMachine] State transition: fetching_page -> failed
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mprocessProperties[2m > [22m[2mshould process properties successfully
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_properties
+[SyncStateMachine] State transition: processing_properties -> processing_properties
+[SyncStateMachine] Properties processed: 5
+[SyncStateMachine] Vectors from properties: 10
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mprocessProperties[2m > [22m[2mshould skip processing when includeProperties is false
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_properties
+[SyncStateMachine] State transition: initializing -> processing_properties
+[SyncStateMachine] Skipping properties processing
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mprocessProperties[2m > [22m[2mshould handle processing error
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_properties
+[SyncStateMachine] State transition: processing_properties -> processing_properties
+[SyncStateMachine] State transition: processing_properties -> failed
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mprocessProperties[2m > [22m[2mshould accumulate counts in context
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_properties
+[SyncStateMachine] State transition: processing_properties -> processing_properties
+[SyncStateMachine] Properties processed: 2
+[SyncStateMachine] Vectors from properties: 4
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mprocessBlocks[2m > [22m[2mshould process blocks successfully
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_blocks
+[SyncStateMachine] State transition: processing_blocks -> processing_blocks
+[SyncStateMachine] Blocks processed: 8
+[SyncStateMachine] Vectors from blocks: 15
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mprocessBlocks[2m > [22m[2mshould skip processing when includeBlocks is false
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_blocks
+[SyncStateMachine] State transition: initializing -> processing_blocks
+[SyncStateMachine] Skipping blocks processing
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mprocessBlocks[2m > [22m[2mshould handle processing error
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_blocks
+[SyncStateMachine] State transition: processing_blocks -> processing_blocks
+[SyncStateMachine] State transition: processing_blocks -> failed
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mprocessBlocks[2m > [22m[2mshould accumulate counts in context
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_blocks
+[SyncStateMachine] State transition: processing_blocks -> processing_blocks
+[SyncStateMachine] Blocks processed: 3
+[SyncStateMachine] Vectors from blocks: 6
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mcomplete[2m > [22m[2mshould complete successfully with summary
+[22m[39m[SyncStateMachine] State transition: initializing -> completing
+[SyncStateMachine] State transition: completing -> completing
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mcomplete[2m > [22m[2mshould handle completion error
+[22m[39m[SyncStateMachine] State transition: initializing -> completing
+[SyncStateMachine] State transition: completing -> completing
+[SyncStateMachine] State transition: completing -> failed
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mgetProgress[2m > [22m[2mshould calculate progress for initializing state
+[22m[39m[SyncStateMachine] State transition: initializing -> initializing
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mgetProgress[2m > [22m[2mshould calculate progress for fetching_page state
+[22m[39m[SyncStateMachine] State transition: initializing -> fetching_page
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mgetProgress[2m > [22m[2mshould calculate progress for processing_properties state
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_properties
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mgetProgress[2m > [22m[2mshould calculate progress for processing_blocks state
+[22m[39m[SyncStateMachine] State transition: initializing -> processing_blocks
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mgetProgress[2m > [22m[2mshould calculate progress for completing state
+[22m[39m[SyncStateMachine] State transition: initializing -> completing
+
+[90mstdout[2m | tests/unit/workflows/sync-state-machine.test.ts[2m > [22m[2mSyncStateMachine[2m > [22m[2mgetProgress[2m > [22m[2mshould handle failed state
+[22m[39m[SyncStateMachine] State transition: initializing -> failed
+
+ [32m✓[39m tests/unit/workflows/sync-state-machine.test.ts [2m([22m[2m30 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mrecordError[2m > [22m[2mshould record error information
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Test error',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.242Z',
+  retryCount: 1,
+  recoverable: false
+}
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mrecordError[2m > [22m[2mshould record AppError with correct error code
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout error',
+  stepName: 'timeout-step',
+  timestamp: '2025-08-31T08:22:49.244Z',
+  retryCount: 2,
+  recoverable: true
+}
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mrecordError[2m > [22m[2mshould record error with default retry count
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Test error',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.245Z',
+  retryCount: 0,
+  recoverable: false
+}
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mcanRetry[2m > [22m[2mshould allow retry for recoverable error under max retries
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.252Z',
+  retryCount: 1,
+  recoverable: true
+}
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mcanRetry[2m > [22m[2mshould not allow retry for non-recoverable error
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'VALIDATION_ERROR',
+  message: 'Invalid',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.253Z',
+  retryCount: 1,
+  recoverable: false
+}
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mcanRetry[2m > [22m[2mshould not allow retry when max retries exceeded
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.254Z',
+  retryCount: 3,
+  recoverable: true
+}
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mgetNextRetryCount[2m > [22m[2mshould return incremented retry count
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Test error',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.257Z',
+  retryCount: 1,
+  recoverable: false
+}
+[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Test error',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.257Z',
+  retryCount: 2,
+  recoverable: false
+}
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithRetry[2m > [22m[2mshould execute operation successfully on first attempt
+[22m[39m[ErrorRecovery] Executing step: test-step (attempt 1)
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithRetry[2m > [22m[2mshould retry on recoverable error and succeed
+[22m[39m[ErrorRecovery] Executing step: test-step (attempt 1)
+[ErrorRecovery] Executing step: test-step (attempt 2)
+[ErrorRecovery] Waiting 1000ms before retry
+[ErrorRecovery] Step test-step succeeded after 2 attempts
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithRetry[2m > [22m[2mshould retry on recoverable error and succeed
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.260Z',
+  retryCount: 1,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (1/3)
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithRetry[2m > [22m[2mshould fail after max retries exceeded
+[22m[39m[ErrorRecovery] Executing step: test-step (attempt 1)
+[ErrorRecovery] Executing step: test-step (attempt 2)
+[ErrorRecovery] Waiting 1000ms before retry
+[ErrorRecovery] Executing step: test-step (attempt 3)
+[ErrorRecovery] Waiting 2000ms before retry
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithRetry[2m > [22m[2mshould fail after max retries exceeded
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.262Z',
+  retryCount: 1,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (1/3)
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.262Z',
+  retryCount: 2,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (2/3)
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.262Z',
+  retryCount: 3,
+  recoverable: true
+}
+[ErrorRecovery] Max retries exceeded for step: test-step
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithRetry[2m > [22m[2mshould not retry on non-recoverable error
+[22m[39m[ErrorRecovery] Executing step: test-step (attempt 1)
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithRetry[2m > [22m[2mshould not retry on non-recoverable error
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'VALIDATION_ERROR',
+  message: 'Invalid',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.264Z',
+  retryCount: 1,
+  recoverable: false
+}
+[ErrorRecovery] Max retries exceeded for step: test-step
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithFallback[2m > [22m[2mshould execute primary operation successfully
+[22m[39m[ErrorRecovery] Executing step: test-step (attempt 1)
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithFallback[2m > [22m[2mshould execute fallback on primary failure
+[22m[39m[ErrorRecovery] Executing step: test-step (attempt 1)
+[ErrorRecovery] Executing step: test-step (attempt 2)
+[ErrorRecovery] Waiting 1000ms before retry
+[ErrorRecovery] Executing step: test-step (attempt 3)
+[ErrorRecovery] Waiting 2000ms before retry
+[ErrorRecovery] Primary operation failed for test-step, trying fallback
+[ErrorRecovery] Fallback succeeded for step: test-step
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithFallback[2m > [22m[2mshould execute fallback on primary failure
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.266Z',
+  retryCount: 1,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (1/3)
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.266Z',
+  retryCount: 2,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (2/3)
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.266Z',
+  retryCount: 3,
+  recoverable: true
+}
+[ErrorRecovery] Max retries exceeded for step: test-step
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithFallback[2m > [22m[2mshould throw primary error when fallback also fails
+[22m[39m[ErrorRecovery] Executing step: test-step (attempt 1)
+[ErrorRecovery] Executing step: test-step (attempt 2)
+[ErrorRecovery] Waiting 1000ms before retry
+[ErrorRecovery] Executing step: test-step (attempt 3)
+[ErrorRecovery] Waiting 2000ms before retry
+[ErrorRecovery] Primary operation failed for test-step, trying fallback
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithFallback[2m > [22m[2mshould throw primary error when fallback also fails
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Primary timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.268Z',
+  retryCount: 1,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (1/3)
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Primary timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.268Z',
+  retryCount: 2,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (2/3)
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Primary timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.268Z',
+  retryCount: 3,
+  recoverable: true
+}
+[ErrorRecovery] Max retries exceeded for step: test-step
+[ErrorRecovery] Fallback also failed for step: test-step
+[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Fallback failed',
+  stepName: 'test-step_fallback',
+  timestamp: '2025-08-31T08:22:49.268Z',
+  retryCount: 0,
+  recoverable: false
+}
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithFallback[2m > [22m[2mshould skip on error when skipOnError is true
+[22m[39m[ErrorRecovery] Executing step: test-step (attempt 1)
+[ErrorRecovery] Executing step: test-step (attempt 2)
+[ErrorRecovery] Waiting 1000ms before retry
+[ErrorRecovery] Executing step: test-step (attempt 3)
+[ErrorRecovery] Waiting 2000ms before retry
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mexecuteWithFallback[2m > [22m[2mshould skip on error when skipOnError is true
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.269Z',
+  retryCount: 1,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (1/3)
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.270Z',
+  retryCount: 2,
+  recoverable: true
+}
+[ErrorRecovery] Step test-step failed, will retry (2/3)
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.270Z',
+  retryCount: 3,
+  recoverable: true
+}
+[ErrorRecovery] Max retries exceeded for step: test-step
+[ErrorRecovery] Skipping failed step: test-step
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mhandlePartialSuccess[2m > [22m[2mshould handle mixed success and failure results
+[22m[39m[ErrorRecovery] Partial success for batch-step: 2/3 (67%)
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mhandlePartialSuccess[2m > [22m[2mshould handle mixed success and failure results
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Error2',
+  stepName: 'batch-step_item_1',
+  timestamp: '2025-08-31T08:22:49.271Z',
+  retryCount: 0,
+  recoverable: false
+}
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mhandlePartialSuccess[2m > [22m[2mshould handle all successful results
+[22m[39m[ErrorRecovery] Partial success for batch-step: 2/2 (100%)
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mhandlePartialSuccess[2m > [22m[2mshould handle all failed results
+[22m[39m[ErrorRecovery] Partial success for batch-step: 0/2 (0%)
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mhandlePartialSuccess[2m > [22m[2mshould handle all failed results
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Error1',
+  stepName: 'batch-step_item_0',
+  timestamp: '2025-08-31T08:22:49.274Z',
+  retryCount: 0,
+  recoverable: false
+}
+[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Error2',
+  stepName: 'batch-step_item_1',
+  timestamp: '2025-08-31T08:22:49.274Z',
+  retryCount: 0,
+  recoverable: false
+}
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mgetErrorSummary[2m > [22m[2mshould generate error summary
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout1',
+  stepName: 'step1',
+  timestamp: '2025-08-31T08:22:49.275Z',
+  retryCount: 1,
+  recoverable: true
+}
+[ErrorRecovery] Error recorded: {
+  type: 'VALIDATION_ERROR',
+  message: 'Invalid',
+  stepName: 'step2',
+  timestamp: '2025-08-31T08:22:49.275Z',
+  retryCount: 1,
+  recoverable: false
+}
+[ErrorRecovery] Error recorded: {
+  type: 'TIMEOUT',
+  message: 'Timeout2',
+  stepName: 'step1',
+  timestamp: '2025-08-31T08:22:49.275Z',
+  retryCount: 2,
+  recoverable: true
+}
+
+[90mstderr[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mclearErrors[2m > [22m[2mshould clear all recorded errors
+[22m[39m[ErrorRecovery] Error recorded: {
+  type: 'UNKNOWN_ERROR',
+  message: 'Test error',
+  stepName: 'test-step',
+  timestamp: '2025-08-31T08:22:49.277Z',
+  retryCount: 1,
+  recoverable: false
+}
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mupdateStrategy[2m > [22m[2mshould update recovery strategy
+[22m[39m[ErrorRecovery] Strategy updated: {
+  maxRetries: 5,
+  retryDelayMs: 2000,
+  fallbackEnabled: true,
+  skipOnError: false
+}
+
+[90mstdout[2m | tests/unit/workflows/error-recovery.test.ts[2m > [22m[2mErrorRecoveryManager[2m > [22m[2mupdateStrategy[2m > [22m[2mshould partially update strategy
+[22m[39m[ErrorRecovery] Strategy updated: {
+  maxRetries: 5,
+  retryDelayMs: 1000,
+  fallbackEnabled: true,
+  skipOnError: false
+}
+
+ [32m✓[39m tests/unit/workflows/error-recovery.test.ts [2m([22m[2m31 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/workflows.batch-embeddings.test.ts [2m([22m[2m18 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+[90mstderr[2m | tests/unit/routes/notion/bulk-sync.test.ts[2m > [22m[2mBulk Sync Notion Pages Route[2m > [22m[2mPOST /notion/pages/bulk-sync[2m > [22m[2mshould handle NotionManager errors
+[22m[39mBulk sync error: Error: NotionManager connection failed
+    at /C:/node/vector-db/tests/unit/routes/notion/bulk-sync.test.ts:244:63
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstderr[2m | tests/unit/routes/notion/bulk-sync.test.ts[2m > [22m[2mBulk Sync Notion Pages Route[2m > [22m[2mPOST /notion/pages/bulk-sync[2m > [22m[2mshould handle non-Error exceptions
+[22m[39mBulk sync error: String error
+
+ [32m✓[39m tests/unit/routes/notion/bulk-sync.test.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/middleware/logging.test.ts [2m([22m[2m22 tests[22m[2m)[22m[90m 25[2mms[22m[39m
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models[2m > [22m[2mshould list available models successfully
+[22m[39m[2025-08-31T08:22:49.509Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Fetching available embedding models'
+  }
+}
+[2025-08-31T08:22:49.509Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Successfully fetched models',
+    modelsCount: 3,
+    defaultModel: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models[2m > [22m[2mshould handle empty models list
+[22m[39m[2025-08-31T08:22:49.511Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Fetching available embedding models'
+  }
+}
+[2025-08-31T08:22:49.511Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Successfully fetched models',
+    modelsCount: 0,
+    defaultModel: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models[2m > [22m[2mshould handle Durable Object errors
+[22m[39m[2025-08-31T08:22:49.512Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Fetching available embedding models'
+  }
+}
+[2025-08-31T08:22:49.512Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Unexpected error fetching models',
+    error: {
+      name: 'Error',
+      message: 'Failed to fetch models',
+      stack: 'Error: Failed to fetch models\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/embeddings/models.test.ts:123:65\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11\n' +
+        '    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)'
+    }
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models[2m > [22m[2mshould handle non-Error exceptions
+[22m[39m[2025-08-31T08:22:49.514Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Fetching available embedding models'
+  }
+}
+[2025-08-31T08:22:49.514Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Unexpected error fetching models',
+    error: 'Unknown error'
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models[2m > [22m[2mshould handle network timeouts
+[22m[39m[2025-08-31T08:22:49.515Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Fetching available embedding models'
+  }
+}
+[2025-08-31T08:22:49.515Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'GetEmbeddingModels',
+    message: 'Unexpected error fetching models',
+    error: {
+      name: 'Error',
+      message: 'Request timeout',
+      stack: 'Error: Request timeout\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/embeddings/models.test.ts:147:65\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11\n' +
+        '    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)\n' +
+        '    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)'
+    }
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models/{modelId}[2m > [22m[2mshould get model details successfully
+[22m[39m[2025-08-31T08:22:49.517Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Fetching model details',
+    modelId: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+[2025-08-31T08:22:49.517Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Successfully fetched model details',
+    modelId: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models/{modelId}[2m > [22m[2mshould return 404 for non-existent model
+[22m[39m[2025-08-31T08:22:49.518Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Fetching model details',
+    modelId: 'non-existent-model'
+  }
+}
+[2025-08-31T08:22:49.518Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Failed to get model details with AppError',
+    error: {
+      name: 'AppError',
+      message: 'Model not found: non-existent-model',
+      stack: 'AppError: Model not found: non-existent-model\n' +
+        '    at getModelDetailsHandler (/C:/node/vector-db/src/routes/api/embeddings/models.ts:1075:13)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/embeddings/models.test.ts:210:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)'
+    },
+    code: 'MODEL_NOT_FOUND',
+    statusCode: 404,
+    modelId: 'non-existent-model'
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models/{modelId}[2m > [22m[2mshould handle embedding service errors
+[22m[39m[2025-08-31T08:22:49.520Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Fetching model details',
+    modelId: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+[2025-08-31T08:22:49.520Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Unexpected error fetching model details',
+    error: {
+      name: 'TypeError',
+      message: "Cannot read properties of undefined (reading 'models')",
+      stack: "TypeError: Cannot read properties of undefined (reading 'models')\n" +
+        '    at getModelDetailsHandler (/C:/node/vector-db/src/routes/api/embeddings/models.ts:1066:56)\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/validator/validator.js:81:5\n' +
+        '    at dispatch (C:/node/vector-db/node_modules/hono/dist/compose.js:22:17)\n' +
+        '    at C:/node/vector-db/node_modules/hono/dist/hono-base.js:201:25\n' +
+        '    at /C:/node/vector-db/tests/unit/routes/embeddings/models.test.ts:222:24\n' +
+        '    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:5\n' +
+        '    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:11)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)\n' +
+        '    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)'
+    },
+    modelId: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models/{modelId}[2m > [22m[2mshould handle different model performance characteristics
+[22m[39m[2025-08-31T08:22:49.521Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Fetching model details',
+    modelId: 'text-embedding-3-large'
+  }
+}
+[2025-08-31T08:22:49.521Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Successfully fetched model details',
+    modelId: 'text-embedding-3-large'
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models/{modelId}[2m > [22m[2mshould handle non-Error exceptions in model details
+[22m[39m[2025-08-31T08:22:49.522Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Fetching model details',
+    modelId: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+[2025-08-31T08:22:49.522Z] ERROR   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Unexpected error fetching model details',
+    error: 'Unknown error string',
+    modelId: '@cf/baai/bge-base-en-v1.5'
+  }
+}
+
+[90mstdout[2m | tests/unit/routes/embeddings/models.test.ts[2m > [22m[2mList Models Route[2m > [22m[2mGET /embeddings/models/{modelId}[2m > [22m[2mshould return default description for unknown models
+[22m[39m[2025-08-31T08:22:49.524Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Fetching model details',
+    modelId: 'custom-model'
+  }
+}
+[2025-08-31T08:22:49.524Z] INFO   - 
+  Details: {
+  metadata: {
+    context: 'GetModelDetails',
+    message: 'Successfully fetched model details',
+    modelId: 'custom-model'
+  }
+}
+
+ [32m✓[39m tests/unit/routes/embeddings/models.test.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+[90mstdout[2m | tests/unit/durable-objects/vector-statistics.test.ts[2m > [22m[2mVectorStatisticsManager[2m > [22m[2mresetStatistics[2m > [22m[2mshould reset statistics
+[22m[39m{"timestamp":"2025-08-31T08:22:49.586Z","level":"INFO","method":"","path":"","metadata":{"context":"VectorStatistics","message":"Statistics reset"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-statistics.test.ts[2m > [22m[2mVectorStatisticsManager[2m > [22m[2mclearHistory[2m > [22m[2mshould clear search history
+[22m[39m{"timestamp":"2025-08-31T08:22:49.586Z","level":"INFO","method":"","path":"","metadata":{"context":"VectorStatistics","message":"Search history cleared"}}
+
+[90mstdout[2m | tests/unit/durable-objects/vector-statistics.test.ts[2m > [22m[2mVectorStatisticsManager[2m > [22m[2mstate management[2m > [22m[2mshould restore state correctly
+[22m[39m{"timestamp":"2025-08-31T08:22:49.588Z","level":"INFO","method":"","path":"","metadata":{"context":"VectorStatistics","message":"State restored","historySize":1,"recentVectorsCount":1}}
+
+ [32m✓[39m tests/unit/durable-objects/vector-statistics.test.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/workflows/vector-operations.test.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+ [32m✓[39m tests/unit/durable-objects/notion-api-client.test.ts [2m([22m[2m26 tests[22m[2m)[22m[90m 26[2mms[22m[39m
+[90mstderr[2m | tests/unit/routes/notion/retrieve-blocks.test.ts[2m > [22m[2mRetrieve Notion Blocks Route[2m > [22m[2mGET /notion/pages/{pageId}/blocks[2m > [22m[2mshould handle errors from NotionService
+[22m[39mRetrieve blocks error: Error: Database connection error
+    at /C:/node/vector-db/tests/unit/routes/notion/retrieve-blocks.test.ts:228:51
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:146:14
+    at C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (C:/node/vector-db/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+[90mstderr[2m | tests/unit/routes/notion/retrieve-blocks.test.ts[2m > [22m[2mRetrieve Notion Blocks Route[2m > [22m[2mGET /notion/pages/{pageId}/blocks[2m > [22m[2mshould handle non-Error exceptions
+[22m[39mRetrieve blocks error: String error
+
+ [32m✓[39m tests/unit/routes/notion/retrieve-blocks.test.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/base/job-manager.test.ts [2m([22m[2m18 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+
+<--- Last few GCs --->
+
+[24340:0000022938F9A000]    10119 ms: Scavenge (during sweeping) 1395.9 (1430.5) -> 1388.7 (1441.0) MB, pooled: 0.0 MB, 11.43 / 0.00 ms (average mu = 0.818, current mu = 0.638) allocation failure; 
+[24340:0000022938F9A000]    10573 ms: Mark-Compact 1406.1 (1441.0) -> 1399.8 (1451.2) MB, pooled: 1.8 MB, 410.45 / 0.00 ms (average mu = 0.708, current mu = 0.482) allocation failure; scavenge might not succeed
+
+workerd/jsg/setup.c++:39: fatal: V8 fatal error; location = Reached heap limit; message = : allocation failed: JavaScript heap out of memory
+
+[31m⎯⎯⎯⎯[1m[7m Unhandled Rejection [27m[22m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: fetch failed[39m
+[90m [2m❯[22m fetch node_modules/undici/index.js:[2m125:13[22m[39m
+[90m [2m❯[22m process.processTicksAndRejections node:internal/process/task_queues:[2m105:5[22m[39m
+[90m [2m❯[22m MessagePort.<anonymous> [worker eval]:[2m28:22[22m[39m
+
+[31m[1mCaused by: Error[22m: connect ECONNREFUSED 127.0.0.1:52172[39m
+[90m [2m❯[22m TCPConnectWrap.afterConnect [as oncomplete] node:net:[2m1637:16[22m[39m
+
+
+
+
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

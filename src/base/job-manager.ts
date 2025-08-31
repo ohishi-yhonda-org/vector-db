@@ -302,18 +302,23 @@ export abstract class BaseJobManager<T = any, R = any> {
   }
 
   /**
-   * ジョブをキャンセル
+   * ジョブがキャンセル可能かどうかを判定
    */
-  async cancelJob(jobId: string): Promise<boolean> {
-    const job = this.jobs.get(jobId)
-    if (!job) return false
+  protected canCancelJob(job: Job<T, R>): boolean {
+    // 完了済み、処理中、またはキャンセル済みのジョブはキャンセルできない
+    // PENDING, QUEUED, RETRYINGはキャンセル可能
+    return !(
+      job.status === JobStatus.PROCESSING || 
+      job.status === JobStatus.COMPLETED ||
+      job.status === JobStatus.FAILED ||
+      job.status === JobStatus.CANCELLED
+    )
+  }
 
-    if (job.status === JobStatus.PROCESSING) {
-      // 処理中のジョブはキャンセルできない
-      this.logger.warn(`Cannot cancel processing job: ${jobId}`)
-      return false
-    }
-
+  /**
+   * ジョブのキャンセル処理を実行
+   */
+  protected performCancelJob(job: Job<T, R>, jobId: string): void {
     // キューから削除
     const queueIndex = this.queue.indexOf(jobId)
     if (queueIndex !== -1) {
@@ -322,7 +327,21 @@ export abstract class BaseJobManager<T = any, R = any> {
 
     job.status = JobStatus.CANCELLED
     job.completedAt = new Date().toISOString()
+  }
 
+  /**
+   * ジョブをキャンセル
+   */
+  async cancelJob(jobId: string): Promise<boolean> {
+    const job = this.jobs.get(jobId)
+    if (!job) return false
+
+    if (!this.canCancelJob(job)) {
+      this.logger.warn(`Cannot cancel job with status ${job.status}: ${jobId}`)
+      return false
+    }
+
+    this.performCancelJob(job, jobId)
     this.logger.info(`Job cancelled: ${jobId}`)
     return true
   }

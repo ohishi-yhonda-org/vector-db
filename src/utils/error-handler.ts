@@ -26,13 +26,24 @@ export const ErrorCodes = {
   
   // 外部サービスエラー
   EXTERNAL_API_ERROR: 'EXTERNAL_API_ERROR',
+  EXTERNAL_SERVICE_ERROR: 'EXTERNAL_SERVICE_ERROR',
   VECTORIZE_ERROR: 'VECTORIZE_ERROR',
   NOTION_API_ERROR: 'NOTION_API_ERROR',
+  
+  // 設定エラー
+  CONFIGURATION_ERROR: 'CONFIGURATION_ERROR',
+  
+  // 実装エラー
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
   AI_SERVICE_ERROR: 'AI_SERVICE_ERROR',
   
   // ワークフローエラー
   WORKFLOW_ERROR: 'WORKFLOW_ERROR',
   JOB_FAILED: 'JOB_FAILED',
+  WORKFLOW_NOT_FOUND: 'WORKFLOW_NOT_FOUND',
+  
+  // 埋め込みエラー
+  EMBEDDING_GENERATION_ERROR: 'EMBEDDING_GENERATION_ERROR',
 } as const
 
 export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes]
@@ -265,6 +276,22 @@ export async function handleAsync<T>(
         )
     return [null, appError]
   }
+}
+
+/**
+ * Hono用エラーハンドラー
+ * エラーレスポンスを生成して返す
+ */
+export function handleError(c: any, error: unknown, message?: string): Response {
+  const errorMessage = message || getErrorMessage(error)
+  const statusCode = getStatusCode(error)
+  
+  logError(error, c)
+  
+  return c.json(
+    createErrorResponse(error, c),
+    statusCode
+  )
 }
 
 /**

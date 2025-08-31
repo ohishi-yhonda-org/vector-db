@@ -5,6 +5,15 @@
 import { Context } from 'hono'
 
 /**
+ * CORSヘッダー（新API用）
+ */
+export const defaultCorsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+}
+
+/**
  * 成功レスポンスインターフェース
  */
 export interface SuccessResponse<T = any> {
@@ -183,7 +192,7 @@ export function createEmptyResponse(
 /**
  * JSONレスポンスを生成（Honoのレスポンスヘルパー）
  */
-export function jsonResponse<T>(
+export function jsonResponseWithContext<T>(
   c: Context,
   data: SuccessResponse<T> | ListResponse<T>,
   status: number = 200
@@ -313,3 +322,27 @@ export function createJobStatusResponse(
     timestamp: new Date().toISOString()
   })
 }
+
+// 互換性のために以前のAPIをエクスポート
+export {
+  successResponse,
+  errorResponse,
+  paginatedResponse,
+  validationErrorResponse,
+  notFoundResponse,
+  unauthorizedResponse,
+  forbiddenResponse,
+  conflictResponse,
+  internalErrorResponse,
+  streamResponse,
+  jsonResponse,
+  textResponse,
+  htmlResponse,
+  redirectResponse,
+  noContentResponse,
+  createdResponse,
+  acceptedResponse,
+  getCorsHeaders,
+  appendHeaders,
+  corsHeaders
+} from './response-builder-compat'

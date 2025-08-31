@@ -20,12 +20,31 @@ export interface ValidationErrorDetail {
  * Zodエラーを読みやすい形式に変換
  */
 export function formatZodError(error: ZodError): ValidationErrorDetail[] {
-  return error.errors.map(err => ({
-    field: err.path.join('.'),
-    message: err.message,
-    code: err.code,
-    received: err.received
-  }))
+  if (!error || !error.issues) {
+    return []
+  }
+  return error.issues.map(err => {
+    const detail: ValidationErrorDetail = {
+      field: err.path.join('.'),
+      message: err.message,
+      code: err.code
+    }
+    
+    // received値を取得（union_ctxやその他のコンテキストから）
+    if ('received' in err) {
+      detail.received = (err as any).received
+    } else if (err.code === 'invalid_type' && 'received' in (err as any)) {
+      detail.received = (err as any).received
+    } else if (err.code === 'invalid_union' && (err as any).unionErrors) {
+      // Union型のエラーの場合、最初のエラーからreceivedを取得
+      const firstError = (err as any).unionErrors[0]?.issues?.[0]
+      if (firstError && 'received' in firstError) {
+        detail.received = firstError.received
+      }
+    }
+    
+    return detail
+  })
 }
 
 /**
@@ -48,9 +67,9 @@ export function createValidationError(
 }
 
 /**
- * スキーマでバリデーション実行
+ * スキーマでバリデーション実行（エイリアス）
  */
-export function validate<T>(
+function validateBase<T>(
   schema: ZodSchema<T>,
   data: unknown,
   options?: { 
@@ -58,19 +77,7 @@ export function validate<T>(
     throwOnError?: boolean 
   }
 ): { success: true; data: T } | { success: false; error: AppError } {
-  const result = schema.safeParse(data)
-  
-  if (result.success) {
-    return { success: true, data: result.data }
-  }
-  
-  const error = createValidationError(result.error, options?.errorMessage)
-  
-  if (options?.throwOnError) {
-    throw error
-  }
-  
-  return { success: false, error }
+  return validateInternal(schema, data, options)
 }
 
 /**
@@ -82,7 +89,7 @@ export async function validateBody<T>(
 ): Promise<T> {
   try {
     const body = await c.req.json()
-    const result = validate(schema, body, { throwOnError: true })
+    const result = validateInternal(schema, body, { throwOnError: true })
     
     if (result.success) {
       return result.data
@@ -103,39 +110,163 @@ export async function validateBody<T>(
 }
 
 /**
- * クエリパラメータをバリデーション
+ * コンテキストベースのバリデーション（テスト互換性用）
  */
-export function validateQuery<T>(
+export async function validateWithContext<T>(
   c: Context,
-  schema: ZodSchema<T>
-): T {
-  const query = c.req.query()
-  const result = validate(schema, query, { throwOnError: true })
+  schema: ZodSchema<T>,
+  errorMessage?: string
+): Promise<T> {
+  const body = await c.req.json()
+  const result = validateInternal(schema, body, { 
+    throwOnError: true, 
+    errorMessage 
+  })
   
   if (result.success) {
     return result.data
   }
   
-  // TypeScriptの型推論のため（実際には到達しない）
   throw result.error
 }
 
 /**
- * パスパラメータをバリデーション
+ * クエリパラメータをバリデーション（オーバーロード）
+ */
+export function validateQuery<T>(
+  c: Context,
+  schema: ZodSchema<T>,
+  errorMessage?: string
+): T;
+export function validateQuery<T>(
+  schema: ZodSchema<T>
+): (c: Context) => T;
+export function validateQuery<T>(
+  cOrSchema: Context | ZodSchema<T>,
+  schemaOrErrorMessage?: ZodSchema<T> | string,
+  errorMessage?: string
+): T | ((c: Context) => T) {
+  if (schemaOrErrorMessage && typeof schemaOrErrorMessage !== 'string') {
+    // 第一引数がContextの場合
+    const c = cOrSchema as Context
+    const query = c.req.query()
+    const result = validateInternal(schemaOrErrorMessage, query, { 
+      throwOnError: true,
+      errorMessage 
+    })
+    
+    if (result.success) {
+      return result.data
+    }
+    throw result.error
+  } else if (typeof schemaOrErrorMessage === 'string') {
+    // エラーメッセージ付きの場合
+    const c = cOrSchema as Context
+    const schema = cOrSchema as ZodSchema<T>
+    const query = c.req.query()
+    const result = validateInternal(schema, query, { 
+      throwOnError: true,
+      errorMessage: schemaOrErrorMessage 
+    })
+    
+    if (result.success) {
+      return result.data
+    }
+    throw result.error
+  } else {
+    // 第一引数がSchemaの場合（カリー化）
+    const schemaArg = cOrSchema as ZodSchema<T>
+    return (c: Context) => {
+      const query = c.req.query()
+      const result = validateInternal(schemaArg, query, { throwOnError: true })
+      
+      if (result.success) {
+        return result.data
+      }
+      throw result.error
+    }
+  }
+}
+
+// 内部用のvalidate関数（元の実装）
+function validateInternal<T>(
+  schema: ZodSchema<T>,
+  data: unknown,
+  options?: { 
+    errorMessage?: string
+    throwOnError?: boolean 
+  }
+): { success: true; data: T } | { success: false; error: AppError } {
+  // Try synchronous parse first
+  try {
+    const result = schema.safeParse(data)
+    
+    if (result.success) {
+      return { success: true, data: result.data }
+    }
+    
+    const error = createValidationError(result.error, options?.errorMessage)
+    
+    if (options?.throwOnError) {
+      throw error
+    }
+    
+    return { success: false, error }
+  } catch (err: any) {
+    // If it's an async schema error, handle it appropriately
+    if (err?.message?.includes('Promise') || err?.message?.includes('parseAsync')) {
+      const error = new AppError(
+        ErrorCodes.VALIDATION_ERROR,
+        'Async validation not supported in this context',
+        400
+      )
+      if (options?.throwOnError) {
+        throw error
+      }
+      return { success: false, error }
+    }
+    // Re-throw other errors
+    throw err
+  }
+}
+
+/**
+ * パスパラメータをバリデーション（オーバーロード）
  */
 export function validateParams<T>(
   c: Context,
   schema: ZodSchema<T>
-): T {
-  const params = c.req.param()
-  const result = validate(schema, params, { throwOnError: true })
-  
-  if (result.success) {
-    return result.data
+): T;
+export function validateParams<T>(
+  schema: ZodSchema<T>
+): (c: Context) => T;
+export function validateParams<T>(
+  cOrSchema: Context | ZodSchema<T>,
+  schema?: ZodSchema<T>
+): T | ((c: Context) => T) {
+  if (schema) {
+    // 第一引数がContextの場合
+    const c = cOrSchema as Context
+    const params = c.req.param()
+    const result = validateInternal(schema, params, { throwOnError: true })
+    
+    if (result.success) {
+      return result.data
+    }
+    throw result.error
+  } else {
+    // 第一引数がSchemaの場合（カリー化）
+    const schemaArg = cOrSchema as ZodSchema<T>
+    return (c: Context) => {
+      const params = c.req.param()
+      const result = validateInternal(schemaArg, params, { throwOnError: true })
+      
+      if (result.success) {
+        return result.data
+      }
+      throw result.error
+    }
   }
-  
-  // TypeScriptの型推論のため（実際には到達しない）
-  throw result.error
 }
 
 /**
@@ -157,10 +288,10 @@ export const CommonSchemas = {
   // 日付文字列 (ISO 8601)
   dateString: z.string().datetime(),
   
-  // ページネーション
+  // ページネーション（pageSize版）
   pagination: z.object({
     page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20)
+    pageSize: z.coerce.number().int().min(1).max(100).default(10)
   }),
   
   // ソート
@@ -169,19 +300,21 @@ export const CommonSchemas = {
     order: z.enum(['asc', 'desc']).default('desc')
   }),
   
+  // ソートオーダー
+  sortOrder: z.enum(['asc', 'desc']),
+  
   // 日付範囲
   dateRange: z.object({
-    from: z.string().datetime().optional(),
-    to: z.string().datetime().optional()
-  }).refine(
-    data => {
-      if (data.from && data.to) {
-        return new Date(data.from) <= new Date(data.to)
-      }
-      return true
-    },
-    { message: 'From date must be before or equal to To date' }
-  ),
+    startDate: z.string().optional(),
+    endDate: z.string().optional()
+  }),
+  
+  // 検索クエリ
+  searchQuery: z.object({
+    q: z.string().trim(),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    offset: z.coerce.number().int().min(0).default(0)
+  }),
   
   // 配列（空でない）
   nonEmptyArray: <T extends z.ZodTypeAny>(schema: T) => 
@@ -259,7 +392,79 @@ export const CustomValidators = {
    * 環境変数の存在チェック
    */
   requiredEnvVar: (varName: string) =>
-    z.string().min(1, `Environment variable ${varName} is required`)
+    z.string().min(1, `Environment variable ${varName} is required`),
+  
+  /**
+   * 強力なパスワードの検証
+   */
+  isStrongPassword: (password: string): boolean => {
+    // 最低8文字、大文字、小文字、数字、特殊文字を含む
+    return password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /[0-9]/.test(password) &&
+      /[^A-Za-z0-9]/.test(password)
+  },
+  
+  /**
+   * 電話番号の検証
+   */
+  isValidPhoneNumber: (phone: string): boolean => {
+    // 国際電話番号形式またはハイフン区切り
+    return /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,4}$/.test(phone)
+  },
+  
+  /**
+   * URLスラッグの検証
+   */
+  isValidSlug: (slug: string): boolean => {
+    return /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/.test(slug)
+  },
+  
+  /**
+   * Base64文字列の検証
+   */
+  isBase64: (str: string): boolean => {
+    try {
+      return /^[A-Za-z0-9+/]*={0,2}$/.test(str) && str.length % 4 === 0
+    } catch {
+      return false
+    }
+  },
+  
+  /**
+   * 16進数カラーコードの検証
+   */
+  isHexColor: (color: string): boolean => {
+    return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)
+  },
+  
+  /**
+   * 英数字の検証
+   */
+  isAlphanumeric: (str: string): boolean => {
+    return /^[a-zA-Z0-9]+$/.test(str)
+  },
+  
+  /**
+   * JWTトークンの検証
+   */
+  isJWT: (token: string): boolean => {
+    const parts = token.split('.')
+    if (parts.length !== 3) return false
+    
+    try {
+      parts.forEach(part => {
+        // Base64urlの検証
+        if (!/^[A-Za-z0-9_-]+$/.test(part)) {
+          throw new Error('Invalid JWT part')
+        }
+      })
+      return true
+    } catch {
+      return false
+    }
+  }
 }
 
 /**
@@ -280,12 +485,12 @@ export function combineSchemas<T extends Record<string, ZodSchema>>(
  */
 export function createOptionalSchema<T extends z.ZodRawShape>(
   shape: T,
-  requiredFields: (keyof T)[]
+  requiredFields: (keyof T)[] = []
 ): z.ZodObject<T> {
   const newShape: any = {}
   
   for (const [key, value] of Object.entries(shape)) {
-    if (requiredFields.includes(key as keyof T)) {
+    if (requiredFields && requiredFields.includes(key as keyof T)) {
       newShape[key] = value
     } else {
       newShape[key] = (value as any).optional()
@@ -307,17 +512,20 @@ export function conditionalValidation<T, U>(
     if (condition(data)) {
       const result = trueSchema.safeParse(data)
       if (!result.success) {
-        result.error.errors.forEach(err => ctx.addIssue(err))
+        result.error.issues.forEach(err => ctx.addIssue(err))
         return z.NEVER
       }
       return result.data
     } else {
       const result = falseSchema.safeParse(data)
       if (!result.success) {
-        result.error.errors.forEach(err => ctx.addIssue(err))
+        result.error.issues.forEach(err => ctx.addIssue(err))
         return z.NEVER
       }
       return result.data
     }
   }) as ZodSchema<T | U>
 }
+
+// テスト用にvalidate関数をエイリアスとしてエクスポート
+export { validateWithContext as validate }

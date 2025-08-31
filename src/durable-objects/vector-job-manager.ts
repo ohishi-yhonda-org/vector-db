@@ -236,10 +236,27 @@ export class VectorJobManager extends BaseJobManager<VectorJobParams, VectorJobR
   }
 
   /**
-   * 古いジョブのクリーンアップ（オーバーライド）
+   * 古いジョブのクリーンアップ
    */
   async cleanupOldJobs(olderThanHours: number = 24): Promise<number> {
     const params = cleanupJobsParamsSchema.parse({ olderThanHours })
-    return super.clearJobs(true)
+    const cutoffTime = Date.now() - (params.olderThanHours * 60 * 60 * 1000)
+    let deletedCount = 0
+    
+    const completedStatuses = [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]
+    
+    for (const [id, job] of this.jobs.entries()) {
+      // Check if job is completed and created before cutoff time
+      if (completedStatuses.includes(job.status)) {
+        const createdTime = new Date(job.createdAt).getTime()
+        if (createdTime < cutoffTime) {
+          this.jobs.delete(id)
+          deletedCount++
+        }
+      }
+    }
+    
+    this.logger.info(`Cleaned up ${deletedCount} old jobs`, { olderThanHours: params.olderThanHours })
+    return deletedCount
   }
 }

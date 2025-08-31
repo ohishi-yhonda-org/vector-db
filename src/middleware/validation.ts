@@ -129,7 +129,7 @@ export function validator<T extends {
     // エラーがある場合
     if (errors.length > 0) {
       const allErrors = errors.flatMap(({ type, error }) => 
-        error.errors.map((e: any) => ({
+        (error.issues || error.errors || []).map((e: any) => ({
           field: `${type}.${e.path.join('.')}`,
           message: e.message,
           code: e.code,

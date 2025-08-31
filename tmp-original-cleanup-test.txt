@@ -1,0 +1,34 @@
+    it('should cleanup old completed jobs', async () => {
+      const oldDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString()
+      const recentDate = new Date().toISOString()
+
+      vectorManager.setState({
+        ...vectorManager.state,
+        vectorJobs: {
+          'old-job': {
+            id: 'old-job',
+            type: 'delete',
+            status: 'completed',
+            createdAt: oldDate
+          },
+          'recent-job': {
+            id: 'recent-job',
+            type: 'delete',
+            status: 'completed',
+            createdAt: recentDate
+          },
+          'old-pending': {
+            id: 'old-pending',
+            type: 'delete',
+            status: 'pending',
+            createdAt: oldDate
+          }
+        }
+      })
+
+      const deletedCount = await vectorManager.cleanupOldJobs(24)
+      expect(deletedCount).toBe(1)
+
+      const remainingJobs = await vectorManager.getAllJobs()
+      expect(remainingJobs).toHaveLength(2)
+    })

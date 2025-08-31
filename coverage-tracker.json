@@ -1,0 +1,23 @@
+{
+  "lastUpdated": "2025-08-31T16:15:00Z",
+  "overallCoverage": {
+    "statements": { "pct": 0, "covered": 0, "total": 0 },
+    "branches": { "pct": 0, "covered": 0, "total": 0 },
+    "functions": { "pct": 0, "covered": 0, "total": 0 },
+    "lines": { "pct": 0, "covered": 0, "total": 0 }
+  },
+  "categories": {},
+  "priorityList": [
+    "middleware",
+    "routes/api/embeddings", 
+    "utils",
+    "workflows",
+    "routes/api/search",
+    "routes/api/vectors",
+    "routes/api/notion",
+    "durable-objects",
+    "routes/api/files",
+    "services",
+    "base"
+  ]
+}

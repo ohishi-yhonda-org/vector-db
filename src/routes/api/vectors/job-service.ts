@@ -72,6 +72,27 @@ export class VectorJobService {
   }
 
   /**
+   * ベクトルを削除
+   */
+  async deleteVector(vectorId: string): Promise<{
+    jobId: string
+    status: string
+    workflowId?: string
+  }> {
+    try {
+      const result = await this.vectorManager.deleteVectorsAsync([vectorId])
+      return {
+        jobId: result.jobId,
+        status: result.status || 'processing',
+        ...(result.workflowId && { workflowId: result.workflowId })
+      }
+    } catch (error) {
+      console.error('Delete vector error:', error)
+      throw error
+    }
+  }
+
+  /**
    * ジョブをフィルタリング
    */
   filterJobsByStatus(jobs: VectorJob[], status?: string): VectorJob[] {
