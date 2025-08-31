@@ -90,13 +90,7 @@ export async function validateBody<T>(
   try {
     const body = await c.req.json()
     const result = validateInternal(schema, body, { throwOnError: true })
-    
-    if (result.success) {
-      return result.data
-    }
-    
-    // TypeScriptの型推論のため（実際には到達しない）
-    throw result.error
+    return result.data as T
   } catch (error) {
     if (error instanceof SyntaxError) {
       throw new AppError(
@@ -122,12 +116,7 @@ export async function validateWithContext<T>(
     throwOnError: true, 
     errorMessage 
   })
-  
-  if (result.success) {
-    return result.data
-  }
-  
-  throw result.error
+  return result.data as T
 }
 
 /**
@@ -154,41 +143,19 @@ export function validateQuery<T>(
       throwOnError: true,
       errorMessage 
     })
-    
-    if (result.success) {
-      return result.data
-    }
-    throw result.error
-  } else if (typeof schemaOrErrorMessage === 'string') {
-    // エラーメッセージ付きの場合
-    const c = cOrSchema as Context
-    const schema = cOrSchema as ZodSchema<T>
-    const query = c.req.query()
-    const result = validateInternal(schema, query, { 
-      throwOnError: true,
-      errorMessage: schemaOrErrorMessage 
-    })
-    
-    if (result.success) {
-      return result.data
-    }
-    throw result.error
+    return result.data as T
   } else {
     // 第一引数がSchemaの場合（カリー化）
     const schemaArg = cOrSchema as ZodSchema<T>
     return (c: Context) => {
       const query = c.req.query()
       const result = validateInternal(schemaArg, query, { throwOnError: true })
-      
-      if (result.success) {
-        return result.data
-      }
-      throw result.error
+      return result.data as T
     }
   }
 }
 
-// 内部用のvalidate関数（元の実装）
+// 内部用のvalidate関数（シンプル化）
 function validateInternal<T>(
   schema: ZodSchema<T>,
   data: unknown,
@@ -197,36 +164,19 @@ function validateInternal<T>(
     throwOnError?: boolean 
   }
 ): { success: true; data: T } | { success: false; error: AppError } {
-  // Try synchronous parse first
   try {
-    const result = schema.safeParse(data)
-    
-    if (result.success) {
-      return { success: true, data: result.data }
-    }
-    
-    const error = createValidationError(result.error, options?.errorMessage)
-    
-    if (options?.throwOnError) {
-      throw error
-    }
-    
-    return { success: false, error }
-  } catch (err: any) {
-    // If it's an async schema error, handle it appropriately
-    if (err?.message?.includes('Promise') || err?.message?.includes('parseAsync')) {
-      const error = new AppError(
-        ErrorCodes.VALIDATION_ERROR,
-        'Async validation not supported in this context',
-        400
-      )
+    const result = schema.parse(data)
+    return { success: true, data: result }
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const appError = createValidationError(error, options?.errorMessage)
       if (options?.throwOnError) {
-        throw error
+        throw appError
       }
-      return { success: false, error }
+      return { success: false, error: appError }
     }
-    // Re-throw other errors
-    throw err
+    // Re-throw other errors (including async parse errors)
+    throw error
   }
 }
 
@@ -249,22 +199,14 @@ export function validateParams<T>(
     const c = cOrSchema as Context
     const params = c.req.param()
     const result = validateInternal(schema, params, { throwOnError: true })
-    
-    if (result.success) {
-      return result.data
-    }
-    throw result.error
+    return result.data as T
   } else {
     // 第一引数がSchemaの場合（カリー化）
     const schemaArg = cOrSchema as ZodSchema<T>
     return (c: Context) => {
       const params = c.req.param()
       const result = validateInternal(schemaArg, params, { throwOnError: true })
-      
-      if (result.success) {
-        return result.data
-      }
-      throw result.error
+      return result.data as T
     }
   }
 }
@@ -529,3 +471,6 @@ export function conditionalValidation<T, U>(
 
 // テスト用にvalidate関数をエイリアスとしてエクスポート
 export { validateWithContext as validate }
+
+// テスト用にvalidateBase関数をエクスポート（内部テスト用）
+export { validateBase }
