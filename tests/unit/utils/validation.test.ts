@@ -951,25 +951,19 @@ describe('validation utils', () => {
       expect(schema.safeParse('').success).toBe(false)
     })
 
-    it.skip('should validate metadata with size limit (lines 362-363)', () => {
-      // Test the metadata validator directly with a manual test
-      const metadataSchema = z.record(z.unknown()).refine(
-        (data) => {
-          const jsonStr = JSON.stringify(data)
-          return jsonStr.length <= 10240
-        },
-        { message: 'Metadata size exceeds 10KB limit' }
-      )
+    it('should validate metadata with size limit (lines 362-363)', () => {
+      // Test CustomValidators.metadata directly now that z.record is fixed
+      const schema = CustomValidators.metadata
       
       // Valid metadata under 10KB
       const validMetadata = { key: 'value', another: 'data' }
-      const validResult = metadataSchema.safeParse(validMetadata)
+      const validResult = schema.safeParse(validMetadata)
       expect(validResult.success).toBe(true)
       
       // Create metadata over 10KB limit
       const largeValue = 'x'.repeat(11000)
       const largeMetadata = { key: largeValue }
-      const invalidResult = metadataSchema.safeParse(largeMetadata)
+      const invalidResult = schema.safeParse(largeMetadata)
       expect(invalidResult.success).toBe(false)
       if (!invalidResult.success) {
         expect(invalidResult.error.issues[0].message).toBe('Metadata size exceeds 10KB limit')

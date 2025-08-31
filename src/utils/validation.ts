@@ -356,7 +356,7 @@ export const CustomValidators = {
   /**
    * メタデータのバリデーション
    */
-  metadata: z.record(z.unknown()).refine(
+  metadata: z.record(z.string(), z.unknown()).refine(
     (data) => {
       // メタデータのサイズ制限（例: 10KB）
       const jsonStr = JSON.stringify(data)
