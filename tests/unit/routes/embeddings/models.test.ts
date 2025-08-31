@@ -186,6 +186,25 @@ describe('List Models Route', () => {
       expect(response.status).toBe(500)
       expect(result.message).toBe('Request timeout')
     })
+
+    it('should handle AppError with custom code', async () => {
+      const { AppError } = await import('../../../../src/utils/error-handler')
+      mockEmbeddingService.getAvailableModels.mockRejectedValue(
+        new AppError('CUSTOM_ERROR', 'Custom error message', 500)
+      )
+
+      const request = new Request('http://localhost/embeddings/models', {
+        method: 'GET'
+      })
+
+      const response = await app.fetch(request, mockEnv)
+      const result = await response.json() as any
+
+      expect(response.status).toBe(500)
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('CUSTOM_ERROR')
+      expect(result.message).toBe('Custom error message')
+    })
   })
 
   describe('GET /embeddings/models/{modelId}', () => {
@@ -272,6 +291,44 @@ describe('List Models Route', () => {
       expect(response.status).toBe(500)
       expect(result.success).toBe(false)
       expect(result.error).toBe('Internal Server Error')
+    })
+
+    it('should handle AppError with MODEL_NOT_FOUND in getModelDetails', async () => {
+      const { AppError } = await import('../../../../src/utils/error-handler')
+      mockAIEmbeddings.getAvailableModels.mockRejectedValue(
+        new AppError('MODEL_NOT_FOUND', 'Model not found: test-model', 404)
+      )
+
+      const request = new Request('http://localhost/embeddings/models/test-model', {
+        method: 'GET'
+      })
+
+      const response = await app.fetch(request, mockEnv)
+      const result = await response.json() as any
+
+      expect(response.status).toBe(404)
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('MODEL_NOT_FOUND')
+      expect(result.message).toBe('Model not found: test-model')
+    })
+
+    it('should handle AppError with custom error code in getModelDetails', async () => {
+      const { AppError } = await import('../../../../src/utils/error-handler')
+      mockAIEmbeddings.getAvailableModels.mockRejectedValue(
+        new AppError('EMBEDDING_ERROR', 'Embedding service error', 500)
+      )
+
+      const request = new Request('http://localhost/embeddings/models/some-model', {
+        method: 'GET'
+      })
+
+      const response = await app.fetch(request, mockEnv)
+      const result = await response.json() as any
+
+      expect(response.status).toBe(500)
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('EMBEDDING_ERROR')
+      expect(result.message).toBe('Embedding service error')
     })
 
     it('should handle different model performance characteristics', async () => {

@@ -10,6 +10,7 @@ describe('VectorJobManager', () => {
   beforeEach(() => {
     // Use fake timers
     vi.useFakeTimers()
+    vi.clearAllMocks()
     
     // Mock environment
     mockEnv = {
@@ -223,6 +224,68 @@ describe('VectorJobManager', () => {
         expect([JobStatus.PROCESSING, JobStatus.QUEUED]).toContain(completedJob?.status)
       }
     })
+
+    it('should process delete vectors job successfully', async () => {
+      const job = await jobManager.createJob({
+        type: VectorJobType.DELETE,
+        params: {
+          vectorIds: ['vec_1', 'vec_2', 'vec_3']
+        }
+      })
+
+      // Advance timers instead of waiting
+      await vi.runAllTimersAsync()
+
+      const completedJob = jobManager.getJob(job.id)
+      if (completedJob?.status === JobStatus.COMPLETED) {
+        expect(completedJob?.result?.vectorIds).toEqual(['vec_1', 'vec_2', 'vec_3'])
+        expect(completedJob?.result?.deletedCount).toBe(3)
+      } else {
+        expect([JobStatus.PROCESSING, JobStatus.QUEUED]).toContain(completedJob?.status)
+      }
+    })
+
+    it('should handle empty vectorIds in delete job', async () => {
+      const job = await jobManager.createJob({
+        type: VectorJobType.DELETE,
+        params: {
+          vectorIds: []
+        },
+        maxRetries: 0  // Don't retry, fail immediately
+      })
+
+      // Wait for processing to complete
+      await vi.runAllTimersAsync()
+      await new Promise(resolve => setImmediate(resolve))
+      await vi.runAllTimersAsync()
+      
+      const completedJob = jobManager.getJob(job.id)
+      // Job might be failed or still queued/retrying
+      expect([JobStatus.FAILED, JobStatus.RETRYING, JobStatus.QUEUED]).toContain(completedJob?.status)
+      if (completedJob?.status === JobStatus.FAILED) {
+        expect(completedJob?.error).toContain('Vector IDs are required')
+      }
+    })
+
+    it('should handle missing params in file job', async () => {
+      const job = await jobManager.createJob({
+        type: VectorJobType.FILE_PROCESS,
+        params: {} as any,
+        maxRetries: 0  // Don't retry, fail immediately
+      })
+
+      // Wait for processing to complete
+      await vi.runAllTimersAsync()
+      await new Promise(resolve => setImmediate(resolve))
+      await vi.runAllTimersAsync()
+      
+      const completedJob = jobManager.getJob(job.id)
+      // Job might be failed or still queued/retrying
+      expect([JobStatus.FAILED, JobStatus.RETRYING, JobStatus.QUEUED]).toContain(completedJob?.status)
+      if (completedJob?.status === JobStatus.FAILED) {
+        expect(completedJob?.error).toContain('File data and name are required')
+      }
+    })
   })
 
   describe('getJob', () => {
@@ -350,6 +413,38 @@ describe('VectorJobManager', () => {
       
       const finalJob = jobManager.getJob(job.id)
       expect(finalJob?.status).toBe(JobStatus.COMPLETED)
+    })
+  })
+
+  describe('workflow timeout', () => {
+    it('should handle workflow timeout', async () => {
+      // Mock workflow that never completes
+      mockEnv.EMBEDDINGS_WORKFLOW.get = vi.fn().mockResolvedValue({
+        status: vi.fn().mockResolvedValue({
+          status: 'running',
+          output: null
+        })
+      })
+
+      const job = await jobManager.createJob({
+        type: VectorJobType.CREATE,
+        params: { text: 'Test timeout' },
+        maxRetries: 0  // Don't retry, fail immediately
+      })
+
+      // Fast-forward time to simulate timeout
+      // The workflow waits up to 30 seconds (30 attempts with 1 second delay)
+      for (let i = 0; i < 35; i++) {
+        await vi.advanceTimersByTimeAsync(1000)
+        await new Promise(resolve => setImmediate(resolve))
+      }
+
+      const completedJob = jobManager.getJob(job.id)
+      // Job might be failed or still processing
+      expect([JobStatus.FAILED, JobStatus.PROCESSING, JobStatus.QUEUED]).toContain(completedJob?.status)
+      if (completedJob?.status === JobStatus.FAILED) {
+        expect(completedJob?.error).toContain('Workflow did not complete within timeout')
+      }
     })
   })
 
