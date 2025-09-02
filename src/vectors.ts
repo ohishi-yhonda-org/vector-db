@@ -4,7 +4,6 @@
 
 import { z } from 'zod'
 import type { Context } from 'hono'
-import type { Env } from '../worker-configuration'
 
 // Schemas
 const CreateVectorSchema = z.object({
@@ -50,7 +49,7 @@ export async function createVector(c: Context<{ Bindings: Env }>): Promise<Respo
   } catch (err) {
     console.error('Create vector error:', err)
     if (err instanceof z.ZodError) {
-      return c.json({ success: false, error: `Invalid request: ${err.errors[0].message}` }, 400)
+      return c.json({ success: false, error: `Invalid request: ${err.issues[0].message}` }, 400)
     }
     if (err instanceof Error) {
       return c.json({ success: false, error: err.message }, 500)
@@ -74,9 +73,10 @@ export async function getVector(c: Context<{ Bindings: Env }>, id: string): Prom
       success: true,
       data: vectors[0]
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('Get vector error:', err)
-    return c.json({ success: false, error: err?.message || String(err) }, 500)
+    const message = err instanceof Error ? err.message : String(err)
+    return c.json({ success: false, error: message }, 500)
   }
 }
 
@@ -96,9 +96,10 @@ export async function deleteVector(c: Context<{ Bindings: Env }>, id: string): P
       data: { deleted: true },
       message: 'Vector deleted successfully'
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('Delete vector error:', err)
-    return c.json({ success: false, error: err?.message || String(err) }, 500)
+    const message = err instanceof Error ? err.message : String(err)
+    return c.json({ success: false, error: message }, 500)
   }
 }
 
@@ -116,14 +117,15 @@ export async function searchVectors(c: Context<{ Bindings: Env }>): Promise<Resp
       queryVector = parsed.vector
     } else if (parsed.text) {
       // Generate embedding for text search
-      const model = c.env.DEFAULT_EMBEDDING_MODEL
-      const result = await c.env.AI.run(model, {
-        text: [parsed.text]
-      })
-      queryVector = result.data?.[0]
-      if (!queryVector) {
+      const result = await c.env.AI.run(
+        '@cf/baai/bge-base-en-v1.5',
+        { text: [parsed.text] }
+      ) as { data?: number[][] }
+      const embedding = result.data?.[0]
+      if (!embedding) {
         throw new Error('Failed to generate search embedding')
       }
+      queryVector = embedding
     } else {
       return c.json({ success: false, error: 'Either vector or text must be provided' }, 400)
     }
@@ -143,7 +145,7 @@ export async function searchVectors(c: Context<{ Bindings: Env }>): Promise<Resp
   } catch (err) {
     console.error('Search error:', err)
     if (err instanceof z.ZodError) {
-      return c.json({ success: false, error: `Invalid request: ${err.errors[0].message}` }, 400)
+      return c.json({ success: false, error: `Invalid request: ${err.issues[0].message}` }, 400)
     }
     if (err instanceof Error) {
       return c.json({ success: false, error: err.message }, 500)
@@ -179,8 +181,9 @@ export async function batchCreateVectors(c: Context<{ Bindings: Env }>): Promise
       },
       message: `${vectors.length} vectors created successfully`
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error('Batch create error:', err)
-    return c.json({ success: false, error: err?.message || String(err) }, 500)
+    const message = err instanceof Error ? err.message : String(err)
+    return c.json({ success: false, error: message }, 500)
   }
 }

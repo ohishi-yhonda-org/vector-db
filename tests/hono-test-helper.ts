@@ -3,7 +3,7 @@
  */
 
 import type { Hono } from 'hono'
-import type { Env } from '../worker-configuration'
+import { expect } from 'vitest'
 
 /**
  * Create mock environment for testing
@@ -12,12 +12,17 @@ export function createMockEnv(): Env {
   return {
     ENVIRONMENT: 'development',
     DEFAULT_EMBEDDING_MODEL: '@cf/baai/bge-base-en-v1.5',
-    API_KEY: 'test-key',
-    AI: {
-      run: async (model: string, options: any) => ({
-        data: options.text ? options.text.map(() => [0.1, 0.2, 0.3]) : [[0.1, 0.2, 0.3]]
-      })
-    } as any,
+    DEFAULT_TEXT_GENERATION_MODEL: '@cf/google/gemma-3-12b-it',
+    IMAGE_ANALYSIS_PROMPT: 'Describe this image in detail. Include any text visible in the image.',
+    IMAGE_ANALYSIS_MAX_TOKENS: '512',
+    TEXT_EXTRACTION_MAX_TOKENS: '1024',
+    NOTION_API_KEY: '',
+    API_KEY: '',
+    VECTOR_CACHE: {} as any,
+    VECTOR_MANAGER: {} as any,
+    AI_EMBEDDINGS: {} as any,
+    NOTION_MANAGER: {} as any,
+    DB: {} as any,
     VECTORIZE_INDEX: {
       insert: async (vectors: any[]) => ({ count: vectors.length }),
       getByIds: async (ids: string[]) => ids.map(id => ({
@@ -32,7 +37,17 @@ export function createMockEnv(): Env {
         ],
         count: 1
       })
-    } as any
+    } as any,
+    AI: {
+      run: async () => ({
+        data: [[0.1, 0.2, 0.3]]
+      })
+    } as any,
+    EMBEDDINGS_WORKFLOW: {} as any,
+    BATCH_EMBEDDINGS_WORKFLOW: {} as any,
+    VECTOR_OPERATIONS_WORKFLOW: {} as any,
+    FILE_PROCESSING_WORKFLOW: {} as any,
+    NOTION_SYNC_WORKFLOW: {} as any
   }
 }
 
@@ -108,6 +123,18 @@ export async function del(
   env?: Env
 ) {
   return testRequest(app, path, { method: 'DELETE' }, env)
+}
+
+/**
+ * Create production environment for testing
+ */
+export function createProdEnv(apiKey: string = 'secret'): any {
+  const env = createMockEnv()
+  return {
+    ...env,
+    ENVIRONMENT: 'production',
+    API_KEY: apiKey
+  }
 }
 
 /**

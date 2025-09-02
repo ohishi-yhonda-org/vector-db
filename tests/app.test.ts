@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi } from 'vitest'
 import app from '../src/index'
-import { createMockEnv, postJson, get, del, expectJson } from './hono-test-helper'
+import { createMockEnv, createProdEnv, postJson, get, del, expectJson } from './hono-test-helper'
 
 describe('Vector DB API', () => {
   const env = createMockEnv()
@@ -52,12 +52,12 @@ describe('Vector DB API', () => {
     
     it('handles invalid embedding request', async () => {
       const res = await postJson(app, '/api/embeddings', { text: 123 }, env) // wrong type
-      expect(res.status).toBe(500) // Zod errors in async context return 500
+      expect(res.status).toBe(400) // Zod errors return 400
     })
     
     it('handles invalid batch request', async () => {
       const res = await postJson(app, '/api/embeddings/batch', { texts: 'not-array' }, env)
-      expect(res.status).toBe(500) // Zod errors in async context return 500
+      expect(res.status).toBe(400) // Zod errors return 400
     })
     
     it('handles AI returning no data', async () => {
@@ -168,7 +168,7 @@ describe('Vector DB API', () => {
     
     it('handles invalid vector creation', async () => {
       const res = await postJson(app, '/api/vectors', { values: 'not-array' }, env)
-      expect(res.status).toBe(500) // Zod errors in async context return 500
+      expect(res.status).toBe(400) // Zod errors return 400
     })
     
     it('handles vector creation error', async () => {
@@ -280,7 +280,7 @@ describe('Vector DB API', () => {
     
     it('handles invalid search request', async () => {
       const res = await postJson(app, '/api/search', { topK: 'not-number' }, env)
-      expect(res.status).toBe(500) // Zod errors in async context return 500
+      expect(res.status).toBe(400) // Zod errors return 400
     })
     
     it('handles search error', async () => {
@@ -317,13 +317,13 @@ describe('Vector DB API', () => {
     })
     
     it('requires auth in production', async () => {
-      const prodEnv = { ...env, ENVIRONMENT: 'production', API_KEY: 'secret' }
+      const prodEnv = createProdEnv('secret')
       const res = await postJson(app, '/api/embeddings', { text: 'test' }, prodEnv)
       expect(res.status).toBe(401)
     })
     
     it('accepts valid API key', async () => {
-      const prodEnv = { ...env, ENVIRONMENT: 'production', API_KEY: 'secret' }
+      const prodEnv = createProdEnv('secret')
       const res = await app.request('/api/embeddings', {
         method: 'POST',
         headers: { 
@@ -336,7 +336,7 @@ describe('Vector DB API', () => {
     })
     
     it('accepts Bearer token', async () => {
-      const prodEnv = { ...env, ENVIRONMENT: 'production', API_KEY: 'secret' }
+      const prodEnv = createProdEnv('secret')
       const res = await app.request('/api/embeddings', {
         method: 'POST',
         headers: { 

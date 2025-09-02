@@ -5,6 +5,12 @@
 import { z } from 'zod'
 import type { Context } from 'hono'
 
+// Type for AI embedding result
+interface EmbeddingResult {
+  data?: number[][]
+  shape?: number[]
+}
+
 // Schemas
 const EmbeddingRequestSchema = z.object({
   text: z.string().min(1),
@@ -23,11 +29,11 @@ export async function generateEmbedding(c: Context<{ Bindings: Env }>): Promise<
   try {
     const body = await c.req.json()
     const parsed = EmbeddingRequestSchema.parse(body)
-    const model = parsed.model || c.env.DEFAULT_EMBEDDING_MODEL
     
-    const result = await c.env.AI.run(model, {
-      text: [parsed.text]
-    })
+    const result = await c.env.AI.run(
+      '@cf/baai/bge-base-en-v1.5',
+      { text: [parsed.text] }
+    ) as EmbeddingResult
     
     const embedding = result.data?.[0]
     if (!embedding) {
@@ -38,14 +44,14 @@ export async function generateEmbedding(c: Context<{ Bindings: Env }>): Promise<
       success: true,
       data: {
         embedding,
-        model,
+        model: c.env.DEFAULT_EMBEDDING_MODEL,
         dimensions: embedding.length
       }
     })
   } catch (err) {
     console.error('Embedding generation error:', err)
     if (err instanceof z.ZodError) {
-      return c.json({ success: false, error: `Invalid request: ${err.errors[0].message}` }, 400)
+      return c.json({ success: false, error: `Invalid request: ${err.issues[0].message}` }, 400)
     }
     if (err instanceof Error) {
       return c.json({ success: false, error: err.message }, 500)
@@ -61,7 +67,6 @@ export async function batchEmbedding(c: Context<{ Bindings: Env }>): Promise<Res
   try {
     const body = await c.req.json()
     const parsed = BatchEmbeddingRequestSchema.parse(body)
-    const model = parsed.model || c.env.DEFAULT_EMBEDDING_MODEL
     
     // Process in parallel but with a reasonable concurrency limit
     const batchSize = 10
@@ -70,7 +75,10 @@ export async function batchEmbedding(c: Context<{ Bindings: Env }>): Promise<Res
     for (let i = 0; i < parsed.texts.length; i += batchSize) {
       const batch = parsed.texts.slice(i, i + batchSize)
       const promises = batch.map(text => 
-        c.env.AI.run(model, { text: [text] })
+        c.env.AI.run(
+          '@cf/baai/bge-base-en-v1.5',
+          { text: [text] }
+        ) as Promise<EmbeddingResult>
       )
       
       const results = await Promise.all(promises)
@@ -91,14 +99,14 @@ export async function batchEmbedding(c: Context<{ Bindings: Env }>): Promise<Res
       data: {
         embeddings,
         count: embeddings.length,
-        model,
+        model: c.env.DEFAULT_EMBEDDING_MODEL,
         dimensions: embeddings[0].length
       }
     })
   } catch (err) {
     console.error('Batch embedding error:', err)
     if (err instanceof z.ZodError) {
-      return c.json({ success: false, error: `Invalid request: ${err.errors[0].message}` }, 400)
+      return c.json({ success: false, error: `Invalid request: ${err.issues[0].message}` }, 400)
     }
     if (err instanceof Error) {
       return c.json({ success: false, error: err.message }, 500)
