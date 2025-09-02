@@ -103,7 +103,3 @@ app.onError((err, c) => {
 
 export default app
 
-// Export for Durable Objects (if still needed for compatibility)
-export { VectorManager } from './durable-objects'
-export { AIEmbeddings } from './durable-objects'
-export { NotionManager } from './durable-objects'

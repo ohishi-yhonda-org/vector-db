@@ -348,30 +348,4 @@ describe('Vector DB API', () => {
       expect(res.status).toBe(200)
     })
   })
-  
-  describe('Durable Objects', () => {
-    it('VectorManager returns deprecation', async () => {
-      const { VectorManager } = await import('../src/durable-objects')
-      const response = await VectorManager.prototype.fetch.call({}, new Request('http://test'))
-      expect(response.status).toBe(501)
-      const data = await response.json() as any
-      expect(data.message).toContain('deprecated')
-    })
-    
-    it('AIEmbeddings returns deprecation', async () => {
-      const { AIEmbeddings } = await import('../src/durable-objects')
-      const response = await AIEmbeddings.prototype.fetch.call({}, new Request('http://test'))
-      expect(response.status).toBe(501)
-      const data = await response.json() as any
-      expect(data.message).toContain('deprecated')
-    })
-    
-    it('NotionManager returns deprecation', async () => {
-      const { NotionManager } = await import('../src/durable-objects')
-      const response = await NotionManager.prototype.fetch.call({}, new Request('http://test'))
-      expect(response.status).toBe(501)
-      const data = await response.json() as any
-      expect(data.message).toContain('deprecated')
-    })
-  })
 })
