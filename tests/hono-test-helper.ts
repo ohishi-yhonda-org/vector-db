@@ -26,11 +26,25 @@ export function createMockEnv(): Env {
           { id: 'test-id', score: 0.99, metadata: {} }
         ],
         count: 1
+      }),
+      list: async (options?: any) => ({
+        vectors: ['vec_1', 'vec_2', 'vec_3'],
+        isTruncated: false
       })
     } as any,
     AI: {
       run: async () => ({
         data: [[0.1, 0.2, 0.3]]
+      })
+    } as any,
+    DB: {
+      prepare: () => ({
+        bind: () => ({
+          all: async () => ({ results: [] }),
+          run: async () => ({ success: true })
+        }),
+        all: async () => ({ results: [] }),
+        run: async () => ({ success: true })
       })
     } as any
   }

@@ -19,6 +19,14 @@
   "ai": {
     "binding": "AI"
   },
+  // D1データベース設定
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "vector-db",
+      "database_id": "4ebdd59e-bf1e-47df-b830-9b3a69bafdf4"
+    }
+  ],
   // 環境変数
   "vars": {
     "ENVIRONMENT": "development",

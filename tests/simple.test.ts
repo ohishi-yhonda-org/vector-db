@@ -18,6 +18,16 @@ describe('Simple Tests', () => {
       getByIds: async () => [{ id: 'test', values: [0.1], metadata: {} }],
       deleteByIds: async () => ({ count: 1 }),
       query: async () => ({ matches: [], count: 0 })
+    } as any,
+    DB: {
+      prepare: () => ({
+        bind: () => ({
+          all: async () => ({ results: [] }),
+          run: async () => ({ success: true })
+        }),
+        all: async () => ({ results: [] }),
+        run: async () => ({ success: true })
+      })
     } as any
   }
   

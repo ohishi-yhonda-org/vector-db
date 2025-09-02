@@ -149,11 +149,13 @@ describe('Vector DB API', () => {
     it('batch creates vectors', async () => {
       const res = await postJson(app, '/api/vectors/batch', [
         { values: [0.1] },
-        { id: 'v2', values: [0.2] }
+        { id: 'v2', values: [0.2] },
+        { values: [0.3], metadata: { test: true } }
       ], env)
       expect(res.status).toBe(200)
       const data = await res.json() as any
-      expect(data.data.count).toBe(2)
+      expect(data.data.count).toBe(3)
+      expect(data.data.ids).toHaveLength(3)
     })
     
     it('rejects empty batch', async () => {
@@ -309,7 +311,124 @@ describe('Vector DB API', () => {
       expect(data.error).toBe('string error')
     })
   })
+
   
+  describe('Delete Multiple Vectors', () => {
+    it('deletes multiple vectors successfully', async () => {
+      const mockEnv = {
+        ...env,
+        VECTORIZE_INDEX: {
+          deleteByIds: vi.fn().mockResolvedValue({ count: 3 })
+        }
+      } as any
+      
+      const res = await app.request('/api/vectors/all', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vectorIds: ['vec_1', 'vec_2', 'vec_3']
+        })
+      }, mockEnv)
+      
+      expect(res.status).toBe(200)
+      const data = await res.json() as any
+      expect(data.success).toBe(true)
+      expect(data.data.deletedCount).toBe(3)
+      expect(data.data.batchCount).toBe(1)
+    })
+    
+    it('handles empty vector IDs array', async () => {
+      const res = await app.request('/api/vectors/all', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vectorIds: []
+        })
+      }, env)
+      
+      expect(res.status).toBe(400)
+      const data = await res.json() as any
+      expect(data.success).toBe(false)
+      expect(data.error).toContain('Invalid request:')
+    })
+    
+    it('handles invalid request body', async () => {
+      const res = await app.request('/api/vectors/all', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vectorIds: 'not-an-array'
+        })
+      }, env)
+      
+      expect(res.status).toBe(400)
+      const data = await res.json() as any
+      expect(data.success).toBe(false)
+      expect(data.error).toContain('Invalid request:')
+    })
+    
+    it('handles delete error', async () => {
+      const errorEnv = {
+        ...env,
+        VECTORIZE_INDEX: {
+          deleteByIds: vi.fn().mockRejectedValue(new Error('Delete failed'))
+        }
+      } as any
+      
+      const res = await app.request('/api/vectors/all', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vectorIds: ['vec_1', 'vec_2']
+        })
+      }, errorEnv)
+      
+      expect(res.status).toBe(500)
+    })
+    
+    it('handles non-Error in delete', async () => {
+      const errorEnv = {
+        ...env,
+        VECTORIZE_INDEX: {
+          deleteByIds: vi.fn().mockRejectedValue('string error')
+        }
+      } as any
+      
+      const res = await app.request('/api/vectors/all', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vectorIds: ['vec_1']
+        })
+      }, errorEnv)
+      
+      expect(res.status).toBe(500)
+      const data = await res.json() as any
+      expect(data.error).toBe('string error')
+    })
+    
+    it('handles deleteByIds returning null count', async () => {
+      const nullCountEnv = {
+        ...env,
+        VECTORIZE_INDEX: {
+          deleteByIds: vi.fn().mockResolvedValue({ count: null })
+        }
+      } as any
+      
+      const res = await app.request('/api/vectors/all', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vectorIds: ['vec_1', 'vec_2']
+        })
+      }, nullCountEnv)
+      
+      expect(res.status).toBe(200)
+      const data = await res.json() as any
+      expect(data.data.deletedCount).toBe(2) // fallback to vectorIds.length
+    })
+  })
+
   describe('Authentication', () => {
     it('skips auth in development', async () => {
       const res = await postJson(app, '/api/embeddings', { text: 'test' }, env)

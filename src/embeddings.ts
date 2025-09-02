@@ -2,8 +2,8 @@
  * Embedding generation functions
  */
 
-import { z } from 'zod'
-import type { Context } from 'hono'
+import { z } from '@hono/zod-openapi'
+import { EmbeddingRequestSchema, BatchEmbeddingRequestSchema } from './schemas'
 
 // Type for AI embedding result
 interface EmbeddingResult {
@@ -11,21 +11,10 @@ interface EmbeddingResult {
   shape?: number[]
 }
 
-// Schemas
-const EmbeddingRequestSchema = z.object({
-  text: z.string().min(1),
-  model: z.string().optional()
-})
-
-const BatchEmbeddingRequestSchema = z.object({
-  texts: z.array(z.string().min(1)).min(1).max(100),
-  model: z.string().optional()
-})
-
 /**
  * Generate embedding for a single text
  */
-export async function generateEmbedding(c: Context<{ Bindings: Env }>): Promise<Response> {
+export const generateEmbedding = async (c: any) => {
   try {
     const body = await c.req.json()
     const parsed = EmbeddingRequestSchema.parse(body)
@@ -63,7 +52,7 @@ export async function generateEmbedding(c: Context<{ Bindings: Env }>): Promise<
 /**
  * Generate embeddings for multiple texts
  */
-export async function batchEmbedding(c: Context<{ Bindings: Env }>): Promise<Response> {
+export const batchEmbedding = async (c: any) => {
   try {
     const body = await c.req.json()
     const parsed = BatchEmbeddingRequestSchema.parse(body)

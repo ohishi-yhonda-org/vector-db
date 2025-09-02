@@ -1,15 +1,44 @@
 /**
- * Vector DB - Simplified API
+ * Vector DB - OpenAPI enabled API
  * 
  * A clean, simple vector database API built on Cloudflare Workers
+ * with OpenAPI documentation and Swagger UI
  */
 
-import { Hono } from 'hono'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { swaggerUI } from '@hono/swagger-ui'
 import { cors } from 'hono/cors'
 import { generateEmbedding, batchEmbedding } from './embeddings'
-import { createVector, getVector, deleteVector, searchVectors, batchCreateVectors } from './vectors'
+import { createVector, getVector, deleteVector, searchVectors, batchCreateVectors, listVectors, deleteAllVectors } from './vectors'
+import {
+  healthRoute,
+  embeddingRoute,
+  batchEmbeddingRoute,
+  createVectorRoute,
+  getVectorRoute,
+  deleteVectorRoute,
+  batchCreateVectorRoute,
+  searchRoute,
+  listVectorsRoute,
+  deleteAllVectorsRoute
+} from './routes'
 
-const app = new Hono<{ Bindings: Env }>()
+// Create OpenAPI Hono app with custom validation error handling
+const app = new OpenAPIHono<{ Bindings: Env }>({
+  defaultHook: (result, c) => {
+    if (!result.success) {
+      // Handle validation errors consistently
+      const firstError = result.error.issues[0]
+      return c.json(
+        { 
+          success: false, 
+          error: `Invalid request: ${firstError.message}` 
+        }, 
+        400
+      )
+    }
+  }
+})
 
 // ============= Middleware =============
 
@@ -39,54 +68,75 @@ app.use('*', async (c, next) => {
   console.log(`${c.req.method} ${c.req.path} - ${c.res.status} (${duration}ms)`)
 })
 
-// ============= Routes =============
+// ============= OpenAPI Routes =============
 
 // Health check
-app.get('/', (c) => c.json({ 
-  status: 'ok', 
-  service: 'Vector DB',
-  version: '2.0.0',
-  endpoints: [
-    'POST /api/embeddings',
-    'POST /api/embeddings/batch',
-    'POST /api/vectors',
-    'GET /api/vectors/:id',
-    'DELETE /api/vectors/:id',
-    'POST /api/vectors/batch',
-    'POST /api/search'
-  ]
-}))
+app.openapi(healthRoute, (c) => {
+  return c.json({ 
+    status: 'ok', 
+    service: 'Vector DB',
+    version: '2.0.0',
+    endpoints: [
+      'POST /api/embeddings',
+      'POST /api/embeddings/batch',
+      'POST /api/vectors',
+      'GET /api/vectors',
+      'GET /api/vectors/:id',
+      'DELETE /api/vectors/:id',
+      'POST /api/vectors/batch',
+      'POST /api/search',
+      'DELETE /api/vectors/all'
+    ]
+  })
+})
 
 // Embedding endpoints
-app.post('/api/embeddings', async (c) => {
-  return generateEmbedding(c)
-})
+app.openapi(embeddingRoute, generateEmbedding)
+app.openapi(batchEmbeddingRoute, batchEmbedding)
 
-app.post('/api/embeddings/batch', async (c) => {
-  return batchEmbedding(c)
-})
+// Vector CRUD endpoints  
+app.openapi(createVectorRoute, createVector)
+app.openapi(batchCreateVectorRoute, batchCreateVectors)
 
-// Vector CRUD endpoints
-app.post('/api/vectors', async (c) => {
-  return createVector(c)
-})
+// List vectors endpoint (before parameterized routes)
+app.openapi(listVectorsRoute, listVectors)
 
-app.get('/api/vectors/:id', async (c) => {
-  return getVector(c, c.req.param('id'))
-})
+// Delete all vectors endpoint (before parameterized routes)
+app.openapi(deleteAllVectorsRoute, deleteAllVectors)
 
-app.delete('/api/vectors/:id', async (c) => {
-  return deleteVector(c, c.req.param('id'))
-})
-
-app.post('/api/vectors/batch', async (c) => {
-  return batchCreateVectors(c)
-})
+// Parameterized routes (must come after specific paths)
+app.openapi(getVectorRoute, (c) => getVector(c, c.req.param('id')))
+app.openapi(deleteVectorRoute, (c) => deleteVector(c, c.req.param('id')))
 
 // Search endpoint
-app.post('/api/search', async (c) => {
-  return searchVectors(c)
-})
+app.openapi(searchRoute, searchVectors)
+
+// ============= Documentation Routes =============
+
+// Swagger UI at /doc
+app.get('/doc', swaggerUI({ url: '/specification' }))
+
+// OpenAPI specification at /specification
+app.doc('/specification', (c) => ({
+  info: {
+    title: 'Vector DB API',
+    version: '2.0.0',
+    description: 'A simple vector database API built on Cloudflare Workers with Vectorize and Workers AI'
+  },
+  servers: [
+    {
+      url: 'https://vector-db.m-tama-ramu.workers.dev',
+      description: 'Production server'
+    },
+    {
+      url: 'http://localhost:8787', 
+      description: 'Development server'
+    }
+  ],
+  openapi: '3.0.0'
+}))
+
+// ============= Error Handlers =============
 
 // 404 handler
 app.notFound((c) => {
@@ -102,4 +152,3 @@ app.onError((err, c) => {
 // ============= Export =============
 
 export default app
-

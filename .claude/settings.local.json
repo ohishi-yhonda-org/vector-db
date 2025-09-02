@@ -15,7 +15,10 @@
       "Bash(yarn vitest run:*)",
       "Bash(npm test)",
       "Bash(yarn types)",
-      "Bash(npm run typecheck:*)"
+      "Bash(npm run typecheck:*)",
+      "WebFetch(domain:developers.cloudflare.com)",
+      "Bash(yarn typecheck)",
+      "Bash(yarn lint)"
     ],
     "deny": [],
     "ask": []
