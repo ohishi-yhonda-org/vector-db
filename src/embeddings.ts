@@ -1,0 +1,108 @@
+/**
+ * Embedding generation functions
+ */
+
+import { z } from 'zod'
+import type { Context } from 'hono'
+
+// Schemas
+const EmbeddingRequestSchema = z.object({
+  text: z.string().min(1),
+  model: z.string().optional()
+})
+
+const BatchEmbeddingRequestSchema = z.object({
+  texts: z.array(z.string().min(1)).min(1).max(100),
+  model: z.string().optional()
+})
+
+/**
+ * Generate embedding for a single text
+ */
+export async function generateEmbedding(c: Context<{ Bindings: Env }>): Promise<Response> {
+  try {
+    const body = await c.req.json()
+    const parsed = EmbeddingRequestSchema.parse(body)
+    const model = parsed.model || c.env.DEFAULT_EMBEDDING_MODEL
+    
+    const result = await c.env.AI.run(model, {
+      text: [parsed.text]
+    })
+    
+    const embedding = result.data?.[0]
+    if (!embedding) {
+      throw new Error('Failed to generate embedding')
+    }
+    
+    return c.json({
+      success: true,
+      data: {
+        embedding,
+        model,
+        dimensions: embedding.length
+      }
+    })
+  } catch (err) {
+    console.error('Embedding generation error:', err)
+    if (err instanceof z.ZodError) {
+      return c.json({ success: false, error: `Invalid request: ${err.errors[0].message}` }, 400)
+    }
+    if (err instanceof Error) {
+      return c.json({ success: false, error: err.message }, 500)
+    }
+    return c.json({ success: false, error: String(err) }, 500)
+  }
+}
+
+/**
+ * Generate embeddings for multiple texts
+ */
+export async function batchEmbedding(c: Context<{ Bindings: Env }>): Promise<Response> {
+  try {
+    const body = await c.req.json()
+    const parsed = BatchEmbeddingRequestSchema.parse(body)
+    const model = parsed.model || c.env.DEFAULT_EMBEDDING_MODEL
+    
+    // Process in parallel but with a reasonable concurrency limit
+    const batchSize = 10
+    const embeddings: number[][] = []
+    
+    for (let i = 0; i < parsed.texts.length; i += batchSize) {
+      const batch = parsed.texts.slice(i, i + batchSize)
+      const promises = batch.map(text => 
+        c.env.AI.run(model, { text: [text] })
+      )
+      
+      const results = await Promise.all(promises)
+      for (const result of results) {
+        const embedding = result.data?.[0]
+        if (embedding) {
+          embeddings.push(embedding)
+        }
+      }
+    }
+    
+    if (embeddings.length === 0) {
+      throw new Error('Failed to generate embeddings')
+    }
+    
+    return c.json({
+      success: true,
+      data: {
+        embeddings,
+        count: embeddings.length,
+        model,
+        dimensions: embeddings[0].length
+      }
+    })
+  } catch (err) {
+    console.error('Batch embedding error:', err)
+    if (err instanceof z.ZodError) {
+      return c.json({ success: false, error: `Invalid request: ${err.errors[0].message}` }, 400)
+    }
+    if (err instanceof Error) {
+      return c.json({ success: false, error: err.message }, 500)
+    }
+    return c.json({ success: false, error: String(err) }, 500)
+  }
+}

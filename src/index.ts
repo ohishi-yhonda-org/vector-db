@@ -1,102 +1,109 @@
-import { OpenAPIHono } from '@hono/zod-openapi'
-import { cors } from "hono/cors"
-import { logger } from "hono/logger"
-import { swaggerUI } from '@hono/swagger-ui'
-import vectorRoutes from './routes/api/vectors/index'
-import searchRoutes from './routes/api/search/index'
-import embeddingsRoutes from './routes/api/embeddings/index'
-import fileRoutes from './routes/api/files/index'
-import notionRoutes from './routes/api/notion/index'
+/**
+ * Vector DB - Simplified API
+ * 
+ * A clean, simple vector database API built on Cloudflare Workers
+ */
 
-const app = new OpenAPIHono<{ Bindings: Env }>()
-// ミドルウェア
-app.use("*", logger())
-app.use("*", cors())
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { generateEmbedding, batchEmbedding } from './embeddings'
+import { createVector, getVector, deleteVector, searchVectors, batchCreateVectors } from './vectors'
 
-// ヘルスチェックエンドポイント
-app.get("/health", (c) => {
-  return c.json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-    environment: c.env.ENVIRONMENT || "production"
-  })
+const app = new Hono<{ Bindings: Env }>()
+
+// ============= Middleware =============
+
+// CORS
+app.use('*', cors())
+
+// Authentication
+app.use('/api/*', async (c, next) => {
+  // Skip auth in development
+  if (c.env.ENVIRONMENT === 'development') {
+    return next()
+  }
+  
+  const apiKey = c.req.header('X-API-Key') || c.req.header('Authorization')?.replace('Bearer ', '')
+  if (apiKey !== c.env.API_KEY) {
+    return c.json({ success: false, error: 'Unauthorized' }, 401)
+  }
+  
+  await next()
 })
 
-// ルートエンドポイント
-app.get("/", (c) => {
-  return c.json({
-    message: "Vector Database API",
-    version: "1.0.0",
-    endpoints: {
-      health: "/health",
-      vectors: "/api/vectors",
-      search: "/api/search",
-      embeddings: "/api/embeddings",
-      files: "/api/files"
-    }
-  })
+// Request logging
+app.use('*', async (c, next) => {
+  const start = Date.now()
+  await next()
+  const duration = Date.now() - start
+  console.log(`${c.req.method} ${c.req.path} - ${c.res.status} (${duration}ms)`)
 })
 
-// OpenAPIドキュメント設定
-app.doc('/specification', (c) => ({
-  openapi: '3.0.0',
-  info: {
-    version: '1.0.0',
-    title: 'Vector Database API',
-    description: 'Cloudflare Vectorize と Workers AI を使用したベクトルデータベースAPI'
-  },
-  servers: [
-    {
-      url: 'http://localhost:8787',
-      description: 'Local development server'
-    },
-    {
-      url: c.req.url.replace(/\/specification.*$/, ''),
-      description: 'Current server'
-    }
+// ============= Routes =============
+
+// Health check
+app.get('/', (c) => c.json({ 
+  status: 'ok', 
+  service: 'Vector DB',
+  version: '2.0.0',
+  endpoints: [
+    'POST /api/embeddings',
+    'POST /api/embeddings/batch',
+    'POST /api/vectors',
+    'GET /api/vectors/:id',
+    'DELETE /api/vectors/:id',
+    'POST /api/vectors/batch',
+    'POST /api/search'
   ]
 }))
 
-// Swagger UI
-app.get('/doc', swaggerUI({ url: '/specification' }))
+// Embedding endpoints
+app.post('/api/embeddings', async (c) => {
+  return generateEmbedding(c)
+})
 
-// APIルートの登録
-const api = new OpenAPIHono<{ Bindings: Env }>()
+app.post('/api/embeddings/batch', async (c) => {
+  return batchEmbedding(c)
+})
 
-// ルートを登録
-vectorRoutes(api)
-searchRoutes(api)
-embeddingsRoutes(api)
-fileRoutes(api)
-notionRoutes(api)
+// Vector CRUD endpoints
+app.post('/api/vectors', async (c) => {
+  return createVector(c)
+})
 
-app.route('/api', api)
+app.get('/api/vectors/:id', async (c) => {
+  return getVector(c, c.req.param('id'))
+})
 
-// 404ハンドラー
+app.delete('/api/vectors/:id', async (c) => {
+  return deleteVector(c, c.req.param('id'))
+})
+
+app.post('/api/vectors/batch', async (c) => {
+  return batchCreateVectors(c)
+})
+
+// Search endpoint
+app.post('/api/search', async (c) => {
+  return searchVectors(c)
+})
+
+// 404 handler
 app.notFound((c) => {
-  return c.json({
-    error: "Not Found",
-    message: "The requested endpoint does not exist"
-  }, 404)
+  return c.json({ success: false, error: 'Not found' }, 404)
 })
 
-// エラーハンドラー
+// Error handler
 app.onError((err, c) => {
-  console.error(`Error: ${err.message}`, err)
-  return c.json({
-    error: "Internal Server Error",
-    message: err.message
-  }, 500)
+  console.error('Unhandled error:', err)
+  return c.json({ success: false, error: 'Internal server error' }, 500)
 })
 
-
-// Durable Objectsをエクスポート
-export { VectorManager, AIEmbeddings, NotionManager } from './durable-objects'
-// Workflowsをエクスポート
-export { EmbeddingsWorkflow } from './workflows/embeddings'
-export { BatchEmbeddingsWorkflow } from './workflows/batch-embeddings'
-export { VectorOperationsWorkflow } from './workflows/vector-operations'
-export { FileProcessingWorkflow } from './workflows/file-processing'
-export { NotionSyncWorkflow } from './workflows/notion-sync'
+// ============= Export =============
 
 export default app
+
+// Export for Durable Objects (if still needed for compatibility)
+export { VectorManager } from './durable-objects'
+export { AIEmbeddings } from './durable-objects'
+export { NotionManager } from './durable-objects'
